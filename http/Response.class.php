@@ -49,6 +49,121 @@ class Response
 			static::$errors[] = $html ? $msg : Html::encode($msg);
 	}
 
+    /** select an error output method based on request arguments and pass a
+     * specified error message to it
+     * @param string $msg error message
+     */
+    public static function outputError($msg=null)
+    {
+        switch (Request::$output)
+        {
+        case Request::OUT_HTML:
+        case Request::OUT_CMD:
+            header('HTTP/1.1 400 Application Error');
+            static::outputHtmlError($msg);
+            break;
+        case Request::OUT_JSON:
+            static::outputJsonError($msg);
+            break;
+        case Request::OUT_ASIS:
+            static::outputAsisError($msg);
+            break;
+        }
+    }
+
+    /** error message on html page */
+    public static function outputHtmlError($msg=null)
+    {
+        static::outputHtml('<section><h1>'.Html::encode(static::$name).'</h1>'
+            . '<ul><li>'.implode('</li><li>', static::$errors).'</li></ul>'
+            . '</section>'
+            );
+    }
+
+    /** error message on json page */
+    public static function outputJsonError($msg=null)
+    {
+        static::outputJson(array('title'=>$msg
+            , 'origin'=>static::$name
+            , 'errors'=>static::$errors
+            ));
+    }
+
+    /** error message on asis page */
+    public static function outputAsisError($msg=null)
+    {
+        static::outputAsis(Html::encode(static::$name)."\n".implode("\n", static::$errors));
+    }
+
+    /** sets page name, checks request parameters and user access rights, loads
+     * current context
+	 * @return array|bool on any error adds the error message and returns false,
+     * otherwise context
+	 */
+	public static function getContext()
+	{
+		return array();
+	}
+
+    /** error message on context inavailability */
+    public static function outputErrorContext()
+    {
+        static::outputError(dgettext(Nls::FW_DOMAIN, 'Input verification error'));
+    }
+
+	/** executes the requested operation
+     * @param mixed $context command context serving as a base for generated page
+	 * @return mixed on any error adds the error message and returns false
+	 *					otherwise return value depends on request:
+	 *					- html string if requested an html file
+	 *					- array if requested json data
+	 *					- redirect location if requested a dml operation
+	 */
+	public static function exec($context)
+	{
+        switch (Request::$output)
+        {
+        case Request::OUT_HTML:
+            return static::execHtml($context);
+        case Request::OUT_CMD:
+            return static::execRedirect($context);
+        case Request::OUT_JSON:
+            return static::execEnum($context);
+        case Request::OUT_ASIS:
+            return static::execText($context);
+        }
+	}
+
+    /** execute a command using context and produce produce an html document */
+    public static function execHtml($context)
+    {
+        return '';
+    }
+
+    /** execute a command using context and produce a redirect */
+    public static function execRedirect($context)
+    {
+        return true;
+    }
+
+    /** execute a command using context and produce a structure */
+    public static function execEnum($context)
+    {
+        return true;
+    }
+
+    /** execute a command using context and produce a text */
+    public static function execText($context)
+    {
+        return '';
+    }
+
+    /** error message on execution fault */
+    public static function outputErrorExec()
+    {
+        static::outputError(dgettext(Nls::FW_DOMAIN, 'Command execution error'));
+    }
+
     /** select an output method based on request arguments and pass result to it
      * @param mixed $result the result to pass to selected output method
      */
@@ -67,9 +182,6 @@ class Response
             break;
         case Request::OUT_ASIS:
             static::outputAsis($result);
-            break;
-        case Request::OUT_RSS:
-            static::outputRss($result);
             break;
         }
     }
@@ -111,24 +223,6 @@ class Response
         echo json_encode($result);
     }
 
-    /** produce and output an rss feed from the result array
-     * @param array $result the array to serialize
-     */
-	public static function outputRss($result)
-    {
-        header('Content-Type: application/rss+xml');
-        echo '<?xml version="1.0" encoding="utf-8"?>'
-            . '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">'
-            . '<channel>'
-            . (isset(static::$name) ? ('<title>'.Html::encode(static::$name).'</title>') : null)
-            . (isset(static::$description) ? ('<description>'.Html::encode(static::$description).'</description>') : null)
-            . '<pubDate>'.date('r', $_SERVER['REQUEST_TIME']).'</pubDate>'
-            . ''// include items here
-            . '</channel>'
-            . '</rss>'
-            ;
-    }
-
     /** output message as is
      * @param string $msg the message to output
      */
@@ -136,127 +230,6 @@ class Response
     {
         echo $msg;
     }
-
-    /** select an error output method based on request arguments and pass a
-     * specified error message to it
-     * @param string $msg error message
-     */
-    public static function outputError($msg=null)
-    {
-        switch (Request::$output)
-        {
-        case Request::OUT_HTML:
-        case Request::OUT_CMD:
-            header('HTTP/1.1 400 Application Error');
-            static::outputHtmlError($msg);
-            break;
-        case Request::OUT_JSON:
-            static::outputJsonError($msg);
-            break;
-        case Request::OUT_ASIS:
-            static::outputAsisError($msg);
-            break;
-        }
-    }
-
-    /** error message on html page */
-    public static function outputHtmlError($msg=null)
-    {
-        static::outputHtml('<section><h1>'.Html::encode(static::$name).'</h1>'
-            . '<ul><li>'.implode('</li><li>', static::$errors).'</li></ul>'
-            . '</section>'
-            );
-    }
-
-    /** error message on json page */
-    public static function outputJsonError($msg=null)
-    {
-        $body = array();
-        if ($msg)
-            $body[] = '<p>'.Html::encode($msg).'</p>';
-        if (static::$errors)
-            $body[] = '<ul><li>'.implode("\n<li>", static::$errors).'</ul>';
-
-        static::outputJson(array('title'=>Html::encode(static::$name)
-            , 'body'=>$body
-            , 'error'=>true
-            ));
-    }
-
-    /** error message on asis page */
-    public static function outputAsisError($msg=null)
-    {
-        static::outputAsis(Html::encode(static::$name)."\n".implode("\n", static::$errors));
-    }
-
-    /** error message on context inavailability */
-    public static function outputErrorContext()
-    {
-        static::outputError(dgettext(Nls::FW_DOMAIN, 'Input verification error'));
-    }
-
-    /** error message on execution fault */
-    public static function outputErrorExec()
-    {
-        static::outputError(dgettext(Nls::FW_DOMAIN, 'Command execution error'));
-    }
-
-    /** execute a command using context and produce produce an html document */
-    public static function execHtml($context)
-    {
-        return '';
-    }
-
-    /** execute a command using context and produce a redirect */
-    public static function execRedirect($context)
-    {
-        return true;
-    }
-
-    /** execute a command using context and produce a structure */
-    public static function execEnum($context)
-    {
-        return true;
-    }
-
-    /** execute a command using context and produce a text */
-    public static function execText($context)
-    {
-        return '';
-    }
-
-    /** sets page name, checks request parameters and user access rights, loads
-     * current context
-	 * @return array|bool on any error adds the error message and returns false,
-     * otherwise context
-	 */
-	public static function getContext()
-	{
-		return array();
-	}
-
-	/** executes the requested operation
-     * @param mixed $context command context serving as a base for generated page
-	 * @return mixed on any error adds the error message and returns false
-	 *					otherwise return value depends on request:
-	 *					- html string if requested an html file
-	 *					- array if requested json data
-	 *					- redirect location if requested a dml operation
-	 */
-	public static function exec($context)
-	{
-        switch (Request::$output)
-        {
-        case Request::OUT_HTML:
-            return static::execHtml($context);
-        case Request::OUT_CMD:
-            return static::execRedirect($context);
-        case Request::OUT_JSON:
-            return static::execEnum($context);
-        case Request::OUT_ASIS:
-            return static::execText($context);
-        }
-	}
 
 	/** runs the sequense of getContext() followed by exec() and outputs the return
      * value within a convenient template (html page, json string, redirect header,

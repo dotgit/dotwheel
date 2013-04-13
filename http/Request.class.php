@@ -27,8 +27,7 @@ class Request
 	const OUT_CMD   = 2;
 	const OUT_JSON  = 3;
 	const OUT_ASIS  = 4;
-	const OUT_RSS   = 5;
-	const OUT_CLI   = 6;
+	const OUT_CLI   = 5;
 
 	const DTL_FILTERS   = 1;
 	const DTL_SORT      = 2;
