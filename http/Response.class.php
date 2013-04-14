@@ -108,7 +108,7 @@ class Response
     }
 
     /** error message on context inavailability */
-    public static function outputErrorContext()
+    public static function outputErrorInit()
     {
         static::outputError(dgettext(Nls::FW_DOMAIN, 'Input verification error'));
     }
@@ -252,7 +252,7 @@ class Response
                 static::outputErrorExec();
         }
         else
-            static::outputErrorContext();
+            static::outputErrorInit();
 
         return false;
     }
