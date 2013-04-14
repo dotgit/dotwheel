@@ -102,7 +102,7 @@ class Response
      * @return array|bool on any error adds the error message and returns false,
      * otherwise context
      */
-    public static function getContext()
+    public static function init()
     {
         return array();
     }
@@ -241,7 +241,7 @@ class Response
      */
     public static function run()
     {
-        if (($context = static::getContext()) !== false)
+        if (($context = static::init()) !== false)
         {
             if (($result = static::exec($context)) !== false)
             {
