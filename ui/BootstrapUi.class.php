@@ -130,24 +130,6 @@ class BootstrapUi
         return ' <button'.Html::attr($params).">$label</button>";
     }
 
-    /** sets default messages in Config global and creates a modal window
-     * @param array $params {params to pass to Ui::modal()}
-     * @return string       modal container element id
-     */
-    public static function chkRequiredInit($params=array())
-    {
-        static::init_globals();
-
-        $id = Misc::paramExtract($params, 'id', 'chk_required');
-        self::modalMain($params + array(Ui::P_LABEL=>Html::encode(dgettext(Nls::FW_DOMAIN, 'Empty required fields'))
-            , 'id'=>$id
-            ));
-        $msg_empty_fields_prompt = json_encode(dgettext(Nls::FW_DOMAIN, 'Please fill-in the following required fields:'));
-        HtmlPage::add(array(HtmlPage::SCRIPT=>array(__METHOD__=>"Config.msg.chk_req_Empty_fields_prompt=$msg_empty_fields_prompt;")));
-
-        return $id;
-    }
-
     public static function close($params=array())
     {
         self::registerAlert();

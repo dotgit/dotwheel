@@ -15,9 +15,11 @@ require_once (__DIR__.'/Html.class.php');
 require_once (__DIR__.'/Ui.class.php');
 require_once (__DIR__.'/../db/Repo.class.php');
 require_once (__DIR__.'/../util/Misc.class.php');
+require_once (__DIR__.'/../util/Nls.class.php');
 
 use dotwheel\db\Repo;
 use dotwheel\util\Misc;
+use dotwheel\util\Nls;
 
 class HtmlForm
 {
@@ -242,7 +244,7 @@ class HtmlForm
 
             if ($form_el)
             {
-                Ui::chkRequiredInit();
+                self::chkRequiredInit();
                 $req_class = Ui::REQUIRED_CLASS;
                 HtmlPage::add(array(HtmlPage::DOM_READY=>array("html_form-$form_el"=>$ajax_submit
                     ? "$('$form_el').submit(function(){if (chk_req(this,$req_class)$beforesubmit){aj_form_submit($(this));}return false;});"
@@ -342,5 +344,35 @@ class HtmlForm
             ;
 
         return $fmt ? sprintf($fmt, "$label_str$content") : "$label_str$content";
+    }
+
+    /** sets default messages in Config global and creates a modal window
+     * @param array $params {params to pass to Ui::modal()}
+     * @return string       modal container element id
+     */
+    public static function chkRequiredInit($params=array())
+    {
+        $msg_lang = json_encode(Nls::$lang);
+        $datepicker = Nls::$formats[Nls::P_DATEPICKER];
+        $msg_ok = json_encode(dgettext(Nls::FW_DOMAIN, 'OK'));
+        $msg_save = json_encode(dgettext(Nls::FW_DOMAIN, 'Save'));
+        $msg_cancel = json_encode(dgettext(Nls::FW_DOMAIN, 'Cancel'));
+        $msg_close = json_encode(dgettext(Nls::FW_DOMAIN, 'Close'));
+        $msg_submit = json_encode(dgettext(Nls::FW_DOMAIN, 'Submit'));
+        $msg_empty_fields_prompt = json_encode(dgettext(Nls::FW_DOMAIN, 'Please fill-in the following required fields:'));
+
+        HtmlPage::add(array(HtmlPage::SCRIPT=>array(__METHOD__=><<<EOscr
+var Config={lang:$msg_lang,datepicker:$datepicker,msg:{ok:$msg_ok,save:$msg_save,cancel:$msg_cancel,close:$msg_close,submit:$msg_submit}};
+var Modal;
+Config.msg.chk_req_Empty_fields_prompt=$msg_empty_fields_prompt;
+EOscr
+            )));
+
+        $id = Misc::paramExtract($params, 'id', 'chk_required');
+        Ui::modalMain($params + array(Ui::P_LABEL=>Html::encode(dgettext(Nls::FW_DOMAIN, 'Empty required fields'))
+            , 'id'=>$id
+            ));
+
+        return $id;
     }
 }
