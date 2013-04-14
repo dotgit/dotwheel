@@ -33,16 +33,14 @@ class Request
     const DTL_SORT      = 2;
     const DTL_PAGE      = 3;
 
-    const INI_STATIC_URL        = 1;
-    const INI_STATIC_PATH_CSS   = 2;
-    const INI_STATIC_PATH_JS    = 3;
-    const INI_HOSTS             = 4;
-    const INI_COOKIE_LANG       = 5;
-    const INI_COOKIE_DB         = 6;
-    const INI_DATABASES         = 7;
-    const INI_DB_DEFAULT        = 8;
-    const INI_APP_DIR           = 9;
-    const INI_APP_DOMAIN        = 10;
+    const INI_STATIC_URL    = 1;
+    const INI_HOSTS         = 2;
+    const INI_COOKIE_LANG   = 3;
+    const INI_COOKIE_DB     = 4;
+    const INI_DATABASES     = 5;
+    const INI_DB_DEFAULT    = 6;
+    const INI_APP_DIR       = 7;
+    const INI_APP_DOMAIN    = 8;
 
     /**
      * @var string  client-oriented path to document root from current
@@ -75,10 +73,6 @@ class Request
     public static $details = array();
     /** @var string URL of the static ressources directory */
     public static $static_url = '/static';
-    /** @var string path to the initial css file in static directory */
-    public static $static_path_css = '/css/common.css';
-    /** @var string path to the initial js file in static directory */
-    public static $static_path_js = '/js/common.js';
     /** @var string list of available databases */
     public static $databases;
     /** @var string database default connection */
@@ -92,8 +86,6 @@ class Request
     public static function init($params)
     {
         self::$static_url = Misc::paramExtract($params, self::INI_STATIC_URL);
-        self::$static_path_css = Misc::paramExtract($params, self::INI_STATIC_PATH_CSS);
-        self::$static_path_js = Misc::paramExtract($params, self::INI_STATIC_PATH_JS);
         self::$db_default = Misc::paramExtract($params, self::INI_DB_DEFAULT);
         self::$databases = Misc::paramExtract($params, self::INI_DATABASES, array());
         self::$cookie_db = Misc::paramExtract($params, self::INI_COOKIE_DB);

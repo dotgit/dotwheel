@@ -640,33 +640,39 @@ EOct
     /** register alerts js */
     public static function registerAlert()
     {
-        HtmlPage::add(array(HtmlPage::SCRIPT_SRC=>array('bootstrap-alerts.js'=>Request::$static_url.'js/bootstrap/bootstrap-alert.js')));
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js')));
     }
 
     /** register button js */
     public static function registerButton()
     {
-        HtmlPage::add(array(HtmlPage::SCRIPT_SRC=>array('bootstrap-button.js'=>Request::$static_url.'js/bootstrap/bootstrap-button.js')));
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js')));
     }
 
     /** register collapse js */
     public static function registerCollapse()
     {
-        HtmlPage::add(array(HtmlPage::SCRIPT_SRC=>array('bootstrap-collapse.js'=>Request::$static_url.'js/bootstrap/bootstrap-collapse.js'
-            , 'bootstrap-transition.js'=>Request::$static_url.'js/bootstrap/bootstrap-transition.js'
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js'
+            , 'bootstrap'=>Request::$static_url.'js/bootstrap.min.js'
             )));
+    }
+
+    /** register dropdown js */
+    public static function registerDropdown()
+    {
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js')));
     }
 
     /** register modal js */
     public static function registerModal()
     {
-        HtmlPage::add(array(HtmlPage::SCRIPT_SRC=>array('bootstrap-modal.js'=>Request::$static_url.'js/bootstrap/bootstrap-modal.js')));
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js')));
     }
 
     /** register tab js */
     public static function registerTab()
     {
-        HtmlPage::add(array(HtmlPage::SCRIPT_SRC=>array('bootstrap-tab.js'=>Request::$static_url.'js/bootstrap/bootstrap-tab.js')));
+        HtmlPage::add(array(HtmlPage::SCRIPT_SRC_INIT=>array('bootstrap'=>Request::$static_url.'js/bootstrap.min.js')));
     }
 
     /**
