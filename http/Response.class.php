@@ -233,7 +233,7 @@ class Response
         echo $msg;
     }
 
-    /** runs the sequense of getContext() followed by exec() and outputs the return
+    /** runs the sequense of init() followed by exec() and outputs the return
      * value within a convenient template (html page, json string, redirect header,
      * etc.)
      * @return bool on any error outputs an error template and returns false, otherwise
