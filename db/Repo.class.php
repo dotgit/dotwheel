@@ -11,12 +11,10 @@ repository management.
 namespace dotwheel\db;
 
 require_once (__DIR__.'/../ui/Html.class.php');
-require_once (__DIR__.'/../ui/Ui.class.php');
 require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
 
 use dotwheel\ui\Html;
-use dotwheel\ui\Ui;
 use dotwheel\util\Misc;
 use dotwheel\util\Nls;
 
@@ -328,16 +326,19 @@ class Repo
                                     )
                                     break;
                                 if ($flags & self::F_EMAIL
-                                    and ! ($val = Misc::validateEmail($val))
+                                    and ! filter_var($val, FILTER_VALIDATE_EMAIL)
                                     )
                                 {
+                                    $val = false;
                                     $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent an email address"), $label);
                                     break;
                                 }
+
                                 if ($flags & self::F_URL
-                                    and ! ($val = Misc::validateUrl($val))
+                                    and ! filter_var($val, FILTER_VALIDATE_URL)
                                     )
                                 {
+                                    $val = false;
                                     $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent a web address"), $label);
                                     break;
                                 }
@@ -462,7 +463,7 @@ class Repo
             $repo += self::$store[$name];
         if (isset($value))
         {
-            if (! empty($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
+            if (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS)
                 return $value;
             if (empty($repo[self::P_CLASS]))
                 return Html::encode($value);
@@ -473,7 +474,7 @@ class Repo
             case self::C_INT:
                 return (int)$value;
             case self::C_CENTS:
-                return Html::asCents($value, ! empty($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
+                return Html::asCents($value, isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
             case self::C_BOOL:
                 // if P_ITEMS provided, must be a string
                 return Html::asEnum((int)(bool)$value
@@ -487,10 +488,10 @@ class Repo
                     : Html::encode($value)
                     ;
             case self::C_DATE:
-                return Html::asDate($value, ! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME);
+                return Html::asDate($value, isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME);
             case self::C_ENUM:
-                return (! empty($repo[self::P_ITEMS]) and isset($repo[self::P_ITEMS][$value]))
-                    ? (! empty($repo[self::P_FLAGS])
+                return (isset($repo[self::P_ITEMS]) && isset($repo[self::P_ITEMS][$value]))
+                    ? (isset($repo[self::P_FLAGS])
                         ? ($repo[self::P_FLAGS] & self::F_ABBR
                             ? Html::asAbbr(isset($repo[self::P_ITEMS_SHORT][$value]) ? $repo[self::P_ITEMS_SHORT][$value] : $repo[self::P_ITEMS][$value]
                                 , isset($repo[self::P_ITEMS_LONG][$value]) ? $repo[self::P_ITEMS_LONG][$value] : $repo[self::P_ITEMS][$value]
@@ -526,7 +527,7 @@ class Repo
             $repo += self::$store[$name];
         if (empty($repo[self::P_CLASS]))
             $repo[self::P_CLASS] = self::C_TEXT;
-        if (! empty($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
+        if (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
             return $value;
         if (!is_array($input))
             $input = (array)$input;
@@ -543,12 +544,10 @@ class Repo
             // if P_ITEMS provided, must be a string
             return Html::inputCheckbox($input + array('name'=>$name
                 , 'checked'=>$value ? 'on' : null
-                , Html::P_COMMENT=>! empty($repo[self::P_ITEMS])
-                    ? $repo[self::P_ITEMS]
-                    : null
+                , Html::P_COMMENT=>isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : null
                 ));
         case self::C_TEXT:
-            if (! empty($repo[self::P_FLAGS]))
+            if (isset($repo[self::P_FLAGS]))
             {
                 if ($repo[self::P_FLAGS] & self::F_TEXTAREA)
                     return Html::inputTextarea($input + array('name'=>$name, 'value'=>$value));
@@ -562,40 +561,39 @@ class Repo
                     $type = 'text';
 
                 return Html::input($input + array('name'=>$name, 'value'=>$value, 'type'=>$type
-                    , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
+                    , 'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
                     ));
             }
             else
                 return Html::inputText($input + array('name'=>$name, 'value'=>$value
-                    , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
+                    , 'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
                     ));
         case self::C_DATE:
             return Html::inputDate($input + array('name'=>$name, 'value'=>$value
-                , Html::P_DATETIME=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME)
+                , Html::P_DATETIME=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME)
                 );
         case self::C_ENUM:
-            return (! empty($repo[self::P_ITEMS]))
-                ? (! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_RADIO
+            return (isset($repo[self::P_ITEMS]))
+                ? (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_RADIO
                     ? Html::inputRadio($input
                         + array('name'=>$name, 'value'=>$value
                             , Html::P_ITEMS=>$repo[self::P_ITEMS]
-                            , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
+                            , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                                 ? Html::TYPE_ARRAY : null
                             , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
                                 ? $repo[self::P_ITEM_DELIM] : null
                             )
-                        + Ui::$Input_enums_params
                         )
                     : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                         , Html::P_ITEMS=>$repo[self::P_ITEMS]
-                        , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
+                        , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::TYPE_ARRAY : null
                         , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
                             ? $repo[self::P_ITEM_BLANK] : null
                         ))
                     )
                 : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
-                    , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
+                    , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                         ? Html::TYPE_ARRAY : null
                     , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
                         ? $repo[self::P_ITEM_BLANK] : null
@@ -605,12 +603,11 @@ class Repo
             return Html::inputSet($input
                 + array('name'=>$name, 'value'=>$value
                     , Html::P_ITEMS=>$repo[self::P_ITEMS]
-                    , Html::P_TYPE=>(! empty($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
+                    , Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
                         ? Html::TYPE_ARRAY : null
                     , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
                         ? $repo[self::P_ITEM_DELIM] : null
                     )
-                + Ui::$Input_sets_params
                 );
         case self::C_FILE:
             return Html::input($input + array('name'=>$name, 'type'=>'file'));
@@ -715,7 +712,7 @@ class Repo
      */
     public static function asSqlDate($name, $value, $repo=array())
     {
-        $datetime = ! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME;
+        $datetime = isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME;
         if (empty($value))
             return "$name is null";
         elseif (preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)

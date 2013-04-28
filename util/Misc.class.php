@@ -150,39 +150,6 @@ class Misc
             return null;
     }
 
-    /** inject a new attributes into the list of attributes or add new value to the existing attribute
-     * @param array &$params    array of attributes
-     * @param string $value     attribute value
-     * @param string $name      attribute name
-     * @param string $sep       separator of attribute values
-     */
-    public static function paramAdd(&$params, $value, $name='class', $sep=' ')
-    {
-        if (! is_array($params))
-            $params = array($name=>$value);
-        elseif (empty($params[$name]))
-            $params[$name] = $value;
-        elseif (strpos("$sep{$params[$name]}$sep", "$sep$value$sep") === false)
-            $params[$name] .= "$sep$value";
-    }
-
-    /** returns the value of the specified attribute and unsets it in the attributes array
-     * @param array $params     array of attributes
-     * @param string $name      attribute name
-     * @param mixed $default    default value to return if $params[$name] is not set
-     * @return mixed
-     */
-    public static function paramExtract(&$params, $name, $default=null)
-    {
-        if (! is_array($params) or ! array_key_exists($name, $params))
-            return $default;
-
-        $ret = $params[$name];
-        unset($params[$name]);
-
-        return $ret;
-    }
-
     /** escapes a string to be used in sprintf by doubling the % characters
      * @param string $str   string to escape
      * @return string
@@ -206,51 +173,5 @@ class Misc
             , Nls::$charset
             ).$suffix
             ;
-    }
-
-    /** checks whether the value represents a valid email in simplified form
-     * @param string $email     email address to validate
-     * @return string|bool      returns validated email or false
-     */
-    public static function validateEmail($email)
-    {
-        $atom = '[^()<>@,;:\\\\".\\[\\] \\x00-\\x1f\\x80-\\xff]';
-        return preg_match("/^$atom+(?:\.$atom+)*@$atom+(?:\.$atom+)*\$/", $email)
-            ? mb_strtolower($val, Nls::$charset)
-            : false
-            ;
-    }
-
-    /** checks whether the value represents a valid url
-     * @param string $url   url to validate
-     * @return string|bool  returns validated url or false
-     */
-    public static function validateUrl($url)
-    {
-        $safe = '-$.+';
-        $extra = '!*\'(),';
-        $more = ';:@&=';
-        $escape = '%[\da-fA-F][\da-fA-F]';
-        $unreserved = "[$safe$extra\w]";
-        $uchar = "(?:[$safe$extra\w]|$escape)";
-        $hsegment = "(?:[$safe$extra$more\w]|$escape)";
-        $schema_re = '\w+:\/\/';
-        $user_re = '\w+(?::\w+)@';
-        $host_re = '[\w-]+(?:\.[\w-]+)+';
-        $port_re = ':\d+';
-        $search = "$hsegment*";
-        $path_re = "\/(?:$search(?:\/$search)*)(?:\?$search)?";
-
-        if (preg_match("/^($schema_re)?(?:$user_re)?$host_re(?:$port_re)?(?:$path_re)?$/", $url, $matches))
-        {
-            $url = (isset($matches[1]) and strtolower($matches[1]) == 'http://')
-                ? substr($url, strlen($matches[1]))
-                : $url
-                ;
-            if (substr($url, -1) == '/')
-                $url = substr($url, 0, -1);
-        }
-        else
-            return false;
     }
 }

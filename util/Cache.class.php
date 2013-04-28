@@ -14,9 +14,9 @@
 
 namespace dotwheel\util;
 
-require_once (__DIR__.'/../db/Db.class.php');
+require_once (__DIR__.'/../http/Request.class.php');
 
-use dotwheel\db\Db;
+use dotwheel\http\Request;
 
 class CacheBase
 {
@@ -82,12 +82,17 @@ class CacheLocal extends CacheBase
 
 
 
-/** stores cache values in the quick cache(not scalable, process-specific) */
+/** stores cache values in the quick cache(not scalable, process-specific, APC-like) */
 class Cache extends CacheBase
 {
+    static protected $db;
+
     public static function store($name, $value, $ttl=null)
     {
-        return apc_add(Db::$db_current.":$name"
+        if (empty(self::$db))
+            self::$db = Request::getDb();
+
+        return apc_add(self::$db.":$name"
             , $value
             , isset($ttl) ? $ttl : 86400 // 24 hours
             );
@@ -95,19 +100,26 @@ class Cache extends CacheBase
 
     public static function fetch($name)
     {
-        $value = apc_fetch(Db::$db_current.":$name");
+        if (empty(self::$db))
+            self::$db = Request::getDb();
+
+        $value = apc_fetch(self::$db.":$name");
+
         return $value ? $value : null;
     }
 
     public static function delete($name)
     {
+        if (empty(self::$db))
+            self::$db = Request::getDb();
+
         if (is_array($name))
         {
             foreach ($name as $key)
-                apc_delete(Db::$db_current.":$key");
+                apc_delete(self::$db.":$key");
             return true;
         }
         else
-            return apc_delete(Db::$db_current.":$name");
+            return apc_delete(self::$db.":$name");
     }
 }

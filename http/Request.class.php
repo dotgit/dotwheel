@@ -10,13 +10,11 @@
 
 namespace dotwheel\http;
 
-require_once (__DIR__.'/../db/Db.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
+require_once (__DIR__.'/../util/Params.class.php');
 
-use dotwheel\db\Db;
-use dotwheel\util\Misc;
 use dotwheel\util\Nls;
+use dotwheel\util\Params;
 
 class Request
 {
@@ -85,12 +83,12 @@ class Request
     /** initialises the request variables, opens session, initialises nls */
     public static function init($params)
     {
-        self::$static_url = Misc::paramExtract($params, self::INI_STATIC_URL);
-        self::$db_default = Misc::paramExtract($params, self::INI_DB_DEFAULT);
-        self::$databases = Misc::paramExtract($params, self::INI_DATABASES, array());
-        self::$cookie_db = Misc::paramExtract($params, self::INI_COOKIE_DB);
-        $cookie_lang = Misc::paramExtract($params, self::INI_COOKIE_LANG);
-        $hosts = Misc::paramExtract($params, self::INI_HOSTS, array());
+        self::$static_url = Params::extract($params, self::INI_STATIC_URL);
+        self::$db_default = Params::extract($params, self::INI_DB_DEFAULT);
+        self::$databases = Params::extract($params, self::INI_DATABASES, array());
+        self::$cookie_db = Params::extract($params, self::INI_COOKIE_DB);
+        $cookie_lang = Params::extract($params, self::INI_COOKIE_LANG);
+        $hosts = Params::extract($params, self::INI_HOSTS, array());
 
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
@@ -197,7 +195,7 @@ class Request
         // ...if still undefined then guess
         if (empty($_SESSION[$cookie_lang]))
             $_SESSION[$cookie_lang] = Nls::guessLang($cookie_lang);
-        Nls::init(Misc::paramExtract($params, self::INI_APP_DOMAIN), Misc::paramExtract($params, self::INI_APP_DIR), $_SESSION[$cookie_lang]);
+        Nls::init(Params::extract($params, self::INI_APP_DOMAIN), Params::extract($params, self::INI_APP_DIR), $_SESSION[$cookie_lang]);
 
         // identify db connection name from session or request
         if (empty($_SESSION[self::$cookie_db]))
@@ -213,6 +211,19 @@ class Request
         }
 
         return true;
+    }
+
+    /** returns current database connection name
+     * @return string
+     */
+    public static function getDb()
+    {
+        return (empty($_SESSION[self::$cookie_db])
+            or empty(self::$databases[(string)$_SESSION[self::$cookie_db]])
+            )
+            ? self::$db_default
+            : $_SESSION[self::$cookie_db]
+            ;
     }
 
     /** returns the specified detail of the specified element or default value

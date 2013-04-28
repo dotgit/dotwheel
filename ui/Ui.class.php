@@ -12,13 +12,6 @@ namespace dotwheel\ui;
 
 require_once (__DIR__.'/BootstrapUi.class.php');
 require_once (__DIR__.'/HtmlPage.class.php');
-require_once (__DIR__.'/../http/Request.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
-require_once (__DIR__.'/../util/Nls.class.php');
-
-use dotwheel\http\Request;
-use dotwheel\util\Misc;
-use dotwheel\util\Nls;
 
 class Ui extends BootstrapUi
 {

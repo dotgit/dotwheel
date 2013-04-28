@@ -15,11 +15,11 @@ require_once (__DIR__.'/Html.class.php');
 require_once (__DIR__.'/Ui.class.php');
 require_once (__DIR__.'/../db/Repo.class.php');
 require_once (__DIR__.'/../util/Misc.class.php');
-require_once (__DIR__.'/../util/Nls.class.php');
+require_once (__DIR__.'/../util/Params.class.php');
 
 use dotwheel\db\Repo;
 use dotwheel\util\Misc;
-use dotwheel\util\Nls;
+use dotwheel\util\Params;
 
 class HtmlForm
 {
@@ -97,12 +97,12 @@ class HtmlForm
      */
     public static function getStacked($params)
     {
-        $values = Misc::paramExtract($params, self::P_VALUES, array());
-        $hidden = Misc::paramExtract($params, self::P_HIDDEN, array());
+        $values = Params::extract($params, self::P_VALUES, array());
+        $hidden = Params::extract($params, self::P_HIDDEN, array());
         $upload = null;
         $sets = array();
 
-        foreach (Misc::paramExtract($params, self::P_SETS, array()) as $set)
+        foreach (Params::extract($params, self::P_SETS, array()) as $set)
         {
             if (is_array($set))
             {
@@ -144,16 +144,16 @@ class HtmlForm
                                     $fld = null;
 
                                 // field edit mode
-                                $fedit = (Misc::paramExtract($f, self::FIELD_MODE) == self::MODE_EDIT);
+                                $fedit = (Params::extract($f, self::FIELD_MODE) == self::MODE_EDIT);
                                 $value = (isset($values[$fld])) ? $values[$fld] : null;
 
                                 $content = $fedit
                                     ? self::htmlFieldEdit($f + array(self::FIELD_NAME=>$fld, self::FIELD_VALUE=>$value))
                                     : self::htmlFieldView($f + array(self::FIELD_NAME=>$fld, self::FIELD_VALUE=>$value))
                                     ;
-                                $width = Misc::paramExtract($f, self::FIELD_WIDTH);
+                                $width = Params::extract($f, self::FIELD_WIDTH);
 
-                                if (Misc::paramExtract($f, self::FIELD_WITH_NEXT))
+                                if (Params::extract($f, self::FIELD_WITH_NEXT))
                                 {
                                     if ($with_next_buffer)
                                         $with_next_buffer[Ui::P_CONTENT] .= $content;
@@ -251,9 +251,9 @@ class HtmlForm
             ? "<label>$label</label>"
             : ''
             ;
-        if ($comment = Misc::paramExtract($params, self::FIELD_COMMENT))
+        if ($comment = Params::extract($params, self::FIELD_COMMENT))
             $comment = sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
-        $fmt = Misc::paramExtract($params, self::FIELD_FMT);
+        $fmt = Params::extract($params, self::FIELD_FMT);
         $content = (isset($params[self::FIELD_CONTENT])
             ? $params[self::FIELD_CONTENT]
             : Repo::asHtml($field
@@ -302,9 +302,9 @@ class HtmlForm
             ? ("<label".Html::attr($label_attr).">$label</label>")
             : ''
             ;
-        if ($comment = Misc::paramExtract($params, self::FIELD_COMMENT))
+        if ($comment = Params::extract($params, self::FIELD_COMMENT))
             $comment = sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
-        $fmt = Misc::paramExtract($params, self::FIELD_FMT);
+        $fmt = Params::extract($params, self::FIELD_FMT);
         $content = Repo::asHtmlInput($field
                 , isset($params[self::FIELD_VALUE]) ? $params[self::FIELD_VALUE] : null
                 , $params[self::FIELD_INPUT]

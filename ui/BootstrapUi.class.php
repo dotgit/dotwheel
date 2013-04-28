@@ -7,19 +7,13 @@
 
 namespace dotwheel\ui;
 
-require_once (__DIR__.'/../http/Request.class.php');
 require_once (__DIR__.'/../ui/Html.class.php');
 require_once (__DIR__.'/../ui/HtmlPage.class.php');
-require_once (__DIR__.'/../ui/Ui.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
-require_once (__DIR__.'/../util/Nls.class.php');
+require_once (__DIR__.'/../util/Params.class.php');
 
-use dotwheel\http\Request;
 use dotwheel\ui\Html;
 use dotwheel\ui\HtmlPage;
-use dotwheel\ui\Ui;
-use dotwheel\util\Misc;
-use dotwheel\util\Nls;
+use dotwheel\util\Params;
 
 /**
  * Description of BootstrapUi
@@ -74,9 +68,6 @@ class BootstrapUi
     const WIDTH_XLARGE  = -5;
     const WIDTH_XXLARGE = -6;
 
-    public static $Input_sets_params = array(Html::P_LABEL_ATTR=>array('class'=>'checkbox'));
-    public static $Input_enums_params = array(Html::P_LABEL_ATTR=>array('class'=>'radio'));
-
 
 
     /** returns a div formatted as alert block
@@ -88,15 +79,15 @@ class BootstrapUi
      */
     public static function alert($params)
     {
-        $body = Misc::paramExtract($params, self::P_CONTENT);
-        if ($label = Misc::paramExtract($params, self::P_LABEL))
+        $body = Params::extract($params, self::P_CONTENT);
+        if ($label = Params::extract($params, self::P_LABEL))
         {
-            $label_attr = Misc::paramExtract($params, self::P_LABEL_ATTR, array());
+            $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
             $body = '<h4'.Html::attr($label_attr).'>'.$label.'</h4>'.$body;
         }
-        if ($close = Misc::paramExtract($params, self::P_CLOSE))
+        if ($close = Params::extract($params, self::P_CLOSE))
             $body = self::close(is_array($close) ? $close : array()) . $body;
-        Misc::paramAdd($params, 'alert');
+        Params::add($params, 'alert');
 
         return '<div'.Html::attr($params).">$body</div>";
     }
@@ -109,8 +100,8 @@ class BootstrapUi
     {
         if(is_array($comment))
         {
-            $c = Misc::paramExtract($comment, self::P_CONTENT);
-            Misc::paramAdd($comment, 'help-block');
+            $c = Params::extract($comment, self::P_CONTENT);
+            Params::add($comment, 'help-block');
             return "<div".Html::attr($comment).">$c</div>";
         }
         else
@@ -132,16 +123,16 @@ class BootstrapUi
     {
         if(is_array($control))
         {
-            $t = Misc::paramExtract($control, self::P_TARGET);
-            $l = Misc::paramExtract($control, self::P_LABEL);
-            $l_attr = Misc::paramExtract($control, self::P_LABEL_ATTR, array());
-            Misc::paramAdd($l_attr, 'control-label');
+            $t = Params::extract($control, self::P_TARGET);
+            $l = Params::extract($control, self::P_LABEL);
+            $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
+            Params::add($l_attr, 'control-label');
             if(isset($t))
-                Misc::paramAdd($l_attr, $t, 'for');
-            $c = Misc::paramExtract($control, self::P_CONTENT);
-            Misc::paramAdd($control, 'control-group');
-            $c_attr = Misc::paramExtract($control, self::P_CONTENT_ATTR, array());
-            Misc::paramAdd($c_attr, 'controls');
+                Params::add($l_attr, $t, 'for');
+            $c = Params::extract($control, self::P_CONTENT);
+            Params::add($control, 'control-group');
+            $c_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
+            Params::add($c_attr, 'controls');
 
             return "<div".Html::attr($control)."><label".Html::attr($l_attr).">$l</label><div".Html::attr($c_attr).">$c</div></div>";
         }
@@ -158,8 +149,8 @@ class BootstrapUi
     {
         if(is_array($label))
         {
-            $l = Misc::paramExtract($label, self::P_LABEL);
-            Misc::paramAdd($label, 'label');
+            $l = Params::extract($label, self::P_LABEL);
+            Params::add($label, 'label');
             return "<label".Html::attr($label).">$l</label>";
         }
         else
@@ -172,9 +163,9 @@ class BootstrapUi
      */
     public static function button($params)
     {
-        $label = Misc::paramExtract($params, self::P_LABEL);
+        $label = Params::extract($params, self::P_LABEL);
         $params += array('type'=>'button');
-        Misc::paramAdd($params, 'btn');
+        Params::add($params, 'btn');
 
         return ' <button'.Html::attr($params).">$label</button>";
     }
@@ -187,8 +178,8 @@ class BootstrapUi
     {
         self::registerAlert();
 
-        Misc::paramAdd($params, 'close');
-        Misc::paramAdd($params, 'alert', 'data-dismiss');
+        Params::add($params, 'close');
+        Params::add($params, 'alert', 'data-dismiss');
 
         return '<a'.Html::attr($params).">&times;</a>";
     }
@@ -202,8 +193,8 @@ class BootstrapUi
     {
         self::registerCollapse();
 
-        $content = Misc::paramExtract($params, self::P_CONTENT);
-        Misc::paramAdd($params, 'collapse');
+        $content = Params::extract($params, self::P_CONTENT);
+        Params::add($params, 'collapse');
 
         return '<div'.Html::attr($params).">$content</div>";
     }
@@ -225,13 +216,13 @@ class BootstrapUi
         self::registerButton();
         self::registerCollapse();
 
-        $id = Misc::paramExtract($params, 'id', 'clps_btn_'.$cnt++);
-        $id_target = Misc::paramExtract($params, Ui::P_TARGET);
-        $prefix = ($label_attr = Misc::paramExtract($params, Ui::P_LABEL_ATTR, array()))
+        $id = Params::extract($params, 'id', 'clps_btn_'.$cnt++);
+        $id_target = Params::extract($params, self::P_TARGET);
+        $prefix = ($label_attr = Params::extract($params, self::P_LABEL_ATTR, array()))
             ? ('<i'.Html::attr($label_attr).'></i> ')
             : ''
             ;
-        $prefix .= ($label = Misc::paramExtract($params, Ui::P_LABEL))
+        $prefix .= ($label = Params::extract($params, self::P_LABEL))
             ? "$label "
             : ''
             ;
@@ -244,10 +235,10 @@ $('#$id_target')
 EOco
             ));
 
-        Misc::paramAdd($params, $id, 'id');
-        Misc::paramAdd($params, 'collapse', 'data-toggle');
-        Misc::paramAdd($params, "#$id_target", 'data-target');
-        Misc::paramAdd($params, 'dropdown');
+        Params::add($params, $id, 'id');
+        Params::add($params, 'collapse', 'data-toggle');
+        Params::add($params, "#$id_target", 'data-target');
+        Params::add($params, 'dropdown');
 
         return self::button(array(self::P_LABEL=>"$prefix<span class=\"caret\"></span>") + $params);
     }
@@ -265,17 +256,17 @@ EOco
      */
     public static function sideBar($params)
     {
-        $container_label = Misc::paramExtract($params, self::P_LABEL);
+        $container_label = Params::extract($params, self::P_LABEL);
         $container_attr = array();
         $controls = array();
         foreach ($params as $k=>$control)
         {
             if (is_array($control))
             {
-                $label = Misc::paramExtract($control, self::P_LABEL);
-                $label_attr = Misc::paramExtract($control, self::P_LABEL_ATTR, array());
-                if (Misc::paramExtract($control, self::P_ACTIVE))
-                    Misc::paramAdd($label_attr, 'active');
+                $label = Params::extract($control, self::P_LABEL);
+                $label_attr = Params::extract($control, self::P_LABEL_ATTR, array());
+                if (Params::extract($control, self::P_ACTIVE))
+                    Params::add($label_attr, 'active');
                 if (isset($label))
                     $label = '<a'.Html::attr($control).">$label</a>";
                 $controls[] = '<li'.Html::attr($label_attr).">$label</li>";
@@ -283,7 +274,7 @@ EOco
             else
                 $container_attr[$k] = $control;
         }
-        Misc::paramAdd($container_attr, 'nav nav-list');
+        Params::add($container_attr, 'nav nav-list');
 
         return '<ul'.Html::attr($container_attr).'>'
             . (isset($container_label) ? "<li class=\"nav-header\">$container_label</li>" : '')
@@ -314,15 +305,15 @@ EOco
         {
             if (is_array($control))
             {
-                $id = Misc::paramExtract($control, 'id', 'ccl_btn_'.$cnt++);
-                $label = Misc::paramExtract($control, self::P_LABEL);
-                $content = Misc::paramExtract($control, self::P_CONTENT);
-                Misc::paramAdd($control, $id, 'id');
+                $id = Params::extract($control, 'id', 'ccl_btn_'.$cnt++);
+                $label = Params::extract($control, self::P_LABEL);
+                $content = Params::extract($control, self::P_CONTENT);
+                Params::add($control, $id, 'id');
                 $pane = array();
                 if (!$k)
-                    Misc::paramAdd($control, 'active');
+                    Params::add($control, 'active');
                 else
-                    Misc::paramAdd($pane, 'hide');
+                    Params::add($pane, 'hide');
                 $controls[] = self::button($control + array(self::P_LABEL=>$label));
                 $panes[] = '<div'.Html::attr($pane).'>'.$content.'</div>';
                 HtmlPage::add(array(HtmlPage::DOM_READY=>array(
@@ -379,11 +370,11 @@ EOct
      */
     public static function fieldsHorizontal($params)
     {
-        $content = Misc::paramExtract($params, self::P_CONTENT);
-        $label = Misc::paramExtract($params, self::P_LABEL);
-        $label_attr = Misc::paramExtract($params, self::P_LABEL_ATTR, array());
-        Misc::paramAdd($label_attr, 'control-label');
-        Misc::paramAdd($params, 'control-group');
+        $content = Params::extract($params, self::P_CONTENT);
+        $label = Params::extract($params, self::P_LABEL);
+        $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
+        Params::add($label_attr, 'control-label');
+        Params::add($params, 'control-group');
 
         return '<div'.Html::attr($params).'><label'.Html::attr($label_attr).">$label</label><div class=\"controls\">$content</div></div>";
     }
@@ -399,8 +390,8 @@ EOct
         {
             if (is_array($attr))
             {
-                $value = Misc::paramExtract($attr, 'value', $k);
-                Misc::paramAdd($attr, 'btn');
+                $value = Params::extract($attr, 'value', $k);
+                Params::add($attr, 'btn');
                 $buttons[] = '<button'.Html::attr($attr).">$value</button>";
             }
             else
@@ -408,27 +399,6 @@ EOct
         }
 
         return '<div class="form-actions">'.implode(' ', $buttons).'</div>';
-    }
-
-    /**
-     * @param array $params {P_FORM_TYPE:FORM_TYPE_HORIZONTAL
-     *                      , P_FORM_REQ_MODAL:'modal div id'
-     *                      , form tag attributes
-     *                      }
-     * @return array        form tag attributes
-     */
-    public static function formAttr($params)
-    {
-        if (Misc::paramExtract($params, self::P_FORM_TYPE) == self::FORM_TYPE_HORIZONTAL)
-            Misc::paramAdd($params, 'form-horizontal');
-        if ($chk_req = Misc::paramExtract($params, self::P_FORM_REQ_MODAL))
-            Misc::paramAdd($params
-                , "if (chk_required(this,'".Ui::REQUIRED_CLASS."','$chk_req'))aj_form_submit($(this),'$chk_req'); return false;"
-                , 'onsubmit'
-                , ';'
-                );
-
-        return $params;
     }
 
     /** returns a container of a fixed grid with rows and cells
@@ -447,7 +417,7 @@ EOct
         {
             if (is_array($row))
             {
-                Misc::paramAdd($row, 'row');
+                Params::add($row, 'row');
                 $new_rows[] = static::gridRow($row);
                 unset($rows[$rkey]);
             }
@@ -457,7 +427,7 @@ EOct
                 unset($rows[$rkey]);
             }
         }
-        Misc::paramAdd($rows, 'container');
+        Params::add($rows, 'container');
 
         return '<div'.Html::attr($rows).'>'
             . implode('', $new_rows)
@@ -472,7 +442,7 @@ EOct
         {
             if (is_array($row))
             {
-                Misc::paramAdd($row, 'row-fluid');
+                Params::add($row, 'row-fluid');
                 $new_rows[] = static::gridRow($row);
                 unset($rows[$rkey]);
             }
@@ -482,7 +452,7 @@ EOct
                 unset($rows[$rkey]);
             }
         }
-        Misc::paramAdd($rows, 'container-fluid');
+        Params::add($rows, 'container-fluid');
 
         return '<div'.Html::attr($rows).'>'
             . implode('', $new_rows)
@@ -518,9 +488,9 @@ EOct
         {
             if (is_array($col))
             {
-                if ($width = Misc::paramExtract($col, self::P_WIDTH, $width_default))
+                if ($width = Params::extract($col, self::P_WIDTH, $width_default))
                     $col = static::width2Attr($width, $col);
-                $content = Misc::paramExtract($col, self::P_CONTENT);
+                $content = Params::extract($col, self::P_CONTENT);
                 $cols[] = '<div'.Html::attr($col).'>'.$content.'</div>';
                 unset($columns[$k]);
             }
@@ -547,12 +517,12 @@ EOct
     {
         self::registerModal();
 
-        $header = Misc::paramExtract($params, self::P_LABEL);
-        $body = Misc::paramExtract($params, self::P_CONTENT);
-        $footer = Misc::paramExtract($params, self::P_FOOTER);
+        $header = Params::extract($params, self::P_LABEL);
+        $body = Params::extract($params, self::P_CONTENT);
+        $footer = Params::extract($params, self::P_FOOTER);
 
-        Misc::paramAdd($params, 'modal');
-        Misc::paramAdd($params, 'hide');
+        Params::add($params, 'modal');
+        Params::add($params, 'hide');
 
         if (isset($header))
             $header = "<div class=\"modal-header\"><a class=\"close\" data-dismiss=\"modal\">&times;</a><h3>$header</h3></div>";
@@ -579,10 +549,10 @@ EOct
      */
     public static function paginationUsingLinear($params)
     {
-        $active_page = Misc::paramExtract($params, self::PGN_ACTIVE);
-        $last_page = Misc::paramExtract($params, self::PGN_LAST);
-        $pages = Misc::paramExtract($params, self::PGN_LIST);
-        $link_1 = Misc::paramExtract($params, self::PGN_LINK_1);
+        $active_page = Params::extract($params, self::PGN_ACTIVE);
+        $last_page = Params::extract($params, self::PGN_LAST);
+        $pages = Params::extract($params, self::PGN_LIST);
+        $link_1 = Params::extract($params, self::PGN_LINK_1);
 
         if (empty($pages))
             return null;
@@ -631,9 +601,9 @@ EOct
      */
     public static function paginationUsingLog($params)
     {
-        $active_page = Misc::paramExtract($params, self::PGN_ACTIVE);
-        $pages = Misc::paramExtract($params, self::PGN_LIST);
-        $link_1 = Misc::paramExtract($params, self::PGN_LINK_1);
+        $active_page = Params::extract($params, self::PGN_ACTIVE);
+        $pages = Params::extract($params, self::PGN_LIST);
+        $link_1 = Params::extract($params, self::PGN_LINK_1);
 
         if (empty($pages))
             return null;
@@ -698,14 +668,14 @@ EOct
         $panes = array();
         foreach ($params as $tab)
         {
-            $id = Misc::paramExtract($tab, self::P_TARGET);
-            $label = Misc::paramExtract($tab, self::P_LABEL);
+            $id = Params::extract($tab, self::P_TARGET);
+            $label = Params::extract($tab, self::P_LABEL);
             $pane = array('id'=>$id, 'class'=>'tab-pane');
-            $content = Misc::paramExtract($tab, self::P_CONTENT);
-            if (Misc::paramExtract($tab, self::P_ACTIVE))
+            $content = Params::extract($tab, self::P_CONTENT);
+            if (Params::extract($tab, self::P_ACTIVE))
             {
-                Misc::paramAdd($tab, 'active');
-                Misc::paramAdd($pane, 'active');
+                Params::add($tab, 'active');
+                Params::add($pane, 'active');
             }
             $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>\n";
             $panes[] = '<div'.Html::attr($pane).">$content</div>\n";
@@ -726,8 +696,8 @@ EOct
      */
     public static function well($params)
     {
-        $body = Misc::paramExtract($params, self::P_CONTENT);
-        Misc::paramAdd($params, 'well');
+        $body = Params::extract($params, self::P_CONTENT);
+        Params::add($params, 'well');
 
         return '<div'.Html::attr($params).">$body</div>";
     }
@@ -740,21 +710,21 @@ EOct
     public static function width2Attr($width, $attrs=array())
     {
         if ($width == self::WIDTH_MINI)
-            Misc::paramAdd($attrs, 'input-mini');
+            Params::add($attrs, 'input-mini');
         elseif ($width == self::WIDTH_SMALL)
-            Misc::paramAdd($attrs, 'input-small');
+            Params::add($attrs, 'input-small');
         elseif ($width == self::WIDTH_MEDIUM)
-            Misc::paramAdd($attrs, 'input-medium');
+            Params::add($attrs, 'input-medium');
         elseif ($width == self::WIDTH_LARGE)
-            Misc::paramAdd($attrs, 'input-large');
+            Params::add($attrs, 'input-large');
         elseif ($width == self::WIDTH_XLARGE)
-            Misc::paramAdd($attrs, 'input-xlarge');
+            Params::add($attrs, 'input-xlarge');
         elseif ($width == self::WIDTH_XXLARGE)
-            Misc::paramAdd($attrs, 'input-xxlarge');
+            Params::add($attrs, 'input-xxlarge');
         elseif (is_int($width))
-            Misc::paramAdd($attrs, "span{$width}");
+            Params::add($attrs, "span{$width}");
         else
-            Misc::paramAdd($attrs, "width:{$width};", 'style', '');
+            Params::add($attrs, "width:{$width};", 'style', '');
 
         return $attrs;
     }

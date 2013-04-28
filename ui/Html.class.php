@@ -16,13 +16,11 @@
 
 namespace dotwheel\ui;
 
-require_once (__DIR__.'/../http/Request.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
+require_once (__DIR__.'/../util/Params.class.php');
 
-use dotwheel\http\Request;
-use dotwheel\util\Misc;
 use dotwheel\util\Nls;
+use dotwheel\util\Params;
 
 class Html
 {
@@ -77,20 +75,6 @@ class Html
         return $ret ? implode('', $ret) : '';
     }
 
-    /** returns url for the specified controller
-     * @param string $module        module name(optional, omit slashes)
-     * @param string $controller    controller name(omit first slash)
-     * @param array $args           arguments array
-     * @return string
-     */
-    public static function url($module, $controller, $args=null)
-    {
-        return (isset($module) ? (Request::$root.(strlen($module) ? "$module/" : '')) : '')
-            . "$controller.php"
-            . (isset($args) ? self::urlArgs('?', $args) : '')
-            ;
-    }
-
     /** returns a string with url-encoded parameters
      * @param string $prefix    prefix to use(normally '?')
      * @param array $params     hash of parameters to encode, like {a:'b',c:{d:'e'}}
@@ -117,10 +101,10 @@ class Html
      */
     public static function tableStart($params=array())
     {
-        $caption_attr = Misc::paramExtract($params, self::P_CAPTION_ATTR);
-        if ($caption = Misc::paramExtract($params, self::P_CAPTION))
+        $caption_attr = Params::extract($params, self::P_CAPTION_ATTR);
+        if ($caption = Params::extract($params, self::P_CAPTION))
             $caption = "<caption$caption_attr>$caption</caption>\n";
-        if ($colgroup = Misc::paramExtract($params, self::P_COLGROUP))
+        if ($colgroup = Params::extract($params, self::P_COLGROUP))
             $colgroup = self::colgroup($colgroup);
 
         return "<table". self::attr($params).">\n$caption$colgroup";
@@ -141,7 +125,7 @@ class Html
     public static function thead($params)
     {
         return '<thead>'
-            . (($prefix = Misc::paramExtract($params, self::P_PREFIX))
+            . (($prefix = Params::extract($params, self::P_PREFIX))
                 ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array(' colspan="'.count($params[self::P_VALUES]).'"')))
                 : ''
                 )
@@ -196,7 +180,7 @@ class Html
     public static function formStart($params)
     {
         $h = '';
-        foreach (Misc::paramExtract($params, self::P_HIDDEN, array()) as $k=>$v)
+        foreach (Params::extract($params, self::P_HIDDEN, array()) as $k=>$v)
             if (isset($v))
             {
                 if (is_array($v))
@@ -268,7 +252,7 @@ class Html
             $params['name'] = $params['id'];
         if (! isset($params['rows']))
             $params['rows'] = 5;
-        $value = Misc::paramExtract($params, 'value');
+        $value = Params::extract($params, 'value');
         $attr = self::attr($params);
 
         return "<textarea$attr>$value</textarea>";
@@ -301,7 +285,7 @@ class Html
      */
     public static function inputDate($params)
     {
-        $datetime = Misc::paramExtract($params, self::P_DATETIME);
+        $datetime = Params::extract($params, self::P_DATETIME);
         if (! empty($params['value']))
             $params['value'] = self::asDate($params['value'], $datetime);
 
@@ -322,19 +306,19 @@ class Html
     {
         if (isset($params['id']) and empty($params['name']))
             $params['name'] = $params['id'];
-        $value = Misc::paramExtract($params, 'value');
+        $value = Params::extract($params, 'value');
         $items = array();
 
-        if (($blank = Misc::paramExtract($params, self::P_BLANK)) !== null)
+        if (($blank = Params::extract($params, self::P_BLANK)) !== null)
             $items[] = strlen($blank)
                 ? ('<option value="">'.self::encode($blank)."</option>\n")
                 : "<option></option>\n"
                 ;
 
-        switch (Misc::paramExtract($params, self::P_TYPE))
+        switch (Params::extract($params, self::P_TYPE))
         {
         case self::TYPE_ARRAY:
-            foreach (Misc::paramExtract($params, self::P_ITEMS, array()) as $arr)
+            foreach (Params::extract($params, self::P_ITEMS, array()) as $arr)
             {
                 list($k, $v) = $arr;
                 $v = self::encode($v);
@@ -346,7 +330,7 @@ class Html
             break;
 
         default:
-            foreach (Misc::paramExtract($params, self::P_ITEMS, array()) as $k=>$v)
+            foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
             {
                 $v = self::encode($v);
                 $items[] = ($k == $value && ! empty($k))
@@ -375,15 +359,15 @@ class Html
      */
     public static function inputSet($params)
     {
-        $id = Misc::paramExtract($params, 'id');
-        $name = Misc::paramExtract($params, 'name');
+        $id = Params::extract($params, 'id');
+        $name = Params::extract($params, 'name');
         if (isset($id) and empty($name))
             $name = $id;
-        $value = Misc::paramExtract($params, 'value');
-        $delim = Misc::paramExtract($params, self::P_DELIM, '<br>');
-        $fmt = Misc::paramExtract($params, self::P_FMT);
-        $item_prefix = Misc::paramExtract($params, self::P_PREFIX);
-        $item_suffix = Misc::paramExtract($params, self::P_SUFFIX);
+        $value = Params::extract($params, 'value');
+        $delim = Params::extract($params, self::P_DELIM, '<br>');
+        $fmt = Params::extract($params, self::P_FMT);
+        $item_prefix = Params::extract($params, self::P_PREFIX);
+        $item_suffix = Params::extract($params, self::P_SUFFIX);
         if (! is_array($value))
         {
             if (isset($value))
@@ -396,7 +380,7 @@ class Html
          }
 
         $items = array();
-        foreach (Misc::paramExtract($params, self::P_ITEMS) as $k=>$v)
+        foreach (Params::extract($params, self::P_ITEMS) as $k=>$v)
         {
             $items[] = self::inputCheckbox(array('name'=>"{$name}[$k]"
                 , 'checked'=>isset($value[$k])
@@ -427,23 +411,23 @@ class Html
      */
     public static function inputRadio($params)
     {
-        $id = Misc::paramExtract($params, 'id');
-        $name = Misc::paramExtract($params, 'name');
+        $id = Params::extract($params, 'id');
+        $name = Params::extract($params, 'name');
         if (isset($id) and empty($name))
             $name = $id;
-        $item_prefix = Misc::paramExtract($params, self::P_PREFIX);
-        $item_suffix = Misc::paramExtract($params, self::P_SUFFIX);
-        $delim = Misc::paramExtract($params, self::P_DELIM, '<br>');
-        $fmt = Misc::paramExtract($params, self::P_FMT, '%s');
-        $value = Misc::paramExtract($params, 'value');
-        if ($label_attr = Misc::paramExtract($params, self::P_LABEL_ATTR))
+        $item_prefix = Params::extract($params, self::P_PREFIX);
+        $item_suffix = Params::extract($params, self::P_SUFFIX);
+        $delim = Params::extract($params, self::P_DELIM, '<br>');
+        $fmt = Params::extract($params, self::P_FMT, '%s');
+        $value = Params::extract($params, 'value');
+        if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
 
         $items = array();
-        switch (Misc::paramExtract($params, self::P_TYPE))
+        switch (Params::extract($params, self::P_TYPE))
         {
         case self::TYPE_ARRAY:
-            foreach (Misc::paramExtract($params, self::P_ITEMS, array()) as $line)
+            foreach (Params::extract($params, self::P_ITEMS, array()) as $line)
             {
                 list($k, $v) = $line;
                 $items[] = "<label$label_attr><input"
@@ -454,7 +438,7 @@ class Html
             break;
 
         default:
-            foreach (Misc::paramExtract($params, self::P_ITEMS, array()) as $k=>$v)
+            foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
                 $items[] = "<label$label_attr><input"
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
                     . '>'.self::encode($v).'</label>'
@@ -474,10 +458,10 @@ class Html
      */
     public static function inputCheckbox($params)
     {
-        $comment = Misc::paramExtract($params, self::P_COMMENT);
-        if ($label_attr = Misc::paramExtract($params, self::P_LABEL_ATTR))
+        $comment = Params::extract($params, self::P_COMMENT);
+        if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
-        $delim = Misc::paramExtract($params, self::P_DELIM, ' ');
+        $delim = Params::extract($params, self::P_DELIM, ' ');
         $checkbox = self::input(array('type'=>'checkbox') + $params);
 
         return isset($comment)

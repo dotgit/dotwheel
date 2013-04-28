@@ -13,12 +13,12 @@ namespace dotwheel\ui;
 require_once (__DIR__.'/HtmlPage.class.php');
 require_once (__DIR__.'/Ui.class.php');
 require_once (__DIR__.'/../db/Repo.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
+require_once (__DIR__.'/../util/Params.class.php');
 
 use dotwheel\db\Repo;
-use dotwheel\util\Misc;
 use dotwheel\util\Nls;
+use dotwheel\util\Params;
 
 class HtmlTable
 {
@@ -46,8 +46,6 @@ class HtmlTable
     const F_SORT            = 6;
     const F_SORT_EXCLUDE    = 63;
     const F_SORT_GROUP      = 64;
-    const F_SORT_SCRIPT     = 65;
-    const F_SORT_TARGET     = 66;
     const F_FORMAT          = 7;
     const F_URL             = 8;
     const F_URL_FIELD       = 81;
@@ -61,6 +59,8 @@ class HtmlTable
 
     const S_PARAMS  = 1;
     const S_FIELD   = 2;
+    const S_SCRIPT  = 3;
+    const S_TARGET  = 4;
 
     const U_KEY     = 1;
     const U_FIELDS  = 2;
@@ -85,32 +85,32 @@ class HtmlTable
      * @param array $params list of table parameters:
      * <pre>
      *  {id:'tbl1'
-     *  , rows:{values:{r1:{fld1:'value',fld2:'value',fld3:'value'}
+     *  , P_ROWS:{R_VALUES:{r1:{fld1:'value',fld2:'value',fld3:'value'}
      *          , r2:{fld1:'value',fld2:'value',fld3:'value'}
      *          }
-     *      , td:{r1:{fld3:' td tag attributes'}}
-     *      , tr:{r2:' tr tag attributes'}
+     *      , R_TD:{r1:{fld3:' td tag attributes'}}
+     *      , R_TR:{r2:' tr tag attributes'}
      *      }
-     *  , fields:{fld1:{width:'20%'
+     *  , P_FIELDS:{fld1:{F_WIDTH:'20%'
      *          , repository:{field repository arguments}
      *          , header:{label:Repo::PARAM_LABEL_SHORT|null,abbr:Repo::PARAM_LABEL_LONG|true|null, th tag arguments}
      *          , checkbox:{name:'fld1',form:'form_name'}   // replaces header with a checkbox and a toggler js code
-     *          , sort:{exclude:true,group:'fld2'|true}
-     *          , align:'center'
+     *          , F_SORT:{F_SORT_EXCLUDE:true,F_SORT_GROUP:'fld2'|true}
+     *          , F_ALIGN:'center'
      *          , format:'<span class="tag">%s</span>'
      *          , url:{field:'fld2',address:'/path/script.php?id=%u&mode=edit',target:'_blank'}
      *          , total:'text'|(TOTAL_SUM|true)|TOTAL_COUNT|TOTAL_AVG
      *          }
      *      , fld2:{}
      *      }
-     *  , unique:{key:'fld1',fields:'fld1,fld2,fld3'}
-     *  , sort:{field:'fld1'
-     *      , script:'/this/script.php'
-     *      , params:{s:{tbl1:'fld_current'},f{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
-     *      , target:'_blank'
+     *  , P_UNIQUE:{U_KEY:'fld1',U_FIELDS:'fld1,fld2,fld3'}
+     *  , P_SORT:{S_FIELD:'fld1'
+     *      , S_SCRIPT:'/this/script.php'
+     *      , S_PARAMS:{s:{tbl1:'fld_current'},f{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
+     *      , S_TARGET:'_blank'
      *      }
-     *  , empty:{display:true,label:'no rows selected'}
-     *  , layout:null|'lpt'|'xl'|'csv' // not(yet) implemented
+     *  , P_EMPTY:{display:true,label:'no rows selected'}
+     *  , P_LAYOUT:null|'lpt'|'xl'|'csv' // not(yet) implemented
      *  , table tag arguments
      *  }
      * </pre>
@@ -127,9 +127,9 @@ class HtmlTable
 
         $table_id = isset($params['id']) ? $params['id'] : ('table_id'.++self::$counter);
 
-        if ($sort = Misc::paramExtract($params, self::P_SORT))
+        if ($sort = Params::extract($params, self::P_SORT))
         {
-            $sort_params = Misc::paramExtract($sort, self::S_PARAMS, array());
+            $sort_params = Params::extract($sort, self::S_PARAMS, array());
             unset($sort_params['s'][$table_id], $sort_params['p'][$table_id]);
         }
         else
@@ -153,19 +153,19 @@ class HtmlTable
         $totals = false;
         $totals_fn = array();
         $totals_cnt = array();
-        foreach (Misc::paramExtract($params, self::P_FIELDS) as $field=>$f)
+        foreach (Params::extract($params, self::P_FIELDS) as $field=>$f)
         {
             if (! is_array($f))
                 $f = array(self::F_WIDTH=>$f, self::F_ALIGN=>null, self::F_SORT=>array(self::F_SORT_EXCLUDE=>true));
 
-            if ($colgroup[$field] = Misc::paramExtract($f, self::F_WIDTH))
+            if ($colgroup[$field] = Params::extract($f, self::F_WIDTH))
                 $colgroup[$field] = " width=\"{$colgroup[$field]}\"";
             $rep[$field] = Repo::get($field, isset($f[self::F_REPOSITORY]) ? $f[self::F_REPOSITORY] : array());
 
             if (isset($f[self::F_HEADER]))
             {
                 if (isset($f[self::F_HEADER][self::F_HEADER_LABEL]))
-                    $l = Repo::getLabel($field, $rep[$field], Misc::paramExtract($f[self::F_HEADER], self::F_HEADER_LABEL));
+                    $l = Repo::getLabel($field, $rep[$field], Params::extract($f[self::F_HEADER], self::F_HEADER_LABEL));
                 else
                     $l = Repo::getLabel($field, $rep[$field], Repo::P_LABEL);
                 if (isset($f[self::F_HEADER][self::F_HEADER_ABBR]))
@@ -271,9 +271,9 @@ class HtmlTable
                     }
                 }
                 $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
-                    , (isset($sort[self::F_SORT_SCRIPT]) ? $sort[self::F_SORT_SCRIPT] : '')
+                    , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
                         . Html::urlArgs('?', array_merge_recursive($sort_params, array('s'=>array($table_id=>$field.$field_suf))))
-                    , isset($sort[self::F_SORT_TARGET]) ? " target=\"{$sort[self::F_SORT_TARGET]}\"" : ''
+                    , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
                     , $headers[$field]
                     );
             }
@@ -307,9 +307,9 @@ class HtmlTable
             unset($params[self::P_UNIQUE]);
         }
 
-        $layout = Misc::paramExtract($params, self::P_LAYOUT);
-        $prefix = Misc::paramExtract($params, self::P_PREFIX);
-        $suffix = Misc::paramExtract($params, self::P_SUFFIX);
+        $layout = Params::extract($params, self::P_LAYOUT);
+        $prefix = Params::extract($params, self::P_PREFIX);
+        $suffix = Params::extract($params, self::P_SUFFIX);
 
         $empty_display = true;
         $empty_label = dgettext(Nls::FW_DOMAIN, 'No records');
@@ -345,7 +345,7 @@ class HtmlTable
                 // grouping
                 if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key])
                 {
-                    Misc::paramAdd($tr, Ui::TABLE_NEW_GROUP_CLASS);
+                    Params::add($tr, Ui::TABLE_NEW_GROUP_CLASS);
                     $sort_group_old = $row[$sort_group_key];
                 }
 

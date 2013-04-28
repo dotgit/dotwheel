@@ -27,10 +27,10 @@ class Paginator
      */
     public static function getListBinary($params)
     {
-        $active_page = Misc::paramExtract($params, self::P_ACTIVE);
-        $range = Misc::paramExtract($params, self::P_RANGE, 1);
-        $last_page = Misc::paramExtract($params, self::P_LAST);
-        $slots = Misc::paramExtract($params, self::P_MAX_SLOTS, 11);
+        $active_page = Params::extract($params, self::P_ACTIVE);
+        $range = Params::extract($params, self::P_RANGE, 1);
+        $last_page = Params::extract($params, self::P_LAST);
+        $slots = Params::extract($params, self::P_MAX_SLOTS, 11);
 
         if ($last_page < 2)
             return array();
@@ -66,9 +66,9 @@ class Paginator
      */
     public static function getListLinear($params)
     {
-        $active_page = Misc::paramExtract($params, self::P_ACTIVE);
-        $last_page = Misc::paramExtract($params, self::P_LAST);
-        $slots = Misc::paramExtract($params, self::P_MAX_SLOTS, 10);
+        $active_page = Params::extract($params, self::P_ACTIVE);
+        $last_page = Params::extract($params, self::P_LAST);
+        $slots = Params::extract($params, self::P_MAX_SLOTS, 10);
 
         if ($last_page < 2)
             return array();
@@ -93,9 +93,9 @@ class Paginator
      */
     public static function getListLog($params)
     {
-        $active_page = Misc::paramExtract($params, self::P_ACTIVE);
-        $last_page = Misc::paramExtract($params, self::P_LAST);
-        $slots = Misc::paramExtract($params, self::P_MAX_SLOTS, 10);
+        $active_page = Params::extract($params, self::P_ACTIVE);
+        $last_page = Params::extract($params, self::P_LAST);
+        $slots = Params::extract($params, self::P_MAX_SLOTS, 10);
 
         if ($last_page < 2)
             return array();
