@@ -23,12 +23,9 @@ use dotwheel\util\Nls;
 
 class HtmlForm
 {
-    const P_SETS            = 1;
-    const P_VALUES          = 2;
-    const P_HIDDEN          = 3;
-    const P_FORM_ELEMENT    = 4;
-    const P_AJAX_SUBMIT     = 5;
-    const P_BEFORE_SUBMIT   = 6;
+    const P_SETS    = 1;
+    const P_VALUES  = 2;
+    const P_HIDDEN  = 3;
 
     const SET_LEGEND            = -1;
     const SET_LEGEND_CONTENT    = -11;
@@ -94,9 +91,6 @@ class HtmlForm
      *                          , fieldset tag attributes
      *                          }
      *                          ]
-     *                      , PARAM_FORM_ELEMENT:'#frm_id'
-     *                      // if undefined calculated from id or name form tags;
-     *                      // adds chk_req() call on form submission
      *                      , form tag attributes
      *                      }
      * @return string       html representation of a form
@@ -218,10 +212,7 @@ class HtmlForm
                 $sets[] = $set;
         }
 
-        if (Misc::paramExtract($params, self::P_FORM_ELEMENT))
-            $form_element = true;
-
-        if ($params)
+        if ($params || $hidden)
         {
             if ($upload)
             {
@@ -229,28 +220,7 @@ class HtmlForm
                 $params['enctype'] = 'multipart/form-data';
                 $hidden['MAX_FILE_SIZE'] = Misc::getMaxUploadSize();
             }
-            $ajax_submit = Misc::paramExtract($params, self::P_AJAX_SUBMIT);
-            if ($beforesubmit = Misc::paramExtract($params, self::P_BEFORE_SUBMIT))
-                $beforesubmit = "&&($beforesubmit)";
 
-            if (isset($form_element))
-                $form_el = $form_element;
-            elseif (isset($params['id']))
-                $form_el = "#{$params['id']}";
-            elseif (isset($params['name']))
-                $form_el = "form[name=\"{$params['name']}\"]";
-            else
-                $form_el = null;
-
-            if ($form_el)
-            {
-                self::chkRequiredInit();
-                $req_class = Ui::REQUIRED_CLASS;
-                HtmlPage::add(array(HtmlPage::DOM_READY=>array("html_form-$form_el"=>$ajax_submit
-                    ? "$('$form_el').submit(function(){if (chk_req(this,$req_class)$beforesubmit){aj_form_submit($(this));}return false;});"
-                    : "$('$form_el').submit(function(){return chk_req(this,$req_class)$beforesubmit;});"
-                    )));
-            }
             $pre = Html::formStart(array(Html::P_HIDDEN=>$hidden) + $params);
             $post = Html::formStop();
         }
@@ -326,7 +296,7 @@ class HtmlForm
         }
         $params[self::FIELD_INPUT] = Ui::width2attr('100%', $params[self::FIELD_INPUT]);
         if (! empty($params[self::FIELD_REQUIRED]))
-            $label_attr['class'] = 'req';
+            $label_attr['class'] = Ui::REQUIRED_CLASS;
         $label = isset($params[self::FIELD_LABEL]) ? $params[self::FIELD_LABEL] : Repo::getLabel($field);
         $label_str = ! empty($label)
             ? ("<label".Html::attr($label_attr).">$label</label>")
@@ -344,35 +314,5 @@ class HtmlForm
             ;
 
         return $fmt ? sprintf($fmt, "$label_str$content") : "$label_str$content";
-    }
-
-    /** sets default messages in Config global and creates a modal window
-     * @param array $params {params to pass to Ui::modal()}
-     * @return string       modal container element id
-     */
-    public static function chkRequiredInit($params=array())
-    {
-        $msg_lang = json_encode(Nls::$lang);
-        $datepicker = Nls::$formats[Nls::P_DATEPICKER];
-        $msg_ok = json_encode(dgettext(Nls::FW_DOMAIN, 'OK'));
-        $msg_save = json_encode(dgettext(Nls::FW_DOMAIN, 'Save'));
-        $msg_cancel = json_encode(dgettext(Nls::FW_DOMAIN, 'Cancel'));
-        $msg_close = json_encode(dgettext(Nls::FW_DOMAIN, 'Close'));
-        $msg_submit = json_encode(dgettext(Nls::FW_DOMAIN, 'Submit'));
-        $msg_empty_fields_prompt = json_encode(dgettext(Nls::FW_DOMAIN, 'Please fill-in the following required fields:'));
-
-        HtmlPage::add(array(HtmlPage::SCRIPT=>array(__METHOD__=><<<EOscr
-var Config={lang:$msg_lang,datepicker:$datepicker,msg:{ok:$msg_ok,save:$msg_save,cancel:$msg_cancel,close:$msg_close,submit:$msg_submit}};
-var Modal;
-Config.msg.chk_req_Empty_fields_prompt=$msg_empty_fields_prompt;
-EOscr
-            )));
-
-        $id = Misc::paramExtract($params, 'id', 'chk_required');
-        Ui::modalMain($params + array(Ui::P_LABEL=>Html::encode(dgettext(Nls::FW_DOMAIN, 'Empty required fields'))
-            , 'id'=>$id
-            ));
-
-        return $id;
     }
 }

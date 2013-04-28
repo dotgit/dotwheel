@@ -29,8 +29,6 @@ class Response
     public static $description;
     /** @var array  input parameters that need to be passed to the next page */
     public static $url_params = array();
-    /** @var int    db connection mode: Db::MODE_READ | Db::MODE_WRITE | null */
-    public static $db_mode;
     /** @var array  list of html-encoded errors */
     public static $errors = array();
 
@@ -123,41 +121,7 @@ class Response
      */
     public static function exec($context)
     {
-        switch (Request::$output)
-        {
-        case Request::OUT_HTML:
-            return static::execHtml($context);
-        case Request::OUT_CMD:
-            return static::execRedirect($context);
-        case Request::OUT_JSON:
-            return static::execEnum($context);
-        case Request::OUT_ASIS:
-            return static::execText($context);
-        }
-    }
-
-    /** execute a command using context and produce produce an html document */
-    public static function execHtml($context)
-    {
-        return '';
-    }
-
-    /** execute a command using context and produce a redirect */
-    public static function execRedirect($context)
-    {
         return true;
-    }
-
-    /** execute a command using context and produce a structure */
-    public static function execEnum($context)
-    {
-        return true;
-    }
-
-    /** execute a command using context and produce a text */
-    public static function execText($context)
-    {
-        return '';
     }
 
     /** error message on execution fault */

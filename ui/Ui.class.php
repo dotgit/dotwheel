@@ -31,7 +31,7 @@ class Ui extends BootstrapUi
     const GRID_GUTTER_CLASS = '_gtr';
 
     const INI_STATIC_URL = 1;
-    const INI_STATIC_PATH_CSS_INITIAL   = 2;
+    const INI_STATIC_PATH_CSS_INITIAL = 2;
 
     static $static_url = '/';
     static $static_path_css_initial = '';

@@ -379,9 +379,11 @@ class Html
         $name = Misc::paramExtract($params, 'name');
         if (isset($id) and empty($name))
             $name = $id;
+        $value = Misc::paramExtract($params, 'value');
+        $delim = Misc::paramExtract($params, self::P_DELIM, '<br>');
+        $fmt = Misc::paramExtract($params, self::P_FMT);
         $item_prefix = Misc::paramExtract($params, self::P_PREFIX);
         $item_suffix = Misc::paramExtract($params, self::P_SUFFIX);
-        $value = Misc::paramExtract($params, 'value');
         if (! is_array($value))
         {
             if (isset($value))
@@ -396,24 +398,16 @@ class Html
         $items = array();
         foreach (Misc::paramExtract($params, self::P_ITEMS) as $k=>$v)
         {
-            $items[] = self::inputCheckbox(array('id'=>isset($id) ? "{$id}_$k" : null
-                , 'name'=>"{$name}[$k]"
+            $items[] = self::inputCheckbox(array('name'=>"{$name}[$k]"
                 , 'checked'=>isset($value[$k])
                 , 'value'=>$k
                 , self::P_COMMENT=>self::encode($v)
-                )+$params);
+                ) + $params);
         }
 
-        return isset($params[self::P_FMT])
-            ? sprintf($params[self::P_FMT]
-                , $item_prefix
-                    . implode(Misc::paramExtract($params, self::P_DELIM, '<br>'), $items)
-                    . $item_suffix
-                )
-            : ($item_prefix
-                . implode($item_suffix.Misc::paramExtract($params, self::P_DELIM, '<br>').$item_prefix, $items)
-                . $item_suffix
-                )
+        return isset($fmt)
+            ? sprintf($fmt, $item_prefix.implode($delim, $items).$item_suffix)
+            : ($item_prefix.implode($delim, $items).$item_suffix)
             ;
     }
 
@@ -483,7 +477,7 @@ class Html
         $comment = Misc::paramExtract($params, self::P_COMMENT);
         if ($label_attr = Misc::paramExtract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
-        $delim = Misc::paramExtract($params, self::P_DELIM);
+        $delim = Misc::paramExtract($params, self::P_DELIM, ' ');
         $checkbox = self::input(array('type'=>'checkbox') + $params);
 
         return isset($comment)

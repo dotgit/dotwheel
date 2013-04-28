@@ -42,14 +42,16 @@ class BootstrapUi
 
     const P_WIDTH           = 1;
     const P_CONTENT         = 2;
-    const P_LABEL           = 3;
-    const P_LABEL_ATTR      = 4;
-    const P_FOOTER          = 5;
-    const P_FORM_TYPE       = 6;
-    const P_FORM_REQ_MODAL  = 7;
-    const P_TARGET          = 8;
-    const P_ACTIVE          = 9;
-    const P_CLOSE           = 10;
+    const P_CONTENT_ATTR    = 3;
+    const P_LABEL           = 4;
+    const P_LABEL_ATTR      = 5;
+    const P_FOOTER          = 6;
+    const P_FORM_TYPE       = 7;
+    const P_FORM_REQ_MODAL  = 8;
+    const P_TARGET          = 9;
+    const P_ACTIVE          = 10;
+    const P_CLOSE           = 11;
+    const P_WRAP_FMT        = 12;
 
     const FORM_TYPE_HORIZONTAL  = 1;
 
@@ -100,21 +102,68 @@ class BootstrapUi
     }
 
     /** format as comment line
-     * @param string $comment   comment to format
+     * @param array|string $comment {P_CONTENT:'comment', d.t.a.}|'comment to format as help block'
      * @return string
      */
     public static function asComment($comment)
     {
-        return isset($comment) ? "<p class=\"help-block\">$comment</p>" : null;
+        if(is_array($comment))
+        {
+            $c = Misc::paramExtract($comment, self::P_CONTENT);
+            Misc::paramAdd($comment, 'help-block');
+            return "<div".Html::attr($comment).">$c</div>";
+        }
+        else
+            return isset($comment) ? "<div class=\"help-block\">$comment</div>" : null;
+    }
+
+    /** format as control group
+     * @param array|string $control {P_CONTENT:'control group content'
+     *                              , P_CONTENT_ATTR:{content d.t.a.}
+     *                              , P_TARGET:'label tag for attribute target'
+     *                              , P_LABEL:'label content'
+     *                              , P_LABEL_ATTR:{label tag attributes}
+     *                              , d.t.a.
+     *                              }
+     *                              | 'content to format as control group'
+     * @return string
+     */
+    public static function asControlGroup($control)
+    {
+        if(is_array($control))
+        {
+            $t = Misc::paramExtract($control, self::P_TARGET);
+            $l = Misc::paramExtract($control, self::P_LABEL);
+            $l_attr = Misc::paramExtract($control, self::P_LABEL_ATTR, array());
+            Misc::paramAdd($l_attr, 'control-label');
+            if(isset($t))
+                Misc::paramAdd($l_attr, $t, 'for');
+            $c = Misc::paramExtract($control, self::P_CONTENT);
+            Misc::paramAdd($control, 'control-group');
+            $c_attr = Misc::paramExtract($control, self::P_CONTENT_ATTR, array());
+            Misc::paramAdd($c_attr, 'controls');
+
+            return "<div".Html::attr($control)."><label".Html::attr($l_attr).">$l</label><div".Html::attr($c_attr).">$c</div></div>";
+        }
+        else
+            return isset($control) ? "<div class=\"control-group\"><div class=\"controls\">$control</div></div>" : null;
     }
 
     /** format as label
-     * @param string $label label to format
+     * @param array|string $label   {P_CONTENT:'label content', label tag attributes}
+     *                              | 'content to format as label'
      * @return string
      */
     public static function asLabel($label)
     {
-        return isset($label) ? "<label>$label</label>" : null;
+        if(is_array($label))
+        {
+            $l = Misc::paramExtract($label, self::P_LABEL);
+            Misc::paramAdd($label, 'label');
+            return "<label".Html::attr($label).">$l</label>";
+        }
+        else
+            return isset($label) ? "<label>$label</label>" : null;
     }
 
     /** get button element
@@ -130,6 +179,10 @@ class BootstrapUi
         return ' <button'.Html::attr($params).">$label</button>";
     }
 
+    /** get close icon for alert modal
+     * @param array $params {a tag attributes}
+     * @return string
+     */
     public static function close($params=array())
     {
         self::registerAlert();
@@ -514,23 +567,6 @@ EOct
             . $footer
             . '</div>'
             ;
-    }
-
-    /** returns attributes line for element
-     * @param array $params {P_TARGET:'modal div id', tag attributes}
-     */
-    public static function modalMain($params)
-    {
-        $id = Misc::paramExtract($params, 'id', 'modal_main');
-        HtmlPage::add(array(HtmlPage::HTML_FOOTER=>array(__METHOD__."-$id"=>Ui::modal($params + array(Ui::P_LABEL=>''
-            , Ui::P_CONTENT=>''
-            , Ui::P_FOOTER=>Ui::button(array(self::P_LABEL=>Html::encode(dgettext(Nls::FW_DOMAIN, 'Close'))
-                , 'class'=>'btn btn-primary', 'data-dismiss'=>'modal'
-                ))
-            , 'id'=>$id
-            )))));
-
-        return $id;
     }
 
     /** html-formatted pagination based on butons

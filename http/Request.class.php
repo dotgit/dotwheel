@@ -82,7 +82,7 @@ class Request
 
 
 
-    /** initialises the Config variables, opens session, initialises nls */
+    /** initialises the request variables, opens session, initialises nls */
     public static function init($params)
     {
         self::$static_url = Misc::paramExtract($params, self::INI_STATIC_URL);
@@ -211,9 +211,6 @@ class Request
             else
                 $_SESSION[self::$cookie_db] = self::$db_default;
         }
-
-//@DEBUG: overwrite defaults
-self::$static_url = self::$root.'static/';
 
         return true;
     }

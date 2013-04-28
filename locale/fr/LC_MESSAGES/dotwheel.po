@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-12 18:33+0100\n"
+"POT-Creation-Date: 2013-04-16 20:54+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: stas <stas@vertilia.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
@@ -11,128 +11,127 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-Basepath: /Users/stas/dev/proj/brixis/src/vendor/dotwheel\n"
+"X-Poedit-Basepath: /Users/stas/dev/proj/collexor/src/vendor/\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 "X-Generator: Poedit 1.5.5\n"
-"X-Poedit-SearchPath-0: /Users/stas/dev/proj/brixis/src/vendor/dotwheel\n"
+"X-Poedit-SearchPath-0: dotwheel\n"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/DbEntity.class.php:292
+#: dotwheel/db/DbEntity.class.php:292
 msgid "Error inserting into the database"
 msgstr "Erreur à l'insertion des données dans la base"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/DbEntity.class.php:327
+#: dotwheel/db/DbEntity.class.php:327
 msgid "Error updating the database"
 msgstr "Erreur à la mise à jour des données dans la base"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:283
+#: dotwheel/db/Repo.class.php:283
 #, php-format
 msgid "value in '%s' must not exceed %u characters"
 msgstr "valeur dans '%s' ne doit pas dépasser %u caractères"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:297
+#: dotwheel/db/Repo.class.php:297
 #, php-format
 msgid "value in '%s' does not represent an email address"
 msgstr "valeur dans '%s' ne représente pas une adresse e-mail"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:304
+#: dotwheel/db/Repo.class.php:304
 #, php-format
 msgid "value in '%s' does not represent a web address"
 msgstr "valeur dans '%s' ne représente pas une adresse web"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:312
+#: dotwheel/db/Repo.class.php:312
 #, php-format
 msgid "value in '%s' does not match the required format"
 msgstr "valeur dans '%s' ne correspond pas au format"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:339
+#: dotwheel/db/Repo.class.php:339
 #, php-format
 msgid "value in '%s' is not a valid date"
 msgstr "valeur dans '%s' n'est pas une date"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:361
+#: dotwheel/db/Repo.class.php:361
 #, php-format
 msgid "value in '%s' must be positive"
 msgstr "valeur dans '%s' doit être positif"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:370
+#: dotwheel/db/Repo.class.php:370
 #, php-format
 msgid "incorrect file information in '%s'"
 msgstr "les informations du fichier non valides dans '%s'"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:381
+#: dotwheel/db/Repo.class.php:381
 #, php-format
 msgid "file too big (max allowed size %uMb) in '%s'"
 msgstr "fichier est trop grand (la taille maximale est de %uMo) dans '%s'"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:384
+#: dotwheel/db/Repo.class.php:384
 #, php-format
 msgid "error uploading file from '%s'"
 msgstr "erreur de chargement du fichier dans '%s'"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:400
+#: dotwheel/db/Repo.class.php:400
 #, php-format
 msgid "value is required in '%s'"
 msgstr "valeur est obligatoire dans '%s'"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:409
+#: dotwheel/db/Repo.class.php:409
 #, php-format
 msgid "type mismatch for '%s'"
 msgstr "mauvais type de données dans '%s'"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:445
+#: dotwheel/db/Repo.class.php:445
 msgid "no"
 msgstr "non"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/db/Repo.class.php:445
+#: dotwheel/db/Repo.class.php:445
 msgid "yes"
 msgstr "oui"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/http/Response.class.php:195
+#: dotwheel/http/Response.class.php:113
 msgid "Input verification error"
 msgstr "Erreur à la vérification des données"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/http/Response.class.php:201
+#: dotwheel/http/Response.class.php:166
 msgid "Command execution error"
 msgstr "Erreur à l'exécution de la commande"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/BootstrapUi.class.php:142
-msgid "Empty required fields"
-msgstr "Champs obligatoires vides"
-
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/BootstrapUi.class.php:145
-msgid "Please fill-in the following required fields:"
-msgstr "Veuillez remplir les champs obligatoires suivants :"
-
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/BootstrapUi.class.php:534
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/Ui.class.php:51
+#: dotwheel/ui/BootstrapUi.class.php:528 dotwheel/ui/Ui.class.php:50
 msgid "Close"
 msgstr "Fermer"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/HtmlTable.class.php:315
+#: dotwheel/ui/HtmlForm.class.php:357
+msgid "Please fill-in the following required fields:"
+msgstr "Veuillez remplir les champs obligatoires suivants :"
+
+#: dotwheel/ui/HtmlForm.class.php:363
+msgid "Empty required fields"
+msgstr "Champs obligatoires vides"
+
+#: dotwheel/ui/HtmlTable.class.php:315
 msgid "No records"
 msgstr "Aucun enregistrement"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/HtmlTable.class.php:476
+#: dotwheel/ui/HtmlTable.class.php:476
 msgid "Prev"
 msgstr "Précédent"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/HtmlTable.class.php:487
+#: dotwheel/ui/HtmlTable.class.php:487
 msgid "Next"
 msgstr "Suivant"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/Ui.class.php:48
+#: dotwheel/ui/Ui.class.php:47
 msgid "OK"
 msgstr "OK"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/Ui.class.php:49
+#: dotwheel/ui/Ui.class.php:48
 msgid "Save"
 msgstr "Enregistrer"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/Ui.class.php:50
+#: dotwheel/ui/Ui.class.php:49
 msgid "Cancel"
 msgstr "Annuler"
 
-#: /Users/stas/dev/proj/brixis/src/vendor/dotwheel/ui/Ui.class.php:52
+#: dotwheel/ui/Ui.class.php:51
 msgid "Submit"
 msgstr "Envoyer"
 

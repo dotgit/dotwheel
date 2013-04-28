@@ -79,10 +79,14 @@ class Repo
     public static $store = array();
     /** var array list of loaded packages */
     public static $packages = array();
+    /** var array list of unresolved aliases to lookup after each addPackage */
+    public static $unresolved = array();
     /** var array list of validated request variables */
     public static $validated = array();
     /** var array list of errors during import */
     public static $input_errors = array();
+
+
 
     /** adds new package to repository (resolves aliases while adding). if the package
      * already exists then does nothing.
@@ -90,20 +94,38 @@ class Repo
      * @param array $fields     {fld:{repository field params}, ...}
      * @return bool whether the package was added
      */
-    public static function addPackage($package, $fields)
+    public static function registerPackage($package, $fields)
     {
+        // do not register twice
         if (isset(self::$packages[$package]))
             return false;
-        foreach ($fields as $k=>$v)
+
+        // add fields resolving aliases
+        foreach ($fields as $name=>$repo)
         {
-            if (isset($v[self::P_ALIAS]) and isset(self::$store[$v[self::P_ALIAS]]))
+            if (isset($repo[self::P_ALIAS]))
             {
-                self::$store[$k] = $v + self::$store[$v[self::P_ALIAS]];
-                unset(self::$store[$k][self::P_ALIAS]);
+                $ref = $repo[self::P_ALIAS];
+                if (isset(self::$store[$ref]))
+                    $repo += self::$store[$ref];
+                elseif (isset(self::$unresolved[$ref]))
+                    self::$unresolved[$ref][$name] = true;
+                else
+                    self::$unresolved[$ref] = array($name=>true);
             }
-            else
-                self::$store[$k] = $v;
+            self::$store[$name] = $repo;
         }
+
+        // check unresolved links
+        foreach (self::$unresolved as $ref=>$names)
+            if (isset(self::$store[$ref]))
+            {
+                foreach ($names as $name=>$_)
+                    self::$store[$name] += self::$store[$ref];
+                unset(self::$unresolved[$ref]);
+            }
+
+        // register package
         self::$packages[$package] = true;
 
         return true;
@@ -211,9 +233,9 @@ class Repo
         if (isset($repo[self::P_CLASS]))
             switch ($repo[self::P_CLASS])
             {
-            case self::C_ID:
-            case self::C_INT:
             case self::C_CENTS:
+            case self::C_INT:
+            case self::C_ID:
                 return true;
             }
         return false;
@@ -267,10 +289,25 @@ class Repo
                         $val = (int)$value;
                         break;
                     case self::C_CENTS:
-                        $val = (is_scalar($value)
-                            and is_numeric($value = str_replace(array(',', ' '), array('.', ''), $value))
-                            )
-                            ? floor($value*100) : false;
+                        if (! is_scalar($value))
+                            $val = false;
+                        else
+                        {
+                            $value = str_replace(array(' ', ' '), '', $value);
+                            if (strpos($value, ',') !== false and strpos($value, '.') !== false) // like 1,234.5
+                            {
+                                if (preg_match('/^(.*)[,.](\d+)$/', $value, $m))
+                                    ;
+                                else
+                                    ;
+                            }
+                            elseif (preg_match('/^(.*)[,.](\d+)$/', $value, $m))
+                        		$val = ((int)str_replace(array(',', '.'), '', $value))*100;
+                            elseif ($m[2])
+                        		$val = ((int)str_replace(array(',', '.'), '', $m[1]))*100 + ($m[2] < 10 ? $m[2]*10 : $m[2]);
+                            else
+                        		$val = ((int)str_replace(array(',', '.'), '', $value))*100;
+                        }
                         break;
                     case self::C_BOOL:
                         $val = $value ? 1 : null;
@@ -436,20 +473,17 @@ class Repo
             case self::C_INT:
                 return (int)$value;
             case self::C_CENTS:
-                return Html::asCents($value, ! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
+                return Html::asCents($value, ! empty($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
             case self::C_BOOL:
-                // if PARAMS_LIST provided, must be in format ['string for false', 'string for true']
+                // if P_ITEMS provided, must be a string
                 return Html::asEnum((int)(bool)$value
-                    , ! empty($repo[self::P_ITEMS])
-                        ? $repo[self::P_ITEMS]
+                    , isset($repo[self::P_ITEMS])
+                        ? array('', $repo[self::P_ITEMS])
                         : array(dgettext(Nls::FW_DOMAIN, 'no'), dgettext(Nls::FW_DOMAIN, 'yes'))
                     );
             case self::C_TEXT:
-                return (! empty($repo[self::P_FLAGS]))
-                    ? ($repo[self::P_FLAGS] & self::F_TEXTAREA
-                        ? Html::encodeNl($value, $repo[self::P_FLAGS] & self::F_TEXT_FORMAT)
-                        : Html::encode($value)
-                        )
+                return (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_TEXTAREA)
+                    ? Html::encodeNl($value, $repo[self::P_FLAGS] & self::F_TEXT_FORMAT)
                     : Html::encode($value)
                     ;
             case self::C_DATE:
@@ -502,39 +536,48 @@ class Repo
         {
         case self::C_ID:
         case self::C_INT:
-            return Html::inputInt($input + array('name'=>$name, 'value'=>$value, 'title'=>$label));
+            return Html::inputInt($input + array('name'=>$name, 'value'=>$value));
         case self::C_CENTS:
-            return Html::inputCents($input + array('name'=>$name, 'value'=>$value, 'title'=>$label));
+            return Html::inputCents($input + array('name'=>$name, 'value'=>$value));
         case self::C_BOOL:
-            // if PARAMS_LIST provided, must be in format ['string for false', 'string for true']
-            return Html::inputCheckbox($input + array('name'=>$name, 'title'=>$label
+            // if P_ITEMS provided, must be a string
+            return Html::inputCheckbox($input + array('name'=>$name
                 , 'checked'=>$value ? 'on' : null
-                , Html::P_COMMENT=>! empty($repo[self::P_COMMENT])
-                    ? $repo[self::P_COMMENT]
+                , Html::P_COMMENT=>! empty($repo[self::P_ITEMS])
+                    ? $repo[self::P_ITEMS]
                     : null
                 ));
         case self::C_TEXT:
-            return (! empty($repo[self::P_FLAGS]))
-                ? ($repo[self::P_FLAGS] & self::F_TEXTAREA
-                    ? Html::inputTextarea($input + array('name'=>$name, 'value'=>$value, 'title'=>$label))
-                    : Html::input($input + array('name'=>$name, 'value'=>$value, 'title'=>$label
-                        , 'type'=>$repo[self::P_FLAGS] & self::F_PASSWORD ? 'password' : 'text'
-                        , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : 255
-                        ))
-                    )
-                : Html::inputText($input + array('name'=>$name, 'value'=>$value, 'title'=>$label
-                    , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : 255
-                    ))
-                ;
+            if (! empty($repo[self::P_FLAGS]))
+            {
+                if ($repo[self::P_FLAGS] & self::F_TEXTAREA)
+                    return Html::inputTextarea($input + array('name'=>$name, 'value'=>$value));
+                if ($repo[self::P_FLAGS] & self::F_PASSWORD)
+                    $type = 'password';
+                elseif ($repo[self::P_FLAGS] & self::F_EMAIL)
+                    $type = 'email';
+                elseif ($repo[self::P_FLAGS] & self::F_TEL)
+                    $type = 'tel';
+                else
+                    $type = 'text';
+
+                return Html::input($input + array('name'=>$name, 'value'=>$value, 'type'=>$type
+                    , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
+                    ));
+            }
+            else
+                return Html::inputText($input + array('name'=>$name, 'value'=>$value
+                    , 'maxlength'=>! empty($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
+                    ));
         case self::C_DATE:
-            return Html::inputDate($input + array('name'=>$name, 'value'=>$value, 'title'=>$label
+            return Html::inputDate($input + array('name'=>$name, 'value'=>$value
                 , Html::P_DATETIME=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME)
                 );
         case self::C_ENUM:
             return (! empty($repo[self::P_ITEMS]))
                 ? (! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_RADIO
                     ? Html::inputRadio($input
-                        + array('name'=>$name, 'value'=>$value, 'title'=>$label
+                        + array('name'=>$name, 'value'=>$value
                             , Html::P_ITEMS=>$repo[self::P_ITEMS]
                             , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                                 ? Html::TYPE_ARRAY : null
@@ -543,7 +586,7 @@ class Repo
                             )
                         + Ui::$Input_enums_params
                         )
-                    : Html::inputSelect($input + array('name'=>$name, 'value'=>$value, 'title'=>$label
+                    : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                         , Html::P_ITEMS=>$repo[self::P_ITEMS]
                         , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::TYPE_ARRAY : null
@@ -551,7 +594,7 @@ class Repo
                             ? $repo[self::P_ITEM_BLANK] : null
                         ))
                     )
-                : Html::inputSelect($input + array('name'=>$name, 'value'=>$value, 'title'=>$label
+                : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                     , Html::P_TYPE=>! empty($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                         ? Html::TYPE_ARRAY : null
                     , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
@@ -560,7 +603,7 @@ class Repo
                 ;
         case self::C_SET:
             return Html::inputSet($input
-                + array('name'=>$name, 'value'=>$value, 'title'=>$label
+                + array('name'=>$name, 'value'=>$value
                     , Html::P_ITEMS=>$repo[self::P_ITEMS]
                     , Html::P_TYPE=>(! empty($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
                         ? Html::TYPE_ARRAY : null
@@ -570,39 +613,10 @@ class Repo
                 + Ui::$Input_sets_params
                 );
         case self::C_FILE:
-            return Html::input($input + array('name'=>$name, 'title'=>$label, 'type'=>'file'));
+            return Html::input($input + array('name'=>$name, 'type'=>'file'));
         default:
-            return Html::input($input + array('name'=>$name, 'value'=>$value, 'title'=>$label, 'type'=>'text'));
+            return Html::input($input + array('name'=>$name, 'value'=>$value, 'type'=>'text'));
         }
-    }
-
-    /** returns field representation with label and comment
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
-     * @return string
-     */
-    public static function asHtmlWrap($name, $value, $repo=array())
-    {
-        return Ui::asLabel(self::getLabel($name, $repo))
-            . self::asHtml($name, $value, $repo)
-            . Ui::asComment(self::getParam($name, self::P_COMMENT, $repo))
-            ;
-    }
-
-    /** returns field representation with label and comment
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $input  input attributes
-     * @param array $repo   {field repository attributes}
-     * @return string
-     */
-    public static function asHtmlInputWrap($name, $value, $input=array(), $repo=array())
-    {
-        return Ui::asLabel(self::getLabel($name, $repo))
-            . self::asHtmlInput($name, $value, $input, $repo)
-            . Ui::asComment(self::getParam($name, self::P_COMMENT, $repo))
-            ;
     }
 
     /** return value for use in sql where clause
