@@ -42,7 +42,7 @@ class Response
     {
         if (is_array($msg))
             static::$errors = array_merge(static::$errors
-                , $html ? $msg : array_map('Html::encode', $msg)
+                , $html ? $msg : array_map('dotwheel\ui\Html::encode', $msg)
                 );
         else
             static::$errors[] = $html ? $msg : Html::encode($msg);
