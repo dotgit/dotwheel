@@ -22,7 +22,7 @@ use dotwheel\util\Nls;
 class Http
 {
     /** creates a redirect URL
-     * @param string $page  a name of the script like desk/index.php
+     * @param string $page  a name of the script including module, like desk/index.php
      * @param array $params a hash with parameters to attach
      * @return string returns a full URL to a specified view embedding the passed parameters to use in a Location header
      */
