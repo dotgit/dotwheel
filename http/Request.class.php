@@ -18,8 +18,9 @@ use dotwheel\util\Params;
 
 class Request
 {
-    const HST_ROOT_LEVEL    = 1;
+    const HST_TOP_DIR       = 1;
     const HST_DB            = 2;
+    const HST_ROOT_LEVEL    = 3;
 
     const OUT_HTML  = 1;
     const OUT_CMD   = 2;
@@ -31,31 +32,34 @@ class Request
     const DTL_SORT      = 2;
     const DTL_PAGE      = 3;
 
-    const INI_STATIC_URL    = 1;
-    const INI_HOSTS         = 2;
-    const INI_COOKIE_LANG   = 3;
-    const INI_COOKIE_DB     = 4;
-    const INI_DATABASES     = 5;
-    const INI_DB_DEFAULT    = 6;
-    const INI_APP_DIR       = 7;
-    const INI_APP_DOMAIN    = 8;
+    const INI_STATIC_URL        = 1;
+    const INI_HOSTS             = 2;
+    const INI_HOST              = 3;
+    const INI_COOKIE_LANG       = 4;
+    const INI_COOKIE_DB         = 5;
+    const INI_DATABASES         = 6;
+    const INI_DB_DEFAULT        = 7;
+    const INI_APP_DOMAIN        = 8;
+    const INI_APP_LOCALE_DIR    = 9;
 
     /**
      * @var string  client-oriented path to document root from current
-     * script('' if the script is in the root(/script.php),
+     * controller ('' if the script is in the root (/script.php),
      * '../' if the script is in the second-level subdirectory
-     * (/dir/script.php), '../../' for /dir1/dir2/script.php)
+     * (/dir/script.php), '../../' for /dir1/dir2/script.php) etc.
      */
     public static $root = '';
     /** @var string url to use on redirecting. like http://localhost/ */
     public static $root_url = '/';
-    /** @var string the subdirectory of the current module, like desk */
+    /** @var string directory to hold application structure */
+    public static $app_dir = '/';
+    /** @var string the subdirectory of the current module, like 'dir' in /dir/index.php */
     public static $module;
-    /** @var string the file name of the current script, like index.php */
+    /** @var string the file name of the current script, like 'index' in /dir/index.php */
     public static $controller;
-    /** @var string output mode for request(OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
+    /** @var string output mode for request (OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
     public static $output;
-    /** @var string next view to redirect on successful command execution, like desk/index.php */
+    /** @var string next view to redirect on successful command execution, like '/dir/index.php' */
     public static $next;
     /** @var string list of elements(tables) with corresponding details, like {users:{DTL_SORT:'u_lastname,r'
      *                    , DTL_FILTERS:{u_status:'online',u_lastname:'tref'}
@@ -87,8 +91,8 @@ class Request
         self::$db_default = Params::extract($params, self::INI_DB_DEFAULT);
         self::$databases = Params::extract($params, self::INI_DATABASES, array());
         self::$cookie_db = Params::extract($params, self::INI_COOKIE_DB);
+        $host = Params::extract($params, self::INI_HOST, array());
         $cookie_lang = Params::extract($params, self::INI_COOKIE_LANG);
-        $hosts = Params::extract($params, self::INI_HOSTS, array());
 
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
@@ -117,12 +121,7 @@ class Request
                 if ($p = strpos($path, '?'))
                     $path = substr($path, 0, $p);
             }
-            $level = substr_count($path, '/')
-                - (isset($hosts[$_SERVER['SERVER_NAME']])
-                    ? $hosts[$_SERVER['SERVER_NAME']][self::HST_ROOT_LEVEL]
-                    : 1
-                    )
-                ;
+            $level = substr_count($path, '/') - $host[self::HST_ROOT_LEVEL];
             self::$root = str_repeat('../', $level);
 
             $dir = dirname($path);
@@ -195,7 +194,10 @@ class Request
         // ...if still undefined then guess
         if (empty($_SESSION[$cookie_lang]))
             $_SESSION[$cookie_lang] = Nls::guessLang($cookie_lang);
-        Nls::init(Params::extract($params, self::INI_APP_DOMAIN), Params::extract($params, self::INI_APP_DIR), $_SESSION[$cookie_lang]);
+        Nls::init(Params::extract($params, self::INI_APP_DOMAIN)
+            , $host[self::HST_TOP_DIR].Params::extract($params, self::INI_APP_LOCALE_DIR)
+            , $_SESSION[$cookie_lang]
+            );
 
         // identify db connection name from session or request
         if (empty($_SESSION[self::$cookie_db]))
@@ -204,10 +206,8 @@ class Request
                 and isset(self::$databases[$_COOKIE[self::$cookie_db]])
                 )
                 $_SESSION[self::$cookie_db] = $_COOKIE[self::$cookie_db];
-            elseif (isset($_SERVER['SERVER_NAME']) and isset($hosts[$_SERVER['SERVER_NAME']]))
-                $_SESSION[self::$cookie_db] = $hosts[$_SERVER['SERVER_NAME']][self::HST_DB];
             else
-                $_SESSION[self::$cookie_db] = self::$db_default;
+                $_SESSION[self::$cookie_db] = $host[self::HST_DB];
         }
 
         return true;

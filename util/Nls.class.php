@@ -144,7 +144,7 @@ class Nls
 
     /** initializes nls settings for the specified language
      * @param string $domain gettext domain name
-     * @param string $dir gettext directory
+     * @param string $dir gettext directory containing /locale/... hierarchy
      * @param string $ln 2-letter language code
      */
     public static function init($domain, $dir, $ln)
@@ -162,7 +162,7 @@ class Nls
         putenv('LANGUAGE='.self::$lang);
         bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
         bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
-        bindtextdomain($domain, $dir.'/locale');
+        bindtextdomain($domain, $dir);
         bind_textdomain_codeset($domain, self::$charset);
         textdomain($domain);
 

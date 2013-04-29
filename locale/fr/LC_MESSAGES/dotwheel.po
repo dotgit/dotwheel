@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-16 20:54+0100\n"
+"POT-Creation-Date: 2013-04-29 12:04+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: stas <stas@vertilia.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
@@ -24,88 +24,76 @@ msgstr "Erreur à l'insertion des données dans la base"
 msgid "Error updating the database"
 msgstr "Erreur à la mise à jour des données dans la base"
 
-#: dotwheel/db/Repo.class.php:283
+#: dotwheel/db/Repo.class.php:318
 #, php-format
 msgid "value in '%s' must not exceed %u characters"
 msgstr "valeur dans '%s' ne doit pas dépasser %u caractères"
 
-#: dotwheel/db/Repo.class.php:297
+#: dotwheel/db/Repo.class.php:333
 #, php-format
 msgid "value in '%s' does not represent an email address"
 msgstr "valeur dans '%s' ne représente pas une adresse e-mail"
 
-#: dotwheel/db/Repo.class.php:304
+#: dotwheel/db/Repo.class.php:342
 #, php-format
 msgid "value in '%s' does not represent a web address"
 msgstr "valeur dans '%s' ne représente pas une adresse web"
 
-#: dotwheel/db/Repo.class.php:312
+#: dotwheel/db/Repo.class.php:350
 #, php-format
 msgid "value in '%s' does not match the required format"
 msgstr "valeur dans '%s' ne correspond pas au format"
 
-#: dotwheel/db/Repo.class.php:339
+#: dotwheel/db/Repo.class.php:377
 #, php-format
 msgid "value in '%s' is not a valid date"
 msgstr "valeur dans '%s' n'est pas une date"
 
-#: dotwheel/db/Repo.class.php:361
+#: dotwheel/db/Repo.class.php:399
 #, php-format
 msgid "value in '%s' must be positive"
 msgstr "valeur dans '%s' doit être positif"
 
-#: dotwheel/db/Repo.class.php:370
+#: dotwheel/db/Repo.class.php:408
 #, php-format
 msgid "incorrect file information in '%s'"
 msgstr "les informations du fichier non valides dans '%s'"
 
-#: dotwheel/db/Repo.class.php:381
+#: dotwheel/db/Repo.class.php:419
 #, php-format
 msgid "file too big (max allowed size %uMb) in '%s'"
 msgstr "fichier est trop grand (la taille maximale est de %uMo) dans '%s'"
 
-#: dotwheel/db/Repo.class.php:384
+#: dotwheel/db/Repo.class.php:422
 #, php-format
 msgid "error uploading file from '%s'"
 msgstr "erreur de chargement du fichier dans '%s'"
 
-#: dotwheel/db/Repo.class.php:400
+#: dotwheel/db/Repo.class.php:438
 #, php-format
 msgid "value is required in '%s'"
 msgstr "valeur est obligatoire dans '%s'"
 
-#: dotwheel/db/Repo.class.php:409
+#: dotwheel/db/Repo.class.php:447
 #, php-format
 msgid "type mismatch for '%s'"
 msgstr "mauvais type de données dans '%s'"
 
-#: dotwheel/db/Repo.class.php:445
+#: dotwheel/db/Repo.class.php:483
 msgid "no"
 msgstr "non"
 
-#: dotwheel/db/Repo.class.php:445
+#: dotwheel/db/Repo.class.php:483
 msgid "yes"
 msgstr "oui"
 
-#: dotwheel/http/Response.class.php:113
+#: dotwheel/http/Response.class.php:110
 msgid "Input verification error"
 msgstr "Erreur à la vérification des données"
 
-#: dotwheel/http/Response.class.php:166
+#: dotwheel/http/Response.class.php:129
 msgid "Command execution error"
 msgstr "Erreur à l'exécution de la commande"
-
-#: dotwheel/ui/BootstrapUi.class.php:528 dotwheel/ui/Ui.class.php:50
-msgid "Close"
-msgstr "Fermer"
-
-#: dotwheel/ui/HtmlForm.class.php:357
-msgid "Please fill-in the following required fields:"
-msgstr "Veuillez remplir les champs obligatoires suivants :"
-
-#: dotwheel/ui/HtmlForm.class.php:363
-msgid "Empty required fields"
-msgstr "Champs obligatoires vides"
 
 #: dotwheel/ui/HtmlTable.class.php:315
 msgid "No records"
@@ -119,21 +107,26 @@ msgstr "Précédent"
 msgid "Next"
 msgstr "Suivant"
 
-#: dotwheel/ui/Ui.class.php:47
-msgid "OK"
-msgstr "OK"
+#~ msgid "Close"
+#~ msgstr "Fermer"
 
-#: dotwheel/ui/Ui.class.php:48
-msgid "Save"
-msgstr "Enregistrer"
+#~ msgid "Please fill-in the following required fields:"
+#~ msgstr "Veuillez remplir les champs obligatoires suivants :"
 
-#: dotwheel/ui/Ui.class.php:49
-msgid "Cancel"
-msgstr "Annuler"
+#~ msgid "Empty required fields"
+#~ msgstr "Champs obligatoires vides"
 
-#: dotwheel/ui/Ui.class.php:51
-msgid "Submit"
-msgstr "Envoyer"
+#~ msgid "OK"
+#~ msgstr "OK"
+
+#~ msgid "Save"
+#~ msgstr "Enregistrer"
+
+#~ msgid "Cancel"
+#~ msgstr "Annuler"
+
+#~ msgid "Submit"
+#~ msgstr "Envoyer"
 
 #~ msgid "Cannot connect to the database"
 #~ msgstr "Erreur à la connexion à la base de données"
