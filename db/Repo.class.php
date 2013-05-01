@@ -313,6 +313,8 @@ class Repo
                     case self::C_TEXT:
                         if (is_scalar($value))
                         {
+                            if (! ($flags & self::F_TEXTAREA))
+                                $value = preg_replace('/\s{2,}/', ' ', $value);
                             if (isset($repo[self::P_WIDTH]) and mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH])
                             {
                                 $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"), $label, $repo[self::P_WIDTH]);
