@@ -296,7 +296,7 @@ class HtmlForm
         }
         $params[self::FIELD_INPUT] = Ui::width2attr('100%', $params[self::FIELD_INPUT]);
         if (! empty($params[self::FIELD_REQUIRED]))
-            $label_attr['class'] = Ui::REQUIRED_CLASS;
+            Params::add($params[self::FIELD_INPUT], 'required', 'required');
         $label = isset($params[self::FIELD_LABEL]) ? $params[self::FIELD_LABEL] : Repo::getLabel($field);
         $label_str = ! empty($label)
             ? ("<label".Html::attr($label_attr).">$label</label>")

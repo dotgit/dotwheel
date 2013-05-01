@@ -15,8 +15,6 @@ require_once (__DIR__.'/HtmlPage.class.php');
 
 class Ui extends BootstrapUi
 {
-    const REQUIRED_CLASS = '_req';
-
     const TABLE_NEW_GROUP_CLASS = '_sw';
     const TABLE_TOTAL_ROW_CLASS = '_ttl';
     const TABLE_EMPTY_CLASS = '_tbl_empty';
