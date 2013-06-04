@@ -11,10 +11,12 @@ repository management.
 namespace dotwheel\db;
 
 require_once (__DIR__.'/../ui/Html.class.php');
+require_once (__DIR__.'/../util/Crypt.class.php');
 require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
 
 use dotwheel\ui\Html;
+use dotwheel\util\Crypt;
 use dotwheel\util\Misc;
 use dotwheel\util\Nls;
 
@@ -363,7 +365,7 @@ class Repo
                                 if ($flags & self::F_TEL)
                                     $val = Misc::formatTel($val);
                                 if ($flags & self::F_PASSWORD)
-                                    $val = sha1($val);
+                                    $val = Crypt::passEncode($val);
                             }
                         }
                         else
