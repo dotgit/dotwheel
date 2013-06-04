@@ -12,30 +12,23 @@ namespace dotwheel\util;
 
 class Algo
 {
-    /** tests the string has a valid luhn checksum. used for SIRET checks.
+    /** tests the string has a valid luhn checksum. used for SIRET and CC checks.
      * @param string $num_str   string representing the tested number
      * @return bool             whether the string passes
      * @see http://fr.wikipedia.org/wiki/Luhn
      * @see http://fr.wikipedia.org/wiki/Num%C3%A9ro_Interne_de_Classement
+     * @see http://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers#PHP
      */
     public static function luhn($num_str)
     {
-        $sum = 0;
-        for ($i = 0, $l = strlen($num_str); $i < $l; ++$i)
-        {
-            $k = ($i & 1)
-                ? (int)$num_str[$l-$i-1] << 1
-                : (int)$num_str[$l-$i-1]
-                ;
-            if ($k > 9)
-                $k -= 9;
-            $sum += $k;
-        }
+        $str = '';
+        foreach (array_reverse(str_split($num)) as $i=>$c)
+            $str .= ($i % 2 ? $c * 2 : $c );
 
-        return $sum % 10 == 0;
+        return array_sum(str_split($str)) % 10 == 0;
     }
 
-    /** tests the string has a valid mod97 checksum. used for IBAN checks.
+    /** tests the string has a valid mod97 checksum. used for IBAN and VAT checks.
      * @param string $num_str   string representing the tested number
      * @return bool             whether the string passes
      * @see http://fr.wikipedia.org/wiki/Luhn
