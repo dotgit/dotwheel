@@ -364,8 +364,6 @@ class Repo
                                     $val = mb_strtolower($val, Nls::$charset);
                                 if ($flags & self::F_TEL)
                                     $val = Misc::formatTel($val);
-                                if ($flags & self::F_PASSWORD)
-                                    $val = Crypt::passEncode($val);
                             }
                         }
                         else
