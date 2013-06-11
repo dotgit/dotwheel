@@ -14,12 +14,17 @@
 
 namespace dotwheel\util;
 
-require_once (__DIR__.'/../http/Request.class.php');
-
-use dotwheel\http\Request;
-
 class CacheBase
 {
+    /** @var string connection prefix to distinguish between different datasets on shared server */
+    static protected $prefix;
+
+
+    public static function init($prefix)
+    {
+        self::$prefix = "$prefix:";
+    }
+
     /** stores the value in the cache under the specified name using TTL
      * @param string $name structure name
      * @param string $value structure value
@@ -85,14 +90,9 @@ class CacheLocal extends CacheBase
 /** stores cache values in the quick cache(not scalable, process-specific, APC-like) */
 class Cache extends CacheBase
 {
-    static protected $db;
-
     public static function store($name, $value, $ttl=null)
     {
-        if (empty(self::$db))
-            self::$db = Request::getDb();
-
-        return apc_add(self::$db.":$name"
+        return apc_add(self::$prefix.$name
             , $value
             , isset($ttl) ? $ttl : 86400 // 24 hours
             );
@@ -100,26 +100,20 @@ class Cache extends CacheBase
 
     public static function fetch($name)
     {
-        if (empty(self::$db))
-            self::$db = Request::getDb();
-
-        $value = apc_fetch(self::$db.":$name");
+        $value = apc_fetch(self::$prefix.$name);
 
         return $value ? $value : null;
     }
 
     public static function delete($name)
     {
-        if (empty(self::$db))
-            self::$db = Request::getDb();
-
         if (is_array($name))
         {
             foreach ($name as $key)
-                apc_delete(self::$db.":$key");
+                apc_delete(self::$prefix.$key);
             return true;
         }
         else
-            return apc_delete(self::$db.":$name");
+            return apc_delete(self::$prefix.$name);
     }
 }

@@ -156,6 +156,9 @@ class Response
      */
     public static function outputHtml($html)
     {
+        header('Content-Language: '.Nls::$lang);
+        header('Content-Type: text/html;charset='.Nls::$charset);
+
         HtmlPage::add(array(HtmlPage::TITLE=>static::$name));
         if (isset(static::$description))
             HtmlPage::add(array(HtmlPage::META_DESCRIPTION=>static::$description));
@@ -184,7 +187,7 @@ class Response
      */
     public static function outputJson($result)
     {
-        header('Content-Type: application/json');
+        header('Content-Type: application/json;charset='.Nls::$charset);
         echo json_encode($result);
     }
 

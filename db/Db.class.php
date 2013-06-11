@@ -12,28 +12,6 @@ namespace dotwheel\db;
 
 class Db
 {
-    /** connection params */
-    const CNX_HOST_READ = 1;
-    const CNX_HOST_WRITE = 2;
-    const CNX_USERNAME = 3;
-    const CNX_PASSWORD = 4;
-    const CNX_DATABASE = 5;
-    const CNX_CHARSET = 6;
-
-    /** connect to read-only replica */
-    const MODE_READ = 1;
-    /** connect to read/write replica */
-    const MODE_WRITE = 2;
-
-    /** escape value and wrap it in apostrophes */
-    const WRAP_ALPHA = 1;
-    /** escape value, do not wrap */
-    const WRAP_NUM = 2;
-
-    /** @var string current mode(self::MODE_READ | self::MODE_WRITE) */
-    public static $mode;
-    /** @var string current database(index from Config::$databases) */
-    public static $db_current;
     /** @var Resource current connection */
     static protected $conn = null;
 
@@ -48,66 +26,20 @@ class Db
      * @return Resource|bool new database connection or <i>false</i> on error +
      * error_log
      */
-    public static function connect($host, $username, $password, $database, $charset='UTF-8')
+    public static function connect($host, $username, $password, $database, $charset='UTF8')
     {
         if (self::$conn = @mysqli_connect($host, $username, $password, $database))
         {
             if (isset($charset))
-                mysqli_query(self::$conn, "set names '$charset'");
+                mysqli_set_charset(self::$conn, $charset);
 
             return self::$conn;
         }
         else
         {
-            error_log(__FUNCTION__.": [db error] cannot connect to $username@$host:$database");
+            error_log(__METHOD__.": [db error] cannot connect to $username@$host:$database");
             return false;
         }
-    }
-
-    /** connects to the read-only database replica. if already connected to r/o
-     * or r/w does not reconnect.
-     * @param string $db        database alias
-     * @param string $params    database params
-     * @return Resource|bool    database connection handler or <i>false</i> on error
-     * @see self::connect()
-     */
-    public static function connectRead($db, $params)
-    {
-        if (self::$mode == self::MODE_READ or self::$mode == self::MODE_WRITE)
-            return self::$conn;
-
-        self::$mode = self::MODE_READ;
-        self::$db_current = $db;
-
-        return self::connect($params[self::CNX_HOST_READ]
-            , $params[self::CNX_USERNAME]
-            , $params[self::CNX_PASSWORD]
-            , $params[self::CNX_DATABASE]
-            , $params[self::CNX_CHARSET]
-            );
-    }
-
-    /** connects to the read/write database replica. if already connected to r/w
-     * does not reconnect.
-     * @param string $db        database alias
-     * @param string $params    database params
-     * @return Resource|bool    database connection handler or <i>false</i> on error
-     * @see self::connect()
-     */
-    public static function connectWrite($db, $params)
-    {
-        if (self::$mode == self::MODE_WRITE)
-            return self::$conn;
-
-        self::$mode = self::MODE_WRITE;
-        self::$db_current = $db;
-
-        return self::connect($params[self::CNX_HOST_WRITE]
-            , $params[self::CNX_USERNAME]
-            , $params[self::CNX_PASSWORD]
-            , $params[self::CNX_DATABASE]
-            , $params[self::CNX_CHARSET]
-            );
     }
 
     /** executes a sql statement and fetches only one record in associative mode
@@ -121,14 +53,14 @@ class Db
             return mysqli_fetch_assoc($_);
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function fetchRowDEBUG($sql, $assoc=false)
     {
-        error_log(__FUNCTION__.': sql: '.$sql);
+        error_log(__METHOD__.': sql: '.$sql);
         return self::fetchRow($sql, $assoc);
     }
 
@@ -152,14 +84,14 @@ class Db
         }
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function fetchListDEBUG($sql)
     {
-        error_log(__FUNCTION__.': sql: '.$sql);
+        error_log(__METHOD__.': sql: '.$sql);
         return self::fetchList($sql);
     }
 
@@ -185,14 +117,14 @@ class Db
         }
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function fetchHashDEBUG($sql, $key)
     {
-        error_log(__FUNCTION__.': sql: '.$sql.' -- key: '.$key);
+        error_log(__METHOD__.': sql: '.$sql.' -- key: '.$key);
         return self::fetchHash($sql, $key);
     }
 
@@ -212,14 +144,14 @@ class Db
         }
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function fetchArrayDEBUG($sql)
     {
-        error_log(__FUNCTION__.': sql: '.$sql);
+        error_log(__METHOD__.': sql: '.$sql);
         return self::fetchArray($sql);
     }
 
@@ -242,14 +174,14 @@ class Db
         }
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function fetchCsvDEBUG($sql)
     {
-        error_log(__FUNCTION__.': sql: '.$sql);
+        error_log(__METHOD__.': sql: '.$sql);
         return self::fetchCsv($sql);
     }
 
@@ -264,14 +196,14 @@ class Db
             return mysqli_affected_rows(self::$conn);
         else
         {
-            error_log(__FUNCTION__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
             return false;
         }
     }
 
     public static function dmlDEBUG($sql)
     {
-        error_log(__FUNCTION__.': sql: '.$sql);
+        error_log(__METHOD__.': sql: '.$sql);
         return self::dml($sql);
     }
 

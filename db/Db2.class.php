@@ -16,6 +16,13 @@ use dotwheel\db\Db;
 
 class Db2
 {
+    /** escape value and wrap it in apostrophes */
+    const WRAP_ALPHA = 1;
+    /** escape value, do not wrap */
+    const WRAP_NUM = 2;
+
+
+
     /** constructs and executes a DML command to insert a row in the specified table. <i>wrap_fields</i>
      * parameter specifies the type of escaping for each field(for example, WRAP_ALPHA means escape
      * the value and wrap it in apostrophes)
@@ -34,8 +41,8 @@ class Db2
         {
             switch ($params['wrap_fields'][$name])
             {
-                case Db::WRAP_ALPHA: $ins[$name] = Db::wrap($value); break;
-                case Db::WRAP_NUM: $ins[$name] = Db::escape($value); break;
+                case self::WRAP_ALPHA: $ins[$name] = Db::wrap($value); break;
+                case self::WRAP_NUM: $ins[$name] = Db::escape($value); break;
                 default: $ins[$name] = $value;
             }
             $dupl[$name] = "$name = values($name)";
@@ -73,8 +80,8 @@ class Db2
         {
             switch ($params['wrap_fields'][$name])
             {
-                case Db::WRAP_ALPHA: $upd[] = "$name = ".Db::wrap($value); break;
-                case Db::WRAP_NUM: $upd[] = "$name = ".Db::escape($value); break;
+                case self::WRAP_ALPHA: $upd[] = "$name = ".Db::wrap($value); break;
+                case self::WRAP_NUM: $upd[] = "$name = ".Db::escape($value); break;
                 default: $upd[] = "$name = $value";
             }
         }

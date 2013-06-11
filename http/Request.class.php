@@ -18,10 +18,6 @@ use dotwheel\util\Params;
 
 class Request
 {
-    const HST_TOP_DIR       = 1;
-    const HST_DB            = 2;
-    const HST_ROOT_LEVEL    = 3;
-
     const OUT_HTML  = 1;
     const OUT_CMD   = 2;
     const OUT_JSON  = 3;
@@ -33,14 +29,10 @@ class Request
     const DTL_PAGE      = 3;
 
     const INI_STATIC_URL        = 1;
-    const INI_HOSTS             = 2;
-    const INI_HOST              = 3;
-    const INI_COOKIE_LANG       = 4;
-    const INI_COOKIE_DB         = 5;
-    const INI_DATABASES         = 6;
-    const INI_DB_DEFAULT        = 7;
-    const INI_APP_DOMAIN        = 8;
-    const INI_APP_LOCALE_DIR    = 9;
+    const INI_ROOT_LEVEL        = 3;
+    const INI_COOKIE_DB         = 4;
+    const INI_DATABASES         = 5;
+    const INI_DB_DEFAULT        = 6;
 
     /**
      * @var string  client-oriented path to document root from current
@@ -49,18 +41,25 @@ class Request
      * (/dir/script.php), '../../' for /dir1/dir2/script.php) etc.
      */
     public static $root = '';
+
     /** @var string url to use on redirecting. like http://localhost/ */
     public static $root_url = '/';
+
     /** @var string directory to hold application structure */
     public static $app_dir = '/';
+
     /** @var string the subdirectory of the current module, like 'dir' in /dir/index.php */
     public static $module;
+
     /** @var string the file name of the current script, like 'index' in /dir/index.php */
     public static $controller;
+
     /** @var string output mode for request (OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
     public static $output;
+
     /** @var string next view to redirect on successful command execution, like '/dir/index.php' */
     public static $next;
+
     /** @var string list of elements(tables) with corresponding details, like {users:{DTL_SORT:'u_lastname,r'
      *                    , DTL_FILTERS:{u_status:'online',u_lastname:'tref'}
      *                    , DTL_PAGE:2
@@ -73,14 +72,9 @@ class Request
      *                - p(page): p[users]=2
      */
     public static $details = array();
+
     /** @var string URL of the static ressources directory */
     public static $static_url = '/static';
-    /** @var string list of available databases */
-    public static $databases;
-    /** @var string database default connection */
-    public static $db_default;
-    /** @var string cookie name that stores the user database */
-    public static $cookie_db;
 
 
 
@@ -88,11 +82,7 @@ class Request
     public static function init($params)
     {
         self::$static_url = Params::extract($params, self::INI_STATIC_URL);
-        self::$db_default = Params::extract($params, self::INI_DB_DEFAULT);
-        self::$databases = Params::extract($params, self::INI_DATABASES, array());
-        self::$cookie_db = Params::extract($params, self::INI_COOKIE_DB);
-        $host = Params::extract($params, self::INI_HOST, array());
-        $cookie_lang = Params::extract($params, self::INI_COOKIE_LANG);
+        $root_level = Params::extract($params, self::INI_ROOT_LEVEL);
 
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
@@ -121,7 +111,7 @@ class Request
                 if ($p = strpos($path, '?'))
                     $path = substr($path, 0, $p);
             }
-            $level = substr_count($path, '/') - $host[self::HST_ROOT_LEVEL];
+            $level = substr_count($path, '/') - $root_level;
             self::$root = str_repeat('../', $level);
 
             $dir = dirname($path);
@@ -175,39 +165,6 @@ class Request
                     else
                         self::$details[$el] = array(self::DTL_PAGE=>(string)$p);
                 }
-        }
-
-        // open session
-        session_start();
-
-        // identify nls parameters from request...
-        if (isset($_GET[$cookie_lang]))
-        {
-            $ln = $_GET[$cookie_lang];
-            if (isset(Nls::$store[$ln])
-                and(empty($_SESSION[$cookie_lang])
-                    or $_SESSION[$cookie_lang] != $ln
-                    )
-                )
-                $_SESSION[$cookie_lang] = $ln;
-        }
-        // ...if still undefined then guess
-        if (empty($_SESSION[$cookie_lang]))
-            $_SESSION[$cookie_lang] = Nls::guessLang($cookie_lang);
-        Nls::init(Params::extract($params, self::INI_APP_DOMAIN)
-            , $host[self::HST_TOP_DIR].Params::extract($params, self::INI_APP_LOCALE_DIR)
-            , $_SESSION[$cookie_lang]
-            );
-
-        // identify db connection name from session or request
-        if (empty($_SESSION[self::$cookie_db]))
-        {
-            if (isset($_COOKIE[self::$cookie_db])
-                and isset(self::$databases[$_COOKIE[self::$cookie_db]])
-                )
-                $_SESSION[self::$cookie_db] = $_COOKIE[self::$cookie_db];
-            else
-                $_SESSION[self::$cookie_db] = $host[self::HST_DB];
         }
 
         return true;

@@ -117,18 +117,42 @@ class Nls
 
 
 
-    /**
-     * @param string $cookie_lang cookie variable name
-     * @return string language code from the cookie(if present), from Accept-Language
-     * http header (if matches available languages) or self::LANG_DEFAULT otherwise
+    /** gets the user preferred language code and stores it in a cookie
+     * @param string $cookie_lang language cookie variable name
      */
-    public static function guessLang($cookie_lang)
+    public static function getLang($cookie_lang)
     {
-        if (isset($_COOKIE[$cookie_lang])
-            and isset(self::$store[$_COOKIE[$cookie_lang]])
+        // set language from GET...
+        if (isset($_GET[$cookie_lang])
+            and isset(self::$store[$_GET[$cookie_lang]])
             )
+        {
+            $ln = $_GET[$cookie_lang];
+            if (empty($_COOKIE[$cookie_lang])
+                or $_COOKIE[$cookie_lang] != $ln
+                )
+                setcookie($cookie_lang, $ln);
+            return $ln;
+        }
+        // ...or guess language if cookie empty
+        if (empty($_COOKIE[$cookie_lang]))
+        {
+            $ln = self::guessLang();
+            setcookie($cookie_lang, $ln);
+            return $ln;
+        }
+        // ...or return value from cookie
+        else
             return $_COOKIE[$cookie_lang];
 
+    }
+
+    /** determines language code from Accept-Language http header (if matches
+     * available languages) or self::LANG_DEFAULT otherwise
+     * @return string
+     */
+    public static function guessLang()
+    {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
         {
             foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lng)
@@ -142,29 +166,25 @@ class Nls
         return self::LANG_DEFAULT;
     }
 
-    /** initializes nls settings for the specified language
-     * @param string $domain gettext domain name
-     * @param string $dir gettext directory containing /locale/... hierarchy
+    /** initializes application and framework locales
+     * @param string $app_domain application locale domain name
+     * @param string $app_dir gettext directory containing /locale/... hierarchy
      * @param string $ln 2-letter language code
      */
-    public static function init($domain, $dir, $ln)
+    public static function init($app_domain, $app_dir, $ln)
     {
         // Nls configuration
         if ($ln != self::$lang and isset(self::$store[$ln]))
             self::$lang = $ln;
         self::$formats = self::$store[self::$lang];
 
-        // http headers
-        header('Content-Language: '.self::$lang);
-        header('Content-Type: text/html; charset='.self::$charset);
-
         // gettext configuration
         putenv('LANGUAGE='.self::$lang);
         bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
         bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
-        bindtextdomain($domain, $dir);
-        bind_textdomain_codeset($domain, self::$charset);
-        textdomain($domain);
+        bindtextdomain($app_domain, $app_dir);
+        bind_textdomain_codeset($app_domain, self::$charset);
+        textdomain($app_domain);
 
         return self::$lang;
     }
