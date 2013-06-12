@@ -73,8 +73,11 @@ class Response
     /** error message on html page */
     public static function outputHtmlError($msg=null)
     {
-        static::outputHtml('<section><h1>'.Html::encode(static::$name).'</h1>'
-            . '<ul><li>'.implode('</li><li>', static::$errors).'</li></ul>'
+        static::outputHtml('<section><h1>'.Html::encode($msg).'</h1>'
+            . (static::$errors
+                ? ('<ul><li>'.implode('</li><li>', static::$errors).'</li></ul>')
+                : ''
+                )
             . '</section>'
             );
     }
@@ -91,7 +94,7 @@ class Response
     /** error message on asis page */
     public static function outputAsisError($msg=null)
     {
-        static::outputAsis(Html::encode(static::$name)."\n".implode("\n", static::$errors));
+        static::outputAsis(Html::encode($msg)."\n".implode("\n", static::$errors));
     }
 
     /** sets page name, checks request parameters and user access rights, loads
