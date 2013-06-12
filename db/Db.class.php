@@ -37,7 +37,7 @@ class Db
         }
         else
         {
-            error_log(__METHOD__.": [db error] cannot connect to $username@$host:$database");
+            error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".mysqli_connect_error());
             return false;
         }
     }
@@ -53,15 +53,15 @@ class Db
             return mysqli_fetch_assoc($_);
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
-    public static function fetchRowDEBUG($sql, $assoc=false)
+    public static function fetchRowDEBUG($sql)
     {
-        error_log(__METHOD__.': sql: '.$sql);
-        return self::fetchRow($sql, $assoc);
+        error_log('['.__METHOD__.'] SQL: '.$sql);
+        return self::fetchRow($sql);
     }
 
     /**    executes a sql statement and fetches all records into a hash array. each
@@ -84,14 +84,14 @@ class Db
         }
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchListDEBUG($sql)
     {
-        error_log(__METHOD__.': sql: '.$sql);
+        error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchList($sql);
     }
 
@@ -117,14 +117,14 @@ class Db
         }
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchHashDEBUG($sql, $key)
     {
-        error_log(__METHOD__.': sql: '.$sql.' -- key: '.$key);
+        error_log('['.__METHOD__.'] SQL: '.$sql.'; KEY: '.$key);
         return self::fetchHash($sql, $key);
     }
 
@@ -144,14 +144,14 @@ class Db
         }
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchArrayDEBUG($sql)
     {
-        error_log(__METHOD__.': sql: '.$sql);
+        error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchArray($sql);
     }
 
@@ -174,14 +174,14 @@ class Db
         }
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchCsvDEBUG($sql)
     {
-        error_log(__METHOD__.': sql: '.$sql);
+        error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchCsv($sql);
     }
 
@@ -196,14 +196,14 @@ class Db
             return mysqli_affected_rows(self::$conn);
         else
         {
-            error_log(__METHOD__.': [db error] '.mysqli_error(self::$conn).'; sql: '.$sql);
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function dmlDEBUG($sql)
     {
-        error_log(__METHOD__.': sql: '.$sql);
+        error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::dml($sql);
     }
 

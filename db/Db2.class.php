@@ -16,90 +16,102 @@ use dotwheel\db\Db;
 
 class Db2
 {
-    /** escape value and wrap it in apostrophes */
-    const WRAP_ALPHA = 1;
-    /** escape value, do not wrap */
-    const WRAP_NUM = 2;
+    const P_TABLE       = 1;
+    const P_VALUES      = 2;
+    const P_WRAP        = 3;
+    const P_WHERE       = 4;
+    const P_DUPLICATES  = 5;
+
+    const WRAP_ALPHA    = 1;
+    const WRAP_NUM      = 2;
+    const WRAP_ASIS     = 3;
 
 
 
-    /** constructs and executes a DML command to insert a row in the specified table. <i>wrap_fields</i>
-     * parameter specifies the type of escaping for each field(for example, WRAP_ALPHA means escape
-     * the value and wrap it in apostrophes)
+    /** constructs and executes a DML command to insert a row in the specified table.
+     * <i>P_WRAP</i> parameter specifies the type of escaping for each field
+     * (for example, WRAP_ALPHA means escape the value and wrap it in apostrophes)
      *
-     * @param array $params {input:{fld1:value1,...}
-     * , table:'table_name'
-     * , wrap_fields:{fld1:WRAP_ALPHA|WRAP_NUM|null,...}
-     * , duplicates:true(whether to include the <i>'on duplicate key update'</i> part)
+     * @param array $params {P_TABLE:'table_name', required
+     * , P_WRAP:{fld1:WRAP_ALPHA|WRAP_NUM|WRAP_ASIS,...}
+     * , P_VALUES:{fld1:value1,...}
+     * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key update'</i> part)
+     * }
      * @return int|bool     number of affected records or false on error
      */
     public static function insert($params)
     {
         $ins = array();
         $dupl = array();
-        foreach ($params['input'] as $name=>$value)
+        foreach ($params[self::P_WRAP] as $name=>$wrap)
         {
-            switch ($params['wrap_fields'][$name])
-            {
-                case self::WRAP_ALPHA: $ins[$name] = Db::wrap($value); break;
-                case self::WRAP_NUM: $ins[$name] = Db::escape($value); break;
-                default: $ins[$name] = $value;
-            }
+            if (isset($params[self::P_VALUES][$name]))
+                switch ($wrap)
+                {
+                    case self::WRAP_ALPHA: $ins[$name] = Db::wrap($params[self::P_VALUES][$name]); break;
+                    case self::WRAP_NUM: $ins[$name] = Db::escape($params[self::P_VALUES][$name]); break;
+                    default: $ins[$name] = $params[self::P_VALUES][$name];
+                }
+            else
+                $ins[$name] = 'NULL';
             $dupl[$name] = "$name = values($name)";
         }
-        $on_dupl = isset($params['duplicates'])
-            ? (' on duplicate key update '.implode(',', array_intersect_key($dupl, $params['duplicates'])))
+        $on_dupl = isset($params[self::P_DUPLICATES])
+            ? (' on duplicate key update '.implode(',', array_intersect_key($dupl, $params[self::P_DUPLICATES])))
             : ''
             ;
 
-        return Db::dml(sprintf("insert into %s(%s) values(%s)%s"
-            , $params['table']
-            , implode(',', array_keys($ins))
-            , implode(',', array_values($ins))
-            , $on_dupl
-            ));
+        return $ins
+            ? Db::dml(sprintf("insert into %s (%s) values (%s)%s"
+                , $params[self::P_TABLE]
+                , implode(',', array_keys($ins))
+                , implode(',', array_values($ins))
+                , $on_dupl
+                ))
+            : 0
+            ;
     }
 
-    /** constructs and executes a DML command to update a row in the specified table. <i>wrap_fields</i>
-     * parameter specifies the type of escaping for each field(for example, WRAP_ALPHA means escape
-     * the value and wrap it in apostrophes). to locate a row you may indicate a <i>where</i> parameter or
-     * set the id_field and id_value parameters.
+    /** constructs and executes a DML command to update a row in the specified table.
+     * <i>P_WRAP</i> parameter specifies the type of escaping for each field
+     * (for example, WRAP_ALPHA means escape the value and wrap it in apostrophes).
+     * to locate a row you may indicate a <i>where</i> parameter or set the id_field
+     * and id_value parameters.
      *
-     * @param array $params {input:{fld1:value1,...}
-     * , table:'table_name'
-     * , wrap_fields:{fld1:WRAP_ALPHA|WRAP_NUM|null,...}
-     * , where:'a is not null'
-     * , id_field: (primary key field name, not checked if <i>where</i> is set)
-     * , id_value: (primary key value, not checked if <i>where</i> is set)
+     * @param array $params {P_TABLE:'table_name', required
+     * , P_WRAP:{fld1:WRAP_ALPHA|WRAP_NUM|WRAP_ASIS,...}
+     * , P_VALUES:{fld1:value1,...}
+     * , P_WHERE:'id = value', required
      * @return int|bool     number of affected records or false on error
      */
     public static function update($params)
     {
         $upd = array();
-        foreach ($params['input'] as $name=>$value)
+        foreach ($params[self::P_WRAP] as $name=>$wrap)
         {
-            switch ($params['wrap_fields'][$name])
-            {
-                case self::WRAP_ALPHA: $upd[] = "$name = ".Db::wrap($value); break;
-                case self::WRAP_NUM: $upd[] = "$name = ".Db::escape($value); break;
-                default: $upd[] = "$name = $value";
-            }
+            if (isset($params[self::P_VALUES][$name]))
+                switch ($wrap)
+                {
+                    case self::WRAP_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
+                    case self::WRAP_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
+                    default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
+                }
         }
 
         return $upd
             ? Db::dml(sprintf('update %s set %s where %s'
-                , $params['table']
+                , $params[self::P_TABLE]
                 , implode(', ', $upd)
-                , isset($params['where'])
-                    ? $params['where']
-                    : "{$params['id_field']} = {$params['id_value']}"
+                , isset($params[self::P_WHERE])
+                    ? $params[self::P_WHERE]
+                    : 'NULL'
                 ))
             : 0
             ;
     }
 
     /** dml operation to exchange the position of two lines
-     * @param array $params     {table:'application_experiences'
+     * @param array $params {table:'application_experiences'
      *  , main_id_field:'ane_an_id'
      *  , id_field:'ane_id'
      *  , pos_field:'ane_pos'
