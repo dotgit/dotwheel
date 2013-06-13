@@ -68,6 +68,15 @@ class DbShard extends Db
         self::$shards = $shards;
     }
 
+    /** given the list of available hosts select one to connect to
+     * @param array $hosts  array of available hosts
+     * @return array        selected host
+     */
+    public static function selectHost($hosts)
+    {
+        return $hosts[array_rand($hosts)];
+    }
+
     /** switch to specified shard, connect if selected host parameters differ from currently used
      * @param string $shard_name    shard name
      * @param integer $access_mode  MODE_READ | MODE_WRITE | null
@@ -77,12 +86,10 @@ class DbShard extends Db
     {
         // select access mode
         if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ)
-        {
-            if (isset(self::$connections[$shard_name][self::MODE_WRITE]))
-                $access_mode = self::MODE_WRITE;
-            else
-                $access_mode = self::MODE_READ;
-        }
+            $access_mode = isset(self::$connections[$shard_name][self::MODE_WRITE])
+                ? self::MODE_WRITE
+                : self::MODE_READ
+                ;
 
         if (empty(self::$connections[$shard_name][$access_mode]))
         {
@@ -101,14 +108,5 @@ class DbShard extends Db
 
         self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
         return parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
-    }
-
-    /** given the list of available hosts select one to connect to
-     * @param array $hosts  array of available hosts
-     * @return array        selected host
-     */
-    public static function selectHost($hosts)
-    {
-        return $hosts[array_rand($hosts)];
     }
 }
