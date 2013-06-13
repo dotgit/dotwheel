@@ -27,19 +27,20 @@ class DbShard extends Db
     const CNX_HOST_READ     = 11;
     const CNX_HOST_WRITE    = 12;
 
-    /** connect to read-only replica */
+    /** shard modes */
     const MODE_READ     = 1;
-    /** connect to read/write replica */
     const MODE_WRITE    = 2;
+
+    /** internal connection enum */
+    const ENUM_HOST = 1;
+    const ENUM_CNX  = 2;
 
     /** @var array list of application shards by shard name */
     public static $shards = array();
-    /** @var string last connected host */
-    public static $current_host;
-    /** @var string current mode (MODE_READ | MODE_WRITE) */
-    public static $current_mode;
     /** @var array list of current db connections by shard name / access mode */
     public static $connections = array();
+    /** @var string current host */
+    public static $current_host = array();
 
 
 
@@ -68,41 +69,38 @@ class DbShard extends Db
     }
 
     /** switch to specified shard, connect if selected host parameters differ from currently used
-     * @param type $shard_name
-     * @param type $access_mode
+     * @param string $shard_name    shard name
+     * @param integer $access_mode  MODE_READ | MODE_WRITE | null
+     * @return
      */
-    public static function useShard($shard_name, $access_mode=self::MODE_READ)
+    public static function useShard($shard_name, $access_mode=null)
     {
         // select access mode
-        if (isset($access_mode)
-            and self::$current_mode != $access_mode
-            and ($access_mode == self::MODE_READ || $access_mode == self::MODE_WRITE)
-            )
-            self::$current_mode = $access_mode;
-        elseif (empty(self::$current_mode))
-            self::$current_mode = self::MODE_READ;
-
-        // connect to the specified shard or use an existing connection
-        if (empty(self::$connections[$shard_name]) || empty(self::$connections[$shard_name][self::$current_mode]))
+        if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ)
         {
-            $host = self::selectHost(self::$shards[$shard_name][self::$current_mode]);
-            if ($host == self::$current_host)
-                self::$connections[$shard_name][self::$current_mode] = parent::$conn;
+            if (isset(self::$connections[$shard_name][self::MODE_WRITE]))
+                $access_mode = self::MODE_WRITE;
             else
-            {
-                self::$current_host = $host;
-                self::$connections[$shard_name][self::$current_mode] = self::connect(Params::extract($host, self::CNX_HOST, 'localhost')
+                $access_mode = self::MODE_READ;
+        }
+
+        if (empty(self::$connections[$shard_name][$access_mode]))
+        {
+            $host = self::selectHost(self::$shards[$shard_name][$access_mode]);
+            self::$connections[$shard_name][$access_mode] = array(self::ENUM_HOST=>$host);
+            self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($host == self::$current_host)
+                ? parent::$conn
+                : self::connect(Params::extract($host, self::CNX_HOST, 'localhost')
                     , Params::extract($host, self::CNX_USERNAME, 'root')
                     , Params::extract($host, self::CNX_PASSWORD, null)
                     , Params::extract($host, self::CNX_DATABASE, null)
                     , Params::extract($host, self::CNX_CHARSET, 'UTF8')
-                    );
-            }
+                    )
+                ;
         }
-        else
-            parent::$conn = self::$connections[$shard_name][self::$current_mode];
 
-        return parent::$conn;
+        self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
+        return parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
     }
 
     /** given the list of available hosts select one to connect to
