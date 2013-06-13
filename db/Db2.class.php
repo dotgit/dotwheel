@@ -17,23 +17,23 @@ use dotwheel\db\Db;
 class Db2
 {
     const P_TABLE       = 1;
-    const P_VALUES      = 2;
-    const P_WRAP        = 3;
+    const P_FIELDS      = 2;
+    const P_VALUES      = 3;
     const P_WHERE       = 4;
     const P_DUPLICATES  = 5;
 
-    const WRAP_ALPHA    = 1;
-    const WRAP_NUM      = 2;
-    const WRAP_ASIS     = 3;
+    const FMT_ALPHA = 1;
+    const FMT_NUM   = 2;
+    const FMT_ASIS  = 3;
 
 
 
     /** constructs and executes a DML command to insert a row in the specified table.
-     * <i>P_WRAP</i> parameter specifies the type of escaping for each field
-     * (for example, WRAP_ALPHA means escape the value and wrap it in apostrophes)
+     * <i>P_FIELDS</i> parameter specifies the type of escaping for each field
+     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes)
      *
      * @param array $params {P_TABLE:'table_name', required
-     * , P_WRAP:{fld1:WRAP_ALPHA|WRAP_NUM|WRAP_ASIS,...}
+     * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
      * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key update'</i> part)
      * }
@@ -43,13 +43,13 @@ class Db2
     {
         $ins = array();
         $dupl = array();
-        foreach ($params[self::P_WRAP] as $name=>$wrap)
+        foreach ($params[self::P_FIELDS] as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
                 switch ($wrap)
                 {
-                    case self::WRAP_ALPHA: $ins[$name] = Db::wrap($params[self::P_VALUES][$name]); break;
-                    case self::WRAP_NUM: $ins[$name] = Db::escape($params[self::P_VALUES][$name]); break;
+                    case self::FMT_ALPHA: $ins[$name] = Db::wrap($params[self::P_VALUES][$name]); break;
+                    case self::FMT_NUM: $ins[$name] = Db::escape($params[self::P_VALUES][$name]); break;
                     default: $ins[$name] = $params[self::P_VALUES][$name];
                 }
             else
@@ -73,13 +73,13 @@ class Db2
     }
 
     /** constructs and executes a DML command to update a row in the specified table.
-     * <i>P_WRAP</i> parameter specifies the type of escaping for each field
-     * (for example, WRAP_ALPHA means escape the value and wrap it in apostrophes).
+     * <i>P_FIELDS</i> parameter specifies the type of escaping for each field
+     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes).
      * to locate a row you may indicate a <i>where</i> parameter or set the id_field
      * and id_value parameters.
      *
      * @param array $params {P_TABLE:'table_name', required
-     * , P_WRAP:{fld1:WRAP_ALPHA|WRAP_NUM|WRAP_ASIS,...}
+     * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
      * , P_WHERE:'id = value', required
      * @return int|bool     number of affected records or false on error
@@ -87,13 +87,13 @@ class Db2
     public static function update($params)
     {
         $upd = array();
-        foreach ($params[self::P_WRAP] as $name=>$wrap)
+        foreach ($params[self::P_FIELDS] as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
                 switch ($wrap)
                 {
-                    case self::WRAP_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
-                    case self::WRAP_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
+                    case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
+                    case self::FMT_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
                     default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
                 }
         }
