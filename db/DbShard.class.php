@@ -24,8 +24,6 @@ class DbShard extends Db
     const CNX_PASSWORD      = 3;
     const CNX_DATABASE      = 4;
     const CNX_CHARSET       = 5;
-    const CNX_HOST_READ     = 11;
-    const CNX_HOST_WRITE    = 12;
 
     /** shard modes */
     const MODE_READ     = 1;
@@ -68,21 +66,12 @@ class DbShard extends Db
         self::$shards = $shards;
     }
 
-    /** given the list of available hosts select one to connect to
-     * @param array $hosts  array of available hosts
-     * @return array        selected host
-     */
-    public static function selectHost($hosts)
-    {
-        return $hosts[array_rand($hosts)];
-    }
-
     /** switch to specified shard, connect if selected host parameters differ from currently used
      * @param string $shard_name    shard name
      * @param integer $access_mode  MODE_READ | MODE_WRITE | null
      * @return
      */
-    public static function useShard($shard_name, $access_mode=null)
+    public static function open($shard_name, $access_mode=null)
     {
         // select access mode
         if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ)
@@ -108,5 +97,14 @@ class DbShard extends Db
 
         self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
         return parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
+    }
+
+    /** given the list of available hosts select one to connect to
+     * @param array $hosts  array of available hosts
+     * @return array        selected host
+     */
+    public static function selectHost($hosts)
+    {
+        return $hosts[array_rand($hosts)];
     }
 }

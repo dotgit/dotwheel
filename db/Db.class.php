@@ -28,11 +28,11 @@ class Db
      */
     public static function connect($host, $username, $password, $database, $charset='UTF8')
     {
-        if (self::$conn = @mysqli_connect($host, $username, $password, $database))
+        if (self::$conn = mysqli_init()
+            and mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
+            and mysqli_real_connect(self::$conn, $host, $username, $password, $database)
+            )
         {
-            if (isset($charset))
-                mysqli_set_charset(self::$conn, $charset);
-
             return self::$conn;
         }
         else
@@ -205,6 +205,45 @@ class Db
     {
         error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::dml($sql);
+    }
+
+    /** executes a prepared DML sentence with bound parameters
+     * @param string $sql DML sentence with ?-placeholders
+     * @param string $types params types string as in mysqli_stmt_bind_param()
+     * @param array $params bind parameters used for ?-placeholders
+     * @return int|bool returns a number of affected rows or <i>false</i> on error
+     * + error_log
+     * @link http://php.net/manual/en/mysqli-stmt.bind-param.php
+     */
+    public static function dmlBind($sql, $types, $params)
+    {
+        if ($stmt = mysqli_prepare(self::$conn, $sql)
+            and call_user_func_array('mysqli_stmt_bind_param', array_merge(array($stmt, $types), array_map(function(&$el){return $el;}, $params)))
+            and mysqli_stmt_execute($stmt)
+            )
+        {
+            $res = mysqli_stmt_affected_rows($stmt);
+            mysqli_stmt_close($stmt);
+            return $res;
+        }
+        else
+        {
+            if($stmt)
+            {
+                $err = mysqli_stmt_error($stmt);
+                mysqli_stmt_close($stmt);
+            }
+            else
+                $err = mysqli_error(self::$conn);
+            error_log('['.__METHOD__."] $err; SQL: $sql; TYPES: $types; PARAMS: ".json_encode($params));
+            return false;
+        }
+    }
+
+    public static function dmlBindDEBUG($sql, $types, $params)
+    {
+        error_log('['.__METHOD__."] SQL: $sql; TYPES: $types; PARAMS: ".json_encode($params));
+        return self::dmlBind($sql, $types, $params);
     }
 
     /** @return int returns last insert id */
