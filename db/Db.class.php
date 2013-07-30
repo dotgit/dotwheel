@@ -26,7 +26,7 @@ class Db
      * @return Resource|bool new database connection or <i>false</i> on error +
      * error_log
      */
-    public static function connect($host, $username, $password, $database, $charset='UTF8')
+    public static function connect($host=null, $username=null, $password=null, $database=null, $charset='UTF8')
     {
         if (self::$conn = mysqli_init()
             and mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
@@ -43,9 +43,9 @@ class Db
     }
 
     /** executes a sql statement and fetches only one record in associative mode
-     * @param string $sql SQL sentence
-     * @return array|bool returns a hash with the row information or <i>false</i>
-     * on error + error_log
+     * @param string $sql   SQL sentence
+     * @return array|bool hash with the row information or <i>false</i> on error
+     * + error_log
      */
     public static function fetchRow($sql)
     {
@@ -66,9 +66,8 @@ class Db
 
     /**    executes a sql statement and fetches all records into a hash array. each
      * record must consist of just two columns -- key(first) and value(second)
-     * @param string $sql SQL sentence (returning at least two columns)
-     * @return array|bool returns a hash with the rows or <i>false</i> on error
-     * + error_log
+     * @param string $sql   SQL sentence (returning at least two columns)
+     * @return array|bool hash with the rows or <i>false</i> on error + error_log
      */
     public static function fetchList($sql)
     {
@@ -98,10 +97,9 @@ class Db
     /** executes a sql statement and fetches all records into a hash. <i>$key</i>
      * column is considered a key in the returned list and the corresponding row
      * is a corresponding value
-     * @param string $sql SQL sentence
-     * @param string $key key column name
-     * @return array|bool returns a hash with the rows or <i>false</i> on error
-     * + error_log
+     * @param string $sql   SQL sentence
+     * @param string $key   key column name
+     * @return array|bool hash with the rows or <i>false</i> on error + error_log
      */
     public static function fetchHash($sql, $key)
     {
@@ -129,9 +127,8 @@ class Db
     }
 
     /** executes a sql statement and fetches all records into an array
-     * @param string $sql SQL sentence
-     * @return array|bool returns an array with the rows or <i>false</i> on error
-     * + error_log
+     * @param string $sql   SQL sentence
+     * @return array|bool array with the rows or <i>false</i> on error + error_log
      */
     public static function fetchArray($sql)
     {
@@ -157,8 +154,8 @@ class Db
 
     /** executes a sql statement, fetches all records and concatenates the first
      * column from each record into a final CSV string
-     * @param string $sql SQL sentence(selecting one column)
-     * @return string|bool returns a CSV string or <i>false</i> on error + error_log
+     * @param string $sql   SQL sentence(selecting one column)
+     * @return string|bool CSV string or <i>false</i> on error + error_log
      */
     public static function fetchCsv($sql)
     {
@@ -186,9 +183,8 @@ class Db
     }
 
     /** executes a DML sentence
-     * @param string $sql DML sentence
-     * @return int|bool returns a number of affected rows or <i>false</i> on error
-     * + error_log
+     * @param string $sql   DML sentence
+     * @return int|bool number of affected rows or <i>false</i> on error + error_log
      */
     public static function dml($sql)
     {
@@ -208,11 +204,10 @@ class Db
     }
 
     /** executes a prepared DML sentence with bound parameters
-     * @param string $sql DML sentence with ?-placeholders
+     * @param string $sql   DML sentence with ?-placeholders
      * @param string $types params types string as in mysqli_stmt_bind_param()
      * @param array $params bind parameters used for ?-placeholders
-     * @return int|bool returns a number of affected rows or <i>false</i> on error
-     * + error_log
+     * @return int|bool number of affected rows or <i>false</i> on error + error_log
      * @link http://php.net/manual/en/mysqli-stmt.bind-param.php
      */
     public static function dmlBind($sql, $types, $params)
@@ -246,16 +241,44 @@ class Db
         return self::dmlBind($sql, $types, $params);
     }
 
-    /** @return int returns last insert id */
+    /** @return int last insert id */
     public static function insertId()
     {
         return mysqli_insert_id(self::$conn);
     }
 
+    /** restores blob value encoded with blobEncode()
+     * @param type $blob    encoded blob value
+     * @return string original blob value
+     */
+    public static function blobDecode($blob)
+    {
+        if (substr($blob, 0, 3) == ' z:')
+            $blob = gzinflate(substr($blob, 3));
+        if (substr($blob, 0, 3) == ' j:')
+            $blob = json_decode(substr($blob, 3), true);
+
+        return $blob;
+    }
+
+    /** serializes the value if it is not a scalar. long values are gzdeflate-d
+     * @param type $blob    value to store
+     * @return string encoded blob value
+     */
+    public static function blobEncode($blob)
+    {
+        if (isset($blob) and ! is_scalar($blob))
+            $blob = ' j:'.json_encode($blob);
+        if (strlen($blob) > 31)
+            $blob = ' z:'.gzdeflate($blob);
+
+        return strlen($blob) <= 65535 ? $blob : null;
+    }
+
     /** escapes the passed value following tha database rules (normally used to
      * escape numbers)
      * @param string $value number to escape
-     * @return string returns escaped value or <i>'NULL'</i> string if the value
+     * @return string escaped value or <i>'NULL'</i> string if the value
      * is not set
      */
     public static function escape($value)
@@ -265,10 +288,10 @@ class Db
 
     /** escapes the passed value following tha database rules and wraps it in apostrophes
      * (normally used to escape strings)
-     * @param string|array $value string to escape (if an array is passed then all
-     * values are escaped, concatenated with a comma and then wrapped in apostrophes,
+     * @param string|array $value   string to escape (if an array is passed then
+     * all values are escaped, concatenated with a comma and then wrapped in apostrophes,
      * like in <i>'a,b,c'</i>)
-     * @return string returns wrapped value or <i>'NULL'</i> string if the value
+     * @return string wrapped value or <i>'NULL'</i> string if the value
      * is not set
      */
     public static function wrap($value)
@@ -284,7 +307,7 @@ class Db
     /** produces a CSV string from an array of passed non-zero integers
      * @param array|int $values array of int values to concatenate (if a scalar
      * is passed then it is converted to int and returned)
-     * @return string returns concatenated CSV string or <i>'NULL'</i> string if the value is unset
+     * @return string concatenated CSV string or <i>'NULL'</i> string if the value is unset
      */
     public static function escapeIntCsv($values)
     {

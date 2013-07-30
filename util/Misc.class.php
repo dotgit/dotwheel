@@ -14,40 +14,6 @@ require_once (__DIR__.'/Nls.class.php');
 
 class Misc
 {
-    /** decodes previously encoded blob value
-     * @param type $blob    encoded blob value
-     * @return string       decoded blob value
-     */
-    public static function blobDecode($blob)
-    {
-        switch (substr($blob, 0, 3))
-        {
-            case 'sr:': return unserialize(substr($blob, 3));
-            case 'gz:': return unserialize(gzinflate(substr($blob, 3)));
-            default: return substr($blob, 1);
-        }
-    }
-
-    /** serialises and compresses the passed value
-     * @param type $blob    value to encode
-     * @return string       encoded blob value
-     */
-    public static function blobEncode($blob)
-    {
-        if (!is_scalar($blob))
-        {
-            $blob = serialize($blob);
-            $blob = strlen($blob) > 252
-                ? ('gz:'.gzdeflate($blob, 1))
-                : "sr:$blob"
-                ;
-        }
-        else
-            $blob = ":$blob";
-
-        return strlen($blob) <= 65535 ? $blob : null;
-    }
-
     /** converts the proposed size to from K, M or G form to bytes
      * @param string $size_str  string with size representation(128M, 2G etc.)
      * @return int              size in bytes

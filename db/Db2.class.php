@@ -37,7 +37,7 @@ class Db2
      * , P_VALUES:{fld1:value1,...}
      * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key update'</i> part)
      * }
-     * @return int|bool     number of affected records or false on error
+     * @return int|bool     number of affected records or <i>false</i> on error
      */
     public static function insert($params)
     {
@@ -46,12 +46,14 @@ class Db2
         foreach ($params[self::P_FIELDS] as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
+            {
                 switch ($wrap)
                 {
                     case self::FMT_ALPHA: $ins[$name] = Db::wrap($params[self::P_VALUES][$name]); break;
                     case self::FMT_NUM: $ins[$name] = Db::escape($params[self::P_VALUES][$name]); break;
                     default: $ins[$name] = $params[self::P_VALUES][$name];
                 }
+            }
             else
                 $ins[$name] = 'NULL';
             $dupl[$name] = "$name = values($name)";
@@ -82,7 +84,7 @@ class Db2
      * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
      * , P_WHERE:'id = value', required
-     * @return int|bool     number of affected records or false on error
+     * @return int|bool     number of affected records or <i>false</i> on error
      */
     public static function update($params)
     {
@@ -90,12 +92,14 @@ class Db2
         foreach ($params[self::P_FIELDS] as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
+            {
                 switch ($wrap)
                 {
                     case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
                     case self::FMT_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
                     default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
                 }
+            }
         }
 
         return $upd
@@ -119,7 +123,7 @@ class Db2
      *  , id_value:$ane_id
      *  , op:'u'|'d'
      *  }
-     * @return int|bool     number of affected records or false on error
+     * @return int|bool     number of affected records or <i>false</i> on error
      */
     public static function changePos($params)
     {

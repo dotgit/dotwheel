@@ -33,7 +33,7 @@ class DbShard extends Db
     const ENUM_HOST = 1;
     const ENUM_CNX  = 2;
 
-    /** @var array list of application shards by shard name */
+    /** @var array list of all available application shards by shard name */
     public static $shards = array();
     /** @var array list of current db connections by shard name / access mode */
     public static $connections = array();
