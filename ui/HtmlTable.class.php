@@ -22,14 +22,17 @@ use dotwheel\util\Params;
 
 class HtmlTable
 {
-    const P_ROWS    = 1;
-    const P_FIELDS  = 2;
-    const P_SORT    = 3;
-    const P_UNIQUE  = 4;
-    const P_LAYOUT  = 5;
-    const P_EMPTY   = 6;
-    const P_PREFIX  = 7;
-    const P_SUFFIX  = 8;
+    const P_ROWS        = 1;
+    const P_FIELDS      = 2;
+    const P_SORT        = 3;
+    const P_UNIQUE      = 4;
+    const P_LAYOUT      = 5;
+    const P_EMPTY       = 6;
+    const P_PREFIX      = 7;
+    const P_SUFFIX      = 8;
+    const P_GROUP_CLASS = 9;
+    const P_TOTAL_CLASS = 10;
+    const P_EMPTY_CLASS = 11;
 
     const R_VALUES  = -1;
     const R_TD      = -2;
@@ -153,6 +156,11 @@ class HtmlTable
         $totals = false;
         $totals_fn = array();
         $totals_cnt = array();
+
+        $group_class = Params::extract($params, self::P_GROUP_CLASS, '_grp');
+        $total_class = Params::extract($params, self::P_TOTAL_CLASS, '_ttl');
+        $empty_class = Params::extract($params, self::P_EMPTY_CLASS, '_emp');
+
         foreach (Params::extract($params, self::P_FIELDS) as $field=>$f)
         {
             if (! is_array($f))
@@ -345,7 +353,7 @@ class HtmlTable
                 // grouping
                 if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key])
                 {
-                    Params::add($tr, Ui::TABLE_NEW_GROUP_CLASS);
+                    Params::add($tr, $group_class);
                     $sort_group_old = $row[$sort_group_key];
                 }
 
@@ -420,7 +428,7 @@ class HtmlTable
                     else
                         $t[$field] = '';
                 }
-                echo Html::tr(array(Html::P_VALUES=>$t, Html::P_TD_ATTR=>$aligns, 'class'=>Ui::TABLE_TOTAL_ROW_CLASS));
+                echo Html::tr(array(Html::P_VALUES=>$t, Html::P_TD_ATTR=>$aligns, 'class'=>$total_class));
             }
 
             // finalize table
@@ -435,7 +443,7 @@ class HtmlTable
             echo Html::tableStop();
         }
         else
-            echo '<div'.Html::attr(array('class'=>Ui::TABLE_EMPTY_CLASS)).'>'
+            echo '<div'.Html::attr(array('class'=>$empty_class)).'>'
                 , Html::encode($empty_label)
                 , '</div>'
                 ;

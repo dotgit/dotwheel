@@ -61,12 +61,6 @@ class BootstrapUi
     const WIDTH_1_4     = 3;
     const WIDTH_1_6     = 2;
     const WIDTH_1_12    = 1;
-    const WIDTH_MINI    = -1;
-    const WIDTH_SMALL   = -2;
-    const WIDTH_MEDIUM  = -3;
-    const WIDTH_LARGE   = -4;
-    const WIDTH_XLARGE  = -5;
-    const WIDTH_XXLARGE = -6;
 
 
 
@@ -86,7 +80,13 @@ class BootstrapUi
             $body = '<h4'.Html::attr($label_attr).'>'.$label.'</h4>'.$body;
         }
         if ($close = Params::extract($params, self::P_CLOSE))
-            $body = self::close(is_array($close) ? $close : array()) . $body;
+        {
+            if (is_array($close))
+                Params::add($close, 'alert', 'data-dismiss');
+            else
+                $close = array('data-dismiss'=>'alert');
+            $body = self::close($close) . $body;
+        }
         Params::add($params, 'alert');
 
         return '<div'.Html::attr($params).">$body</div>";
@@ -108,40 +108,51 @@ class BootstrapUi
             return isset($comment) ? "<div class=\"help-block\">$comment</div>" : null;
     }
 
-    /** format as control group
-     * @param array|string $control {P_CONTENT:'control group content'
+    /** format as form group
+     * @param array|string $control {P_CONTENT:'form group content'
      *                              , P_CONTENT_ATTR:{content d.t.a.}
      *                              , P_TARGET:'label tag for attribute target'
      *                              , P_LABEL:'label content'
-     *                              , P_LABEL_ATTR:{label tag attributes}
+     *                              , P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , d.t.a.
      *                              }
-     *                              | 'content to format as control group'
+     *                              | 'content to format as form group'
      * @return string
      */
-    public static function asControlGroup($control)
+    public static function asFormGroup($control)
     {
         if(is_array($control))
         {
-            $t = Params::extract($control, self::P_TARGET);
             $l = Params::extract($control, self::P_LABEL);
             $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
+            if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_3))
+                $l_attr = static::width2Attr($w, $l_attr);
             Params::add($l_attr, 'control-label');
-            if(isset($t))
+
+            if ($t = Params::extract($control, self::P_TARGET))
                 Params::add($l_attr, $t, 'for');
+
             $c = Params::extract($control, self::P_CONTENT);
-            Params::add($control, 'control-group');
             $c_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
-            Params::add($c_attr, 'controls');
+            if ($w = Params::extract($c_attr, self::P_WIDTH, self::WIDTH_2_3))
+                $c_attr = static::width2Attr($w, $c_attr);
+
+            Params::add($control, 'form-group');
+            Params::add($control, 'row');
 
             return "<div".Html::attr($control)."><label".Html::attr($l_attr).">$l</label><div".Html::attr($c_attr).">$c</div></div>";
         }
         else
-            return isset($control) ? "<div class=\"control-group\"><div class=\"controls\">$control</div></div>" : null;
+            return isset($control)
+                ? '<div class="form-group row"><div'.Html::attr (Ui::width2Attr(Ui::WIDTH_3_4, Ui::widthOffset2Attr(Ui::WIDTH_1_3))).">$control</div></div>"
+                : null
+                ;
     }
 
     /** format as label
-     * @param array|string $label   {P_CONTENT:'label content', label tag attributes}
+     * @param array|string $label   {P_LABEL:'label content'
+     *                              , label tag attributes
+     *                              }
      *                              | 'content to format as label'
      * @return string
      */
@@ -171,7 +182,7 @@ class BootstrapUi
     }
 
     /** get close icon for alert modal
-     * @param array $params {a tag attributes}
+     * @param array $params {button tag attributes}
      * @return string
      */
     public static function close($params=array())
@@ -179,9 +190,8 @@ class BootstrapUi
         self::registerAlert();
 
         Params::add($params, 'close');
-        Params::add($params, 'alert', 'data-dismiss');
 
-        return '<a'.Html::attr($params).">&times;</a>";
+        return '<button'.Html::attr($params).">&times;</button>";
     }
 
     /** returns collapsed container(hidden by default)
@@ -216,7 +226,7 @@ class BootstrapUi
         self::registerButton();
         self::registerCollapse();
 
-        $id = Params::extract($params, 'id', 'clps_btn_'.$cnt++);
+        $id = Params::extract($params, 'id', 'clps_btn_'.++$cnt);
         $id_target = Params::extract($params, self::P_TARGET);
         $prefix = ($label_attr = Params::extract($params, self::P_LABEL_ATTR, array()))
             ? ('<i'.Html::attr($label_attr).'></i> ')
@@ -241,223 +251,6 @@ EOco
         Params::add($params, 'dropdown');
 
         return self::button(array(self::P_LABEL=>"$prefix<span class=\"caret\"></span>") + $params);
-    }
-
-    /** returns sidebar with a label and a list of menu positions
-     * @staticvar int $cnt
-     * @param array $params {P_LABEL:''
-     *                      , {P_LABEL:..., P_LABEL_ATTR:..., P_ACTIVE:...
-     *                          , 1st a tag attributes
-     *                          }
-     *                      , {2nd...}
-     *                      , container div attributes
-     *                      }
-     * @return string
-     */
-    public static function sideBar($params)
-    {
-        $container_label = Params::extract($params, self::P_LABEL);
-        $container_attr = array();
-        $controls = array();
-        foreach ($params as $k=>$control)
-        {
-            if (is_array($control))
-            {
-                $label = Params::extract($control, self::P_LABEL);
-                $label_attr = Params::extract($control, self::P_LABEL_ATTR, array());
-                if (Params::extract($control, self::P_ACTIVE))
-                    Params::add($label_attr, 'active');
-                if (isset($label))
-                    $label = '<a'.Html::attr($control).">$label</a>";
-                $controls[] = '<li'.Html::attr($label_attr).">$label</li>";
-            }
-            else
-                $container_attr[$k] = $control;
-        }
-        Params::add($container_attr, 'nav nav-list');
-
-        return '<ul'.Html::attr($container_attr).'>'
-            . (isset($container_label) ? "<li class=\"nav-header\">$container_label</li>" : '')
-            . implode('', $controls)
-            . '</ul>'
-            ;
-    }
-
-    /** returns cycling blocks controlled with buttons
-     * @staticvar int $cnt
-     * @param array $params {{P_LABEL:..., P_CONTENT:..., 1st button tag attributes}
-     *                      , {2nd...}
-     *                      , container div attributes
-     *                      }
-     * @return string
-     */
-    public static function cycleButtons($params)
-    {
-        static $cnt = 0;
-
-        self::registerButton();
-
-        $container_args = array();
-        $controls = array();
-        $panes = array();
-        $id = null;
-        foreach ($params as $k=>$control)
-        {
-            if (is_array($control))
-            {
-                $id = Params::extract($control, 'id', 'ccl_btn_'.$cnt++);
-                $label = Params::extract($control, self::P_LABEL);
-                $content = Params::extract($control, self::P_CONTENT);
-                Params::add($control, $id, 'id');
-                $pane = array();
-                if (!$k)
-                    Params::add($control, 'active');
-                else
-                    Params::add($pane, 'hide');
-                $controls[] = self::button($control + array(self::P_LABEL=>$label));
-                $panes[] = '<div'.Html::attr($pane).'>'.$content.'</div>';
-                HtmlPage::add(array(HtmlPage::DOM_READY=>array(
-                    __METHOD__."-$id"=>"$('#$id').click(function(){if (!$(this).is('.active'))cycle_from_to($(this).parent().next(),$k);});"
-                    )));
-            }
-            else
-                $container_args[$k] = $control;
-        }
-
-        HtmlPage::add(array(HtmlPage::SCRIPT=>array(__METHOD__.'-cycle_to'=><<<EOct
-function cycle_from_to(el,k){
-    $(el).children(':visible').slideUp().end().children().eq(k).slideDown();
-}
-EOct
-            )));
-
-        return '<div'.Html::attr($container_args).'>'
-            . '<div class="btn-group" data-toggle="buttons-radio">'
-            . implode('', $controls)
-            . '</div>'
-            . '<div class="_cycle">'
-            . implode('', $panes)
-            . '</div>'
-            . '</div>'
-            ;
-    }
-
-    /** returns field representation with label and comment
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
-     * @return string
-     */
-    public static function fieldLabelView($name, $value, $repo=array())
-    {
-        $content = Repo::asHtml($name, $value, $repo);
-        $label = Repo::getLabel($name, null, $repo);
-        if (isset($label))
-            $label = "$label<br>";
-        $comment = Repo::getParam($name, Repo::P_COMMENT, $repo);
-        if (isset($comment))
-            $comment = "<p class=\"help-block\">$comment</p>";
-
-        return "$label$content$comment";
-    }
-
-    /** returns container with fields in horizontal orientation(labels on the left)
-     * @param array $params {P_LABEL:'label', P_LABEL_ATTR:{label tag attributes}
-     *                      , P_CONTENT:'container content'
-     *                      , container div tag attributes
-     *                      }
-     * @return string
-     */
-    public static function fieldsHorizontal($params)
-    {
-        $content = Params::extract($params, self::P_CONTENT);
-        $label = Params::extract($params, self::P_LABEL);
-        $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
-        Params::add($label_attr, 'control-label');
-        Params::add($params, 'control-group');
-
-        return '<div'.Html::attr($params).'><label'.Html::attr($label_attr).">$label</label><div class=\"controls\">$content</div></div>";
-    }
-
-    /** returns a div with buttons
-     * @param array $actions    {btn_name:{button tag attributes},...}
-     * @return string
-     */
-    public static function formActions($actions)
-    {
-        $buttons = array();
-        foreach ($actions as $k=>$attr)
-        {
-            if (is_array($attr))
-            {
-                $value = Params::extract($attr, 'value', $k);
-                Params::add($attr, 'btn');
-                $buttons[] = '<button'.Html::attr($attr).">$value</button>";
-            }
-            else
-                $buttons[] = $attr;
-        }
-
-        return '<div class="form-actions">'.implode(' ', $buttons).'</div>';
-    }
-
-    /** returns a container of a fixed grid with rows and cells
-     * @param array $rows   {{{P_WIDTH:..., P_CONTENT:'cell_content'}
-     *                          , 'cell_content', 'row_attr':'value'
-     *                          }
-     *                      , 'row_content'
-     *                      , container div tag attributes
-     *                      }
-     * @return string
-     */
-    public static function gridContainerFixed($rows)
-    {
-        $new_rows = array();
-        foreach ($rows as $rkey=>$row)
-        {
-            if (is_array($row))
-            {
-                Params::add($row, 'row');
-                $new_rows[] = static::gridRow($row);
-                unset($rows[$rkey]);
-            }
-            elseif (is_int($rkey))
-            {
-                $new_rows[] = static::gridRow(array($row, 'class'=>'row'));
-                unset($rows[$rkey]);
-            }
-        }
-        Params::add($rows, 'container');
-
-        return '<div'.Html::attr($rows).'>'
-            . implode('', $new_rows)
-            . '</div>'
-            ;
-    }
-
-    public static function gridContainerFluid($rows)
-    {
-        $new_rows = array();
-        foreach ($rows as $rkey=>$row)
-        {
-            if (is_array($row))
-            {
-                Params::add($row, 'row-fluid');
-                $new_rows[] = static::gridRow($row);
-                unset($rows[$rkey]);
-            }
-            elseif (is_int($rkey))
-            {
-                $new_rows[] = static::gridRow(array($row, 'class'=>'row-fluid'));
-                unset($rows[$rkey]);
-            }
-        }
-        Params::add($rows, 'container-fluid');
-
-        return '<div'.Html::attr($rows).'>'
-            . implode('', $new_rows)
-            . '</div>'
-            ;
     }
 
     /** returns a div wrapper containing other divs for individual columns
@@ -501,14 +294,49 @@ EOct
                 unset($columns[$k]);
             }
         }
+        Params::add($columns, 'row');
 
         return '<div'.Html::attr($columns).'>'.implode('', $cols).'</div>';
+    }
+
+    /** returns a container of a fixed grid with rows and cells
+     * @param array $rows   {{{P_WIDTH:..., P_CONTENT:'cell_content'}
+     *                          , 'cell_content', 'row_attr':'value'
+     *                          }
+     *                      , 'row_content'
+     *                      , container div tag attributes
+     *                      }
+     * @return string
+     */
+    public static function gridRowsContainer($rows)
+    {
+        $new_rows = array();
+        foreach ($rows as $rkey=>$row)
+        {
+            if (is_array($row))
+            {
+                $new_rows[] = static::gridRow($row);
+                unset($rows[$rkey]);
+            }
+            elseif (is_int($rkey))
+            {
+                $new_rows[] = static::gridRow(array($row));
+                unset($rows[$rkey]);
+            }
+        }
+        Params::add($rows, 'container');
+
+        return '<div'.Html::attr($rows).'>'
+            . implode('', $new_rows)
+            . '</div>'
+            ;
     }
 
     /** returns a modal dialog window with specified header, body and buttons
      * @param array $params {P_LABEL:'dialog title'
      *                      , P_CONTENT:'dialog body'
      *                      , P_FOOTER:'dialog buttons row'
+     *                      , P_CLOSE:close button tag attributes
      *                      , container div attributes
      *                      }
      * @return string
@@ -517,24 +345,32 @@ EOct
     {
         self::registerModal();
 
+        $close = Params::extract($params, self::P_CLOSE);
         $header = Params::extract($params, self::P_LABEL);
         $body = Params::extract($params, self::P_CONTENT);
         $footer = Params::extract($params, self::P_FOOTER);
 
         Params::add($params, 'modal');
-        Params::add($params, 'hide');
 
+        if (is_array($close))
+            Params::add($close, 'modal', 'data-dismiss');
+        else
+            $close = array('data-dismiss'=>'modal');
         if (isset($header))
-            $header = "<div class=\"modal-header\"><a class=\"close\" data-dismiss=\"modal\">&times;</a><h3>$header</h3></div>";
+            $header = "<div class=\"modal-header\">".self::close($close)."<h4 class=\"modal-title\">$header</h4></div>";
         if (isset($body))
             $body = "<div class=\"modal-body\">$body</div>";
         if (isset($footer))
             $footer = "<div class=\"modal-footer\">$footer</div>";
 
         return '<div'.Html::attr($params).'>'
+            . '<div class="modal-dialog">'
+            . '<div class="modal-content">'
             . $header
             . $body
             . $footer
+            . '</div>'
+            . '</div>'
             . '</div>'
             ;
     }
@@ -655,9 +491,14 @@ EOct
     {
     }
 
-    /**
-     *
-     * @param type $params
+    /** html-formatted bootstrap tabs
+     * @param array $params {{P_TARGET:'pane id'
+     *                          , P_LABEL:'tab label'
+     *                          , P_CONTENT:'pane content'
+     *                          , P_ACTIVE:bool
+     *                          }
+     *                      , div tag attributes
+     *                      }
      * @return type
      */
     public static function tabs($params)
@@ -666,25 +507,28 @@ EOct
 
         $tabs = array();
         $panes = array();
-        foreach ($params as $tab)
+        foreach ($params as $k=>$tab)
         {
-            $id = Params::extract($tab, self::P_TARGET);
-            $label = Params::extract($tab, self::P_LABEL);
-            $pane = array('id'=>$id, 'class'=>'tab-pane');
-            $content = Params::extract($tab, self::P_CONTENT);
-            if (Params::extract($tab, self::P_ACTIVE))
+            if (is_array($tab))
             {
-                Params::add($tab, 'active');
-                Params::add($pane, 'active');
+                $id = Params::extract($tab, self::P_TARGET);
+                $label = Params::extract($tab, self::P_LABEL);
+                $pane = array('id'=>$id, 'class'=>'tab-pane');
+                $content = Params::extract($tab, self::P_CONTENT);
+                if (Params::extract($tab, self::P_ACTIVE))
+                {
+                    Params::add($tab, 'active');
+                    Params::add($pane, 'active');
+                }
+                $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>\n";
+                $panes[] = '<div'.Html::attr($pane).">$content</div>\n";
+                unset($params[$k]);
             }
-            $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>\n";
-            $panes[] = '<div'.Html::attr($pane).">$content</div>\n";
         }
+        Params::add($params, 'nav nav-tabs');
 
-        return '<div class="tabbable">'
-            . '<ul class="nav nav-tabs">'.implode('', $tabs)."</ul>\n"
+        return '<ul'.Html::attr($params).'>'.implode('', $tabs)."</ul>\n"
             . '<div class="tab-content">'.implode('', $panes)."</div>\n"
-            . "</div>\n"
             ;
     }
 
@@ -703,28 +547,31 @@ EOct
     }
 
     /** inject width specification into attributes array
-     * @param int|string $width width specification(nbr of grid units or css value)
+     * @param int|string $width width specification (nbr of grid units or css value)
      * @param array $attrs      attributes array
-     * @return void
+     * @return array
      */
     public static function width2Attr($width, $attrs=array())
     {
-        if ($width == self::WIDTH_MINI)
-            Params::add($attrs, 'input-mini');
-        elseif ($width == self::WIDTH_SMALL)
-            Params::add($attrs, 'input-small');
-        elseif ($width == self::WIDTH_MEDIUM)
-            Params::add($attrs, 'input-medium');
-        elseif ($width == self::WIDTH_LARGE)
-            Params::add($attrs, 'input-large');
-        elseif ($width == self::WIDTH_XLARGE)
-            Params::add($attrs, 'input-xlarge');
-        elseif ($width == self::WIDTH_XXLARGE)
-            Params::add($attrs, 'input-xxlarge');
-        elseif (is_int($width))
-            Params::add($attrs, "span{$width}");
+        if (is_int($width))
+            Params::add($attrs, "col-lg-{$width}");
         else
             Params::add($attrs, "width:{$width};", 'style', '');
+
+        return $attrs;
+    }
+
+    /** inject offset specification into attributes array
+     * @param int|string $width width specification (nbr of grid units or css value)
+     * @param array $attrs      attributes array
+     * @return array
+     */
+    public static function widthOffset2Attr($width, $attrs=array())
+    {
+        if (is_int($width))
+            Params::add($attrs, "col-offset-{$width}");
+        else
+            Params::add($attrs, "margin-left:{$width};", 'style', '');
 
         return $attrs;
     }
