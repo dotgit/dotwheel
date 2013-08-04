@@ -46,6 +46,7 @@ class BootstrapUi
     const P_ACTIVE          = 10;
     const P_CLOSE           = 11;
     const P_WRAP_FMT        = 12;
+    const P_HIDDEN          = 13;
 
     const FORM_TYPE_HORIZONTAL  = 1;
 
@@ -169,6 +170,43 @@ class BootstrapUi
     }
 
     /** get button element
+     * @param array $params {{P_TARGET:'pane id'
+     *                          , P_LABEL:'tab label'
+     *                          , P_CONTENT:'pane content'
+     *                          , P_ACTIVE:bool
+     *                          }
+     *                      , ul tag attributes
+     *                      }
+     * @return string
+     */
+    public static function breadcrumbs($params)
+    {
+        self::registerBreadcrumbs();
+
+        $items = array();
+        foreach ($params as $k=>$item)
+        {
+            if (is_array($item))
+            {
+                $target = Params::extract($item, self::P_TARGET);
+                $label = Params::extract($item, self::P_LABEL);
+                if (Params::extract($item, self::P_ACTIVE))
+                {
+                    Params::add($item, 'active');
+                    $items[] = '<li'.Html::attr($item).">$label</li>\n";
+                }
+                else
+                    $items[] = '<li'.Html::attr($item)."><a href=\"$target\">$label</a></li>\n";
+                unset($params[$k]);
+            }
+        }
+        Params::add($params, 'breadcrumb');
+
+        return '<ul'.Html::attr($params).'>'.implode('', $items)."</ul>\n"
+            ;
+    }
+
+    /** get button element
      * @param array $params {P_LABEL:button value, button tag attributes}
      * @return string
      */
@@ -253,6 +291,44 @@ EOco
         return self::button(array(self::P_LABEL=>"$prefix<span class=\"caret\"></span>") + $params);
     }
 
+    /** returns form open tag followed by hidden form values
+     * @param array $params {P_HIDDEN:{var1:'name',var2:{k2:'v2',...},k3:{input tag attributes}}
+     *                      , form tag attributes
+     *                      }
+     * @return string
+     */
+    public static function formStart($params)
+    {
+        $h = '';
+        foreach (Params::extract($params, self::P_HIDDEN, array()) as $k=>$v)
+            if (isset($v))
+            {
+                if (is_array($v))
+                {
+                    if (isset($v['id']))
+                        $h .= '<input'.Html::attr($v + array('type'=>'hidden', 'name'=>$k)).'>';
+                    else
+                        foreach ($v as $k2=>$v2)
+                            $h .= "<input type=\"hidden\" name=\"{$k}[$k2]\" value=\"".Html::encode(trim($v2)).'">';
+                }
+                else
+                    $h .= "<input type=\"hidden\" name=\"$k\" value=\"".Html::encode(trim($v)).'">';
+            }
+
+        if (empty($params['method']))
+            $params['method'] = 'post';
+
+        return '<form'.Html::attr($params).">$h";
+    }
+
+    /** returns form closing tag
+     * @return string
+     */
+    public static function formStop()
+    {
+        return "</form>\n";
+    }
+
     /** returns a div wrapper containing other divs for individual columns
      * @param array $columns    {{P_WIDTH:..., P_CONTENT:'cell_content'}
      *                          ,'cell_content'
@@ -330,6 +406,15 @@ EOco
             . implode('', $new_rows)
             . '</div>'
             ;
+    }
+
+    /** get icon html
+     * @param string $icon  icon code
+     * @return string
+     */
+    public static function icon($icon)
+    {
+        return "<i class=\"$icon\"></i>";
     }
 
     /** returns a modal dialog window with specified header, body and buttons
@@ -466,6 +551,11 @@ EOco
     {
     }
 
+    /** register breadcrumb js */
+    public static function registerBreadcrumbs()
+    {
+    }
+
     /** register button js */
     public static function registerButton()
     {
@@ -555,8 +645,10 @@ EOco
     {
         if (is_int($width))
             Params::add($attrs, "col-lg-{$width}");
-        else
+        elseif (isset($width))
             Params::add($attrs, "width:{$width};", 'style', '');
+        else
+            return null;
 
         return $attrs;
     }

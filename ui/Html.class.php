@@ -30,17 +30,16 @@ class Html
     const P_TAG             = 4;
     const P_VALUES          = 5;
     const P_TD_ATTR         = 6;
-    const P_HIDDEN          = 7;
-    const P_DATETIME        = 9;
-    const P_BLANK           = 10;
-    const P_TYPE            = 11;
-    const P_ITEMS           = 12;
-    const P_DELIM           = 13;
-    const P_PREFIX          = 14;
-    const P_SUFFIX          = 15;
-    const P_FMT             = 17;
-    const P_COMMENT         = 18;
-    const P_LABEL_ATTR      = 19;
+    const P_DATETIME        = 7;
+    const P_BLANK           = 8;
+    const P_TYPE            = 9;
+    const P_ITEMS           = 10;
+    const P_DELIM           = 11;
+    const P_PREFIX          = 12;
+    const P_SUFFIX          = 13;
+    const P_FMT             = 14;
+    const P_LABEL           = 15;
+    const P_LABEL_ATTR      = 16;
 
     const TYPE_ARRAY    = 1;
 
@@ -165,48 +164,6 @@ class Html
                 $res .= "<$tag>$v</$tag>";
 
         return $res . "</tr>\n";
-    }
-
-
-
-    /** Html forms */
-
-    /** returns form open tag followed by hidden form values
-     * @param array $params {P_HIDDEN:{var1:'name',var2:{k2:'v2',...},k3:{input tag attributes}}
-     *                      , form tag attributes
-     *                      }
-     * @return string
-     */
-    public static function formStart($params)
-    {
-        $h = '';
-        foreach (Params::extract($params, self::P_HIDDEN, array()) as $k=>$v)
-            if (isset($v))
-            {
-                if (is_array($v))
-                {
-                    if (isset($v['id']))
-                        $h .= '<input'.self::attr($v + array('type'=>'hidden', 'name'=>$k)).'>';
-                    else
-                        foreach ($v as $k2=>$v2)
-                            $h .= "<input type=\"hidden\" name=\"{$k}[$k2]\" value=\"".self::encode(trim($v2)).'">';
-                }
-                else
-                    $h .= "<input type=\"hidden\" name=\"$k\" value=\"".self::encode(trim($v)).'">';
-            }
-
-        if (empty($params['method']))
-            $params['method'] = 'post';
-
-        return '<form'.self::attr($params).">$h";
-    }
-
-    /** returns form closing tag
-     * @return string
-     */
-    public static function formStop()
-    {
-        return "</form>\n";
     }
 
 
@@ -365,7 +322,6 @@ class Html
             $name = $id;
         $value = Params::extract($params, 'value');
         $delim = Params::extract($params, self::P_DELIM, '<br>');
-        $fmt = Params::extract($params, self::P_FMT);
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
         if (! is_array($value))
@@ -385,14 +341,11 @@ class Html
             $items[] = self::inputCheckbox(array('name'=>"{$name}[$k]"
                 , 'checked'=>isset($value[$k])
                 , 'value'=>$k
-                , self::P_COMMENT=>self::encode($v)
+                , self::P_LABEL=>self::encode($v)
                 ) + $params);
         }
 
-        return isset($fmt)
-            ? sprintf($fmt, $item_prefix.implode($delim, $items).$item_suffix)
-            : ($item_prefix.implode($delim, $items).$item_suffix)
-            ;
+        return $item_prefix.implode($delim, $items).$item_suffix;
     }
 
     /** returns html radios with labels
@@ -418,7 +371,7 @@ class Html
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
         $delim = Params::extract($params, self::P_DELIM, '<br>');
-        $fmt = Params::extract($params, self::P_FMT, '%s');
+        $fmt = Params::extract($params, self::P_FMT);
         $value = Params::extract($params, 'value');
         if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
@@ -430,22 +383,26 @@ class Html
             foreach (Params::extract($params, self::P_ITEMS, array()) as $line)
             {
                 list($k, $v) = $line;
-                $items[] = "<label$label_attr><input"
+                $item = "<label$label_attr><input"
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
                     . '>'.self::encode($v).'</label>'
                     ;
+                $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
             }
             break;
 
         default:
             foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
-                $items[] = "<label$label_attr><input"
+            {
+                $item = "<label$label_attr><input"
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
                     . '>'.self::encode($v).'</label>'
                     ;
+                $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
+            }
         }
 
-        return sprintf($fmt, $item_prefix.implode($delim, $items).$item_suffix);
+        return $item_prefix.implode($delim, $items).$item_suffix;
     }
 
     /** returns html checkbox element
@@ -458,16 +415,16 @@ class Html
      */
     public static function inputCheckbox($params)
     {
-        $comment = Params::extract($params, self::P_COMMENT);
+        $fmt = Params::extract($params, self::P_FMT);
+        $label = Params::extract($params, self::P_LABEL);
         if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
         $delim = Params::extract($params, self::P_DELIM, ' ');
         $checkbox = self::input(array('type'=>'checkbox') + $params);
+        if (isset($label))
+            $checkbox = "<label$label_attr>$checkbox$delim$label</label>";
 
-        return isset($comment)
-            ? "<label$label_attr>$checkbox$delim$comment</label>"
-            : $checkbox
-            ;
+        return isset($fmt) ? sprintf($fmt, $checkbox) : $checkbox;
     }
 
 

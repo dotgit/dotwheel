@@ -221,8 +221,8 @@ class HtmlForm
                 $hidden['MAX_FILE_SIZE'] = Misc::getMaxUploadSize();
             }
 
-            $pre = Html::formStart(array(Html::P_HIDDEN=>$hidden) + $params);
-            $post = Html::formStop();
+            $pre = Ui::formStart(array(Ui::P_HIDDEN=>$hidden) + $params);
+            $post = Ui::formStop();
         }
         else
         {

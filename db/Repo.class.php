@@ -67,8 +67,9 @@ class Repo
 
     const F_CHAR            = 0x00100000;
     const F_RADIO           = 0x00200000;    // display as radio buttons instead of select dropdown
-    const F_ABBR            = 0x00400000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) within abbr tag
-    const F_ARRAY           = 0x00800000;    // list items are using [[k,v], [k,v], ...] form instead of {k:v, k:v, ...}
+    const F_INLINE_ITEMS    = 0x00400000;    // display enum or set items on one line
+    const F_ABBR            = 0x00800000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) within abbr tag
+    const F_ARRAY           = 0x01000000;    // list items are using [[k,v], [k,v], ...] form instead of {k:v, k:v, ...}
 
     const F_ASIS            = 0x10000000;
 
@@ -546,7 +547,7 @@ class Repo
             // if P_ITEMS provided, must be a string
             return Html::inputCheckbox($input + array('name'=>$name
                 , 'checked'=>$value ? 'on' : null
-                , Html::P_COMMENT=>isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : null
+                , Html::P_LABEL=>isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : null
                 ));
         case self::C_TEXT:
             if (isset($repo[self::P_FLAGS]))
