@@ -382,7 +382,7 @@ class HtmlTable
                     // ...or normal value
                     else
                     {
-                        $v = Repo::asHtml($field, $row[$field], $r);
+                        $v = Repo::asHtmlStatic($field, $row[$field], $r);
                         if (isset($urls_field[$field]))
                             $v = sprintf('<a href="%s"%s>%s</a>'
                                 , sprintf($urls_address[$field], $row[$urls_field[$field]])
@@ -415,7 +415,7 @@ class HtmlTable
                             self::$totals[$field] = $totals_cnt[$field];
                         elseif ($totals_fn[$field] == self::F_TOTAL_AVG)
                             self::$totals[$field] /= $totals_cnt[$field];
-                        $t[$field] = Repo::asHtml($field
+                        $t[$field] = Repo::asHtmlStatic($field
                             , self::$totals[$field]
                             , $totals_fn[$field] === self::F_TOTAL_TEXT
                                 ? array(Repo::P_CLASS=>Repo::C_TEXT)

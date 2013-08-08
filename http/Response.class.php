@@ -191,7 +191,10 @@ class Response
     public static function outputJson($result)
     {
         header('Content-Type: application/json;charset='.Nls::$charset);
-        echo json_encode($result);
+        echo ($result === true)
+            ? json_encode(Http::getRedirect(Request::$next, static::$url_params))
+            : json_encode($result)
+            ;
     }
 
     /** output message as is

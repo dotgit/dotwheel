@@ -140,4 +140,15 @@ class Misc
             ).$suffix
             ;
     }
+
+    /** reopens session file, updates session and closes the file to unlock it
+     * @param array $values session values to update {'last-updated':time(), ...}
+     */
+    public static function updateSession($values)
+    {
+        if (session_status() == PHP_SESSION_NONE)
+            session_start();
+        $_SESSION = array_merge($_SESSION, $values);
+        session_write_close();
+    }
 }

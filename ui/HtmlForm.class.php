@@ -256,7 +256,7 @@ class HtmlForm
         $fmt = Params::extract($params, self::FIELD_FMT);
         $content = (isset($params[self::FIELD_CONTENT])
             ? $params[self::FIELD_CONTENT]
-            : Repo::asHtml($field
+            : Repo::asHtmlStatic($field
                 , isset($params[self::FIELD_VALUE]) ? $params[self::FIELD_VALUE] : null
                 , isset($params[self::FIELD_REPOSITORY]) ? ($params[self::FIELD_REPOSITORY] + Repo::get($field)) : Repo::get($field)
                 )

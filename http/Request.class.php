@@ -18,6 +18,11 @@ use dotwheel\util\Params;
 
 class Request
 {
+    const PARAM_NEXT    = 'n';
+    const PARAM_SORT    = 's';
+    const PARAM_FILTERS = 'f';
+    const PARAM_PAGE    = 'p';
+
     const OUT_HTML  = 1;
     const OUT_CMD   = 2;
     const OUT_JSON  = 3;
@@ -131,33 +136,45 @@ class Request
                 self::$module = implode('/', array_reverse($modules));
         }
         self::$controller = basename($_SERVER['SCRIPT_NAME'], '.php');
+        if (self::$module === 'cmd')
+        {
+            self::$module = '';
+            self::$controller = 'cmd/'.self::$controller;
+        }
+        elseif ($suffix = strrchr(self::$module, '/')
+            and $suffix === '/cmd'
+            )
+        {
+            self::$module = substr(self::$module, 0, -4);
+            self::$controller = 'cmd/'.self::$controller;
+        }
 
         // identify $next
-        self::$next = (! empty($_REQUEST['n']) && is_scalar($_REQUEST['n']))
-            ? ltrim(substr($_REQUEST['n'], 0, strspn($_REQUEST['n'], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)), '/')
+        self::$next = (! empty($_REQUEST[self::PARAM_NEXT]) && is_scalar($_REQUEST[self::PARAM_NEXT]))
+            ? ltrim(substr($_REQUEST[self::PARAM_NEXT], 0, strspn($_REQUEST[self::PARAM_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)), '/')
             : ''
             ;
 
         // identify $details
-        if (! empty($_REQUEST['f']) and is_array($_REQUEST['f']))
+        if (! empty($_REQUEST[self::PARAM_FILTERS]) and is_array($_REQUEST[self::PARAM_FILTERS]))
         {
-            foreach ($_REQUEST['f'] as $el=>$f)
+            foreach ($_REQUEST[self::PARAM_FILTERS] as $el=>$f)
                 if (isset(self::$details[$el]))
                     self::$details[$el][self::DTL_FILTERS] = (array)$f;
                 else
                     self::$details[$el] = array(self::DTL_FILTERS=>(array)$f);
         }
-        if (! empty($_REQUEST['s']) and is_array($_REQUEST['s']))
+        if (! empty($_REQUEST[self::PARAM_SORT]) and is_array($_REQUEST[self::PARAM_SORT]))
         {
-            foreach ($_REQUEST['s'] as $el=>$s)
+            foreach ($_REQUEST[self::PARAM_SORT] as $el=>$s)
                 if (isset(self::$details[$el]))
                     self::$details[$el][self::DTL_SORT] = (string)$s;
                 else
                     self::$details[$el] = array(self::DTL_SORT=>(string)$s);
         }
-        if (! empty($_REQUEST['p']) and is_array($_REQUEST['p']))
+        if (! empty($_REQUEST[self::PARAM_PAGE]) and is_array($_REQUEST[self::PARAM_PAGE]))
         {
-            foreach ($_REQUEST['p'] as $el=>$p)
+            foreach ($_REQUEST[self::PARAM_PAGE] as $el=>$p)
                 if ((int)$p)
                 {
                     if (isset(self::$details[$el]))
@@ -197,9 +214,9 @@ class Request
             ;
     }
 
-    /** @return array {'f':{'tbl1':{'cn_active':1,'cn_postal':'75*'}}
-     *                , 's':{'tbl1':'cn_name'}
-     *                , 'p':0
+    /** @return array {PARAM_FILTERS:{'tbl1':{'cn_active':1,'cn_postal':'75*'}}
+     *                , PARAM_SORT:{'tbl1':'cn_name'}
+     *                , PARAM_PAGE:0
      *                }
      */
     public static function getDetailsReversed()
@@ -216,9 +233,18 @@ class Request
             if (isset($detl[self::DTL_PAGE]))
                 $p[$tbl] = $detl[self::DTL_PAGE];
         }
-        return array('f'=>$f ? $f : null
-            , 's'=>$s ? $s : null
-            , 'p'=>$p ? $p : null
+
+        return array(self::PARAM_FILTERS=>$f ? $f : null
+            , self::PARAM_SORT=>$s ? $s : null
+            , self::PARAM_PAGE=>$p ? $p : null
             );
+    }
+
+    /** returns array with CGI request headers
+     * @return array
+     */
+    public static function getHttpHeaders()
+    {
+        return array_change_key_case(apache_request_headers(), CASE_LOWER);
     }
 }

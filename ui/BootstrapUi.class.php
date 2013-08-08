@@ -47,8 +47,13 @@ class BootstrapUi
     const P_CLOSE           = 11;
     const P_WRAP_FMT        = 12;
     const P_HIDDEN          = 13;
+    const P_READONLY        = 14;
+    const P_STATIC          = 15;
+    const P_ADDON_PREFIX    = 16;
+    const P_ADDON_SUFFIX    = 17;
+    const P_ADDON_BTN       = 18;
 
-    const FORM_TYPE_HORIZONTAL  = 1;
+    const FT_HORIZONTAL  = 1;
 
     const WIDTH_1       = 12;
     const WIDTH_11_12   = 11;
@@ -120,13 +125,13 @@ class BootstrapUi
      *                              | 'content to format as form group'
      * @return string
      */
-    public static function asFormGroup($control)
+    public static function asFormGroupLine($control)
     {
         if(is_array($control))
         {
             $l = Params::extract($control, self::P_LABEL);
             $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
-            if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_3))
+            if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_4))
                 $l_attr = static::width2Attr($w, $l_attr);
             Params::add($l_attr, 'control-label');
 
@@ -135,7 +140,7 @@ class BootstrapUi
 
             $c = Params::extract($control, self::P_CONTENT);
             $c_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
-            if ($w = Params::extract($c_attr, self::P_WIDTH, self::WIDTH_2_3))
+            if ($w = Params::extract($c_attr, self::P_WIDTH, self::WIDTH_3_4))
                 $c_attr = static::width2Attr($w, $c_attr);
 
             Params::add($control, 'form-group');
@@ -143,11 +148,35 @@ class BootstrapUi
 
             return "<div".Html::attr($control)."><label".Html::attr($l_attr).">$l</label><div".Html::attr($c_attr).">$c</div></div>";
         }
+        elseif (isset($control))
+            return '<div class="form-group row"><div'.Html::attr (Ui::width2Attr(Ui::WIDTH_3_4, Ui::widthOffset2Attr(Ui::WIDTH_1_4))).">$control</div></div>";
         else
-            return isset($control)
-                ? '<div class="form-group row"><div'.Html::attr (Ui::width2Attr(Ui::WIDTH_3_4, Ui::widthOffset2Attr(Ui::WIDTH_1_3))).">$control</div></div>"
-                : null
-                ;
+            return null;
+    }
+
+    /** format as stacked form group
+     * @param array|string $control {P_CONTENT:'form group content'
+     *                              , P_LABEL:'label content'
+     *                              , d.t.a.
+     *                              }
+     *                              | 'content to format as form group'
+     * @return string
+     */
+    public static function asFormGroupStacked($control)
+    {
+        if(is_array($control))
+        {
+            $l = self::asLabel(Params::extract($control, self::P_LABEL));
+            $c = Params::extract($control, self::P_CONTENT);
+
+            Params::add($control, 'form-group');
+
+            return "<div".Html::attr($control).">$l$c</div>";
+        }
+        elseif (isset($control))
+            return "<div class=\"form-group\">$control</div>";
+        else
+            return null;
     }
 
     /** format as label
@@ -301,6 +330,7 @@ EOco
     {
         $h = '';
         foreach (Params::extract($params, self::P_HIDDEN, array()) as $k=>$v)
+        {
             if (isset($v))
             {
                 if (is_array($v))
@@ -314,11 +344,23 @@ EOco
                 else
                     $h .= "<input type=\"hidden\" name=\"$k\" value=\"".Html::encode(trim($v)).'">';
             }
+        }
 
         if (empty($params['method']))
             $params['method'] = 'post';
+        if (Params::extract($params, self::P_FORM_TYPE) == self::FT_HORIZONTAL)
+            Params::add ($params, 'form-horizontal');
 
         return '<form'.Html::attr($params).">$h";
+    }
+
+    /** returns html-formatted form legend
+     * @param string $header
+     * @return string
+     */
+    public static function formLegend($header)
+    {
+        return "<legend>$header</legend>\n";
     }
 
     /** returns form closing tag
@@ -375,46 +417,21 @@ EOco
         return '<div'.Html::attr($columns).'>'.implode('', $cols).'</div>';
     }
 
-    /** returns a container of a fixed grid with rows and cells
-     * @param array $rows   {{{P_WIDTH:..., P_CONTENT:'cell_content'}
-     *                          , 'cell_content', 'row_attr':'value'
-     *                          }
-     *                      , 'row_content'
-     *                      , container div tag attributes
-     *                      }
-     * @return string
-     */
-    public static function gridRowsContainer($rows)
-    {
-        $new_rows = array();
-        foreach ($rows as $rkey=>$row)
-        {
-            if (is_array($row))
-            {
-                $new_rows[] = static::gridRow($row);
-                unset($rows[$rkey]);
-            }
-            elseif (is_int($rkey))
-            {
-                $new_rows[] = static::gridRow(array($row));
-                unset($rows[$rkey]);
-            }
-        }
-        Params::add($rows, 'container');
-
-        return '<div'.Html::attr($rows).'>'
-            . implode('', $new_rows)
-            . '</div>'
-            ;
-    }
-
     /** get icon html
-     * @param string $icon  icon code
+     * @param string|array $icon    icon code|{P_LABEL:'icon code', i tag attributes}
      * @return string
      */
     public static function icon($icon)
     {
-        return "<i class=\"$icon\"></i>";
+        if (is_array($icon))
+        {
+            $label = Params::extract($icon, self::P_LABEL);
+            Params::add($icon, $label);
+
+            return '<i'.Html::attr($icon).'></i>';
+        }
+        else
+            return "<i class=\"$icon\"></i>";
     }
 
     /** returns a modal dialog window with specified header, body and buttons
@@ -462,10 +479,10 @@ EOco
 
     /** html-formatted pagination based on butons
      * @param array $params {PG_ACTIVE:current page number
-     * , PG_LAST: last page number
-     * , PG_LIST: array of pages to display
-     * , PG_LINK_1: sprintf-formatted url with one parameter for page number
-     * }
+     *                      , PG_LAST: last page number
+     *                      , PG_LIST: array of pages to display
+     *                      , PG_LINK_1: sprintf-formatted url with one parameter for page number
+     *                      }
      * @return string buttons representing pages
      */
     public static function paginationUsingLinear($params)
@@ -515,9 +532,9 @@ EOco
 
     /** html-formatted bootstrap pagination
      * @param array $params {PG_ACTIVE:current page number
-     * , PG_LIST: array of pages to display
-     * , PG_LINK_1: sprintf-formatted url with one parameter for page number
-     * }
+     *                      , PG_LIST: array of pages to display
+     *                      , PG_LINK_1: sprintf-formatted url with one parameter for page number
+     *                      }
      * @return string bootstrap pagination using unordered list
      */
     public static function paginationUsingLog($params)
@@ -544,6 +561,26 @@ EOco
         $s[] = '</ul>';
 
         return implode('', $s);
+    }
+
+    /** returns the panel html code
+     * @param array $params {P_LABEL:'panel heading'
+     *                      , P_FOOTER:'panel footer'
+     *                      , P_CONTENT:'panel content'
+     *                      , panel div tag attributes
+     *                      }
+     * @return string
+     */
+    public static function panel($params)
+    {
+        if ($heading = Params::extract($params, self::P_LABEL))
+            $heading = "<div class=\"panel-heading\"><h3 class=\"panel-title\">$heading</h3></div>";
+        $content = Params::extract($params, self::P_CONTENT);
+        if ($footer = Params::extract($params, self::P_FOOTER))
+            $footer = "<div class=\"panel-footer\">$footer</div>";
+        Params::add($params, 'panel');
+
+        return '<div'.Html::attr($params).'>'.$heading.$content.$footer.'</div>';
     }
 
     /** register alerts js */
@@ -666,5 +703,49 @@ EOco
             Params::add($attrs, "margin-left:{$width};", 'style', '');
 
         return $attrs;
+    }
+
+    /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
+     * format to wrap the field html
+     * @param array $ui {Ui::P_INPUT_PREFIX:'input prefix addon'
+     *                  , Ui::P_INPUT_SUFFIX:'input suffix addon'
+     *                  }
+     * @return string   '%s' if no prefixes / suffixes detected, otherwise '...%s...'
+     */
+    public static function fmtAddons($ui)
+    {
+        if ($prefix = Params::extract($ui, self::P_ADDON_PREFIX))
+        {
+            if (is_array($prefix))
+            {
+                $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
+                Params::add($prefix, $class);
+                $cnt = Params::extract($prefix, self::P_CONTENT);
+                $prefix = '<span'.Html::attr($prefix).">$cnt</span>";
+            }
+            else
+                $prefix = "<span class=\"input-group-addon\">$prefix</span>";
+        }
+
+        if ($suffix = Params::extract($ui, self::P_ADDON_SUFFIX))
+        {
+            if (is_array($suffix))
+            {
+                $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
+                Params::add($suffix, $class);
+                $cnt = Params::extract($suffix, self::P_CONTENT);
+                $suffix = '<span'.Html::attr($suffix).">$cnt</span>";
+            }
+            else
+                $suffix = "<span class=\"input-group-addon\">$suffix</span>";
+        }
+
+        if ($prefix or $suffix)
+        {
+            $prefix = "<div class=\"input-group\">$prefix";
+            $suffix = "$suffix</div>";
+        }
+
+        return "$prefix%s$suffix";
     }
 }

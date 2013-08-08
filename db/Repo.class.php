@@ -67,7 +67,7 @@ class Repo
 
     const F_CHAR            = 0x00100000;
     const F_RADIO           = 0x00200000;    // display as radio buttons instead of select dropdown
-    const F_INLINE_ITEMS    = 0x00400000;    // display enum or set items on one line
+    const F_INLINE_ITEMS    = 0x00400000;    // display enum or set items on one line instead of stacked
     const F_ABBR            = 0x00800000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) within abbr tag
     const F_ARRAY           = 0x01000000;    // list items are using [[k,v], [k,v], ...] form instead of {k:v, k:v, ...}
 
@@ -242,6 +242,20 @@ class Repo
         return false;
     }
 
+    /** whether the repository entry specifies the numeric class or not
+     * @param array $repo   {field repository attributes}
+     * @return bool
+     */
+    public static function isTextClass($repo)
+    {
+        if (empty($repo[self::P_CLASS])
+            or $repo[self::P_CLASS] == self::C_TEXT
+            or $repo[self::P_CLASS] == self::C_DATE
+            )
+            return true;
+        return false;
+    }
+
     /** stores validated input values in Repo::$validated public var. if errors occured
      * during validation then Repository::$input_errors array contains error messages.
      * @param array $fields {field1:{repository parameters}, field2:{repository parameters}}
@@ -320,8 +334,8 @@ class Repo
                                 $value = preg_replace('/\s{2,}/', ' ', $value);
                             if (isset($repo[self::P_WIDTH]) and mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH])
                             {
-                                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"), $label, $repo[self::P_WIDTH]);
                                 $val = false;
+                                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"), $label, $repo[self::P_WIDTH]);
                             }
                             else
                             {
@@ -399,8 +413,8 @@ class Repo
                     }
                     if ($flags & self::F_POSITIVE and $val < 1)
                     {
-                        $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
                         $val = false;
+                        $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
                     }
                 }
             }
@@ -408,8 +422,8 @@ class Repo
             {
                 if (empty($_FILES[$fld]))
                 {
-                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
                     $val = false;
+                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
                 }
                 elseif ($_FILES[$fld]['error'] == UPLOAD_ERR_NO_FILE)
                     $val = null;
@@ -424,8 +438,8 @@ class Repo
                     default:
                         $msg = sprintf(dgettext(Nls::FW_DOMAIN, "error uploading file from '%s'"), $label);
                     }
-                    $err = $msg." [err: {$_FILES[$fld]['error']}]";
                     $val = false;
+                    $err = $msg." [err: {$_FILES[$fld]['error']}]";
                 }
                 elseif (! $_FILES[$fld]['size'])
                     $val = null;
@@ -438,8 +452,8 @@ class Repo
             // check required flags
             if ($val === null and ! empty($repo[self::P_REQUIRED]))
             {
-                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
                 $val = false;
+                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
             }
 
             if ($val !== false)
@@ -460,7 +474,7 @@ class Repo
      * @param array $repo   {field repository attributes}
      * @return string
      */
-    public static function asHtml($name, $value, $repo=array())
+    public static function asHtmlStatic($name, $value, $repo=array())
     {
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];
@@ -582,7 +596,7 @@ class Repo
                         + array('name'=>$name, 'value'=>$value
                             , Html::P_ITEMS=>$repo[self::P_ITEMS]
                             , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
-                                ? Html::TYPE_ARRAY : null
+                                ? Html::T_ARRAY : null
                             , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
                                 ? $repo[self::P_ITEM_DELIM] : null
                             )
@@ -590,14 +604,14 @@ class Repo
                     : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                         , Html::P_ITEMS=>$repo[self::P_ITEMS]
                         , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
-                            ? Html::TYPE_ARRAY : null
+                            ? Html::T_ARRAY : null
                         , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
                             ? $repo[self::P_ITEM_BLANK] : null
                         ))
                     )
                 : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                     , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
-                        ? Html::TYPE_ARRAY : null
+                        ? Html::T_ARRAY : null
                     , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
                         ? $repo[self::P_ITEM_BLANK] : null
                     ))
@@ -607,7 +621,7 @@ class Repo
                 + array('name'=>$name, 'value'=>$value
                     , Html::P_ITEMS=>$repo[self::P_ITEMS]
                     , Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
-                        ? Html::TYPE_ARRAY : null
+                        ? Html::T_ARRAY : null
                     , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
                         ? $repo[self::P_ITEM_DELIM] : null
                     )

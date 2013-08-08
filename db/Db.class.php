@@ -182,6 +182,38 @@ class Db
         return self::fetchCsv($sql);
     }
 
+    /** access database using low level HANDLER statement via primary key to fetch
+     * one row in associative mode
+     * @param string $table table name
+     * @param int|array $pk primary key value or array for multiple colunms key
+     * @return array|bool hash with the row information or <i>false</i> on error
+     * + error_log
+     */
+    public static function getPrimary($table, $pk)
+    {
+        $key = is_array($pk) ? self::escapeIntCsv($pk) : (int)$pk;
+        if (mysqli_query(self::$conn, "handler $table open"))
+        {
+            if ($_ = mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
+            {
+                $row = mysqli_fetch_assoc($_);
+                mysqli_query(self::$conn, "handler $table close");
+
+                return $row;
+            }
+            else
+            {
+                error_log('['.__METHOD__.'] '.mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+                return false;
+            }
+        }
+        else
+        {
+            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+            return false;
+        }
+    }
+
     /** executes a DML sentence
      * @param string $sql   DML sentence
      * @return int|bool number of affected rows or <i>false</i> on error + error_log
@@ -268,8 +300,8 @@ class Db
     public static function blobEncode($blob)
     {
         if (isset($blob) and ! is_scalar($blob))
-            $blob = ' j:'.json_encode($blob);
-        if (strlen($blob) > 31)
+            $blob = ' j:'.json_encode($blob, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
+        if (strlen($blob) > 127)
             $blob = ' z:'.gzdeflate($blob);
 
         return strlen($blob) <= 65535 ? $blob : null;

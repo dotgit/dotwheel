@@ -37,11 +37,11 @@ class Html
     const P_DELIM           = 11;
     const P_PREFIX          = 12;
     const P_SUFFIX          = 13;
-    const P_FMT             = 14;
+    const P_WRAP_FMT        = 14;
     const P_LABEL           = 15;
     const P_LABEL_ATTR      = 16;
 
-    const TYPE_ARRAY    = 1;
+    const T_ARRAY   = 1;
 
     /** Html attributes */
 
@@ -274,7 +274,7 @@ class Html
 
         switch (Params::extract($params, self::P_TYPE))
         {
-        case self::TYPE_ARRAY:
+        case self::T_ARRAY:
             foreach (Params::extract($params, self::P_ITEMS, array()) as $arr)
             {
                 list($k, $v) = $arr;
@@ -371,7 +371,7 @@ class Html
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
         $delim = Params::extract($params, self::P_DELIM, '<br>');
-        $fmt = Params::extract($params, self::P_FMT);
+        $fmt = Params::extract($params, self::P_WRAP_FMT);
         $value = Params::extract($params, 'value');
         if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);
@@ -379,7 +379,7 @@ class Html
         $items = array();
         switch (Params::extract($params, self::P_TYPE))
         {
-        case self::TYPE_ARRAY:
+        case self::T_ARRAY:
             foreach (Params::extract($params, self::P_ITEMS, array()) as $line)
             {
                 list($k, $v) = $line;
@@ -415,7 +415,7 @@ class Html
      */
     public static function inputCheckbox($params)
     {
-        $fmt = Params::extract($params, self::P_FMT);
+        $fmt = Params::extract($params, self::P_WRAP_FMT);
         $label = Params::extract($params, self::P_LABEL);
         if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
             $label_attr = Html::attr($label_attr);

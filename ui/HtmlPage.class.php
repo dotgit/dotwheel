@@ -54,97 +54,65 @@ class HtmlPage
             {
             case self::HTML_FOOTER:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_html_footer[] = trim($item);
-                        else
-                            self::$bin_html_footer[$k] = trim($item);
-                }
+                    self::$bin_html_footer = array_merge(self::$bin_html_footer
+                        , array_map(function($item){return trim($item);}, $items)
+                        );
                 else
                     self::$bin_html_footer[] = trim($items);
                 break;
             case self::DOM_READY:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_dom_ready[] = trim($item);
-                        else
-                            self::$bin_dom_ready[$k] = trim($item);
-                }
+                    self::$bin_dom_ready = array_merge(self::$bin_dom_ready
+                        , array_map(function($item){return trim($item);}, $items)
+                        );
                 else
                     self::$bin_dom_ready[] = trim($items);
                 break;
             case self::SCRIPT:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_script[] = trim($item);
-                        else
-                            self::$bin_script[$k] = trim($item);
-                }
+                    self::$bin_script = array_merge(self::$bin_script
+                        , array_map(function($item){return trim($item);}, $items)
+                        );
                 else
                     self::$bin_script[] = trim($items);
                 break;
             case self::SCRIPT_SRC_INIT:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_script_src_init[] = "<script type=\"text/javascript\" src=\"$item\"></script>";
-                        else
-                            self::$bin_script_src_init[$k] = "<script type=\"text/javascript\" src=\"$item\"></script>";
-                }
+                    self::$bin_script_src_init = array_merge(self::$bin_script_src_init
+                        , array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
+                        );
                 else
                     self::$bin_script_src_init[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
                 break;
             case self::SCRIPT_SRC:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_script_src[] = "<script type=\"text/javascript\" src=\"$item\"></script>";
-                        else
-                            self::$bin_script_src[$k] = "<script type=\"text/javascript\" src=\"$item\"></script>";
-                }
+                    self::$bin_script_src = array_merge(self::$bin_script_src
+                        , array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
+                        );
                 else
                     self::$bin_script_src[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
                 break;
             case self::SCRIPT_LAST:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_script_last[] = trim($item);
-                        else
-                            self::$bin_script_last[$k] = trim($item);
-                }
+                   self::$bin_script_last = array_merge(self::$bin_script_last
+                        , array_map(function($item){return trim($item);}, $items)
+                        );
                 else
                     self::$bin_script_last[] = trim($items);
                 break;
             case self::STYLE_SRC:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_style_src[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$item\">";
-                        else
-                            self::$bin_style_src[$k] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$item\">";
-                }
+                    self::$bin_style_src = array_merge(self::$bin_style_src
+                        , array_map(function($item){return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$item\">";}, $items)
+                        );
                 else
                     self::$bin_style_src[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$items\">";
                 break;
             case self::STYLE:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_style[] = trim($item);
-                        else
-                            self::$bin_style[$k] = trim($item);
-                }
+                    self::$bin_style = array_merge(self::$bin_style
+                        , array_map(function($item){return trim($item);}, $items)
+                        );
                 else
                     self::$bin_style[] = trim($items);
                 break;
@@ -156,25 +124,17 @@ class HtmlPage
                 break;
             case self::META:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_meta[] = "<meta$item>";
-                        else
-                            self::$bin_meta[$k] = "<meta$item>";
-                }
+                    self::$bin_meta = array_merge(self::$bin_meta
+                        , array_map(function($item){return "<meta$item>";}, $items)
+                        );
                 else
                     self::$bin_meta[] = "<meta$items>";
                 break;
             case self::LINK:
                 if (is_array($items))
-                {
-                    foreach ($items as $k=>$item)
-                        if (is_int($k))
-                            self::$bin_meta[] = "<link$item>";
-                        else
-                            self::$bin_meta[$k] = "<link$item>";
-                }
+                    self::$bin_meta = array_merge(self::$bin_meta
+                        , array_map(function($item){return "<link$item>";}, $items)
+                        );
                 else
                     self::$bin_meta[] = "<link$items>";
                 break;

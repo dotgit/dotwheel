@@ -91,14 +91,11 @@ class Db2
         $upd = array();
         foreach ($params[self::P_FIELDS] as $name=>$wrap)
         {
-            if (isset($params[self::P_VALUES][$name]))
+            switch ($wrap)
             {
-                switch ($wrap)
-                {
-                    case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
-                    case self::FMT_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
-                    default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
-                }
+                case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
+                case self::FMT_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
+                default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
             }
         }
 

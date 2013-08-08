@@ -80,7 +80,11 @@ class Nls
             , self::P_COLON=>' :'
             , self::P_COLON_HTML=>'&nbsp;:'
             , self::P_GMAPS_FMT=>'http://maps.google.fr/?q=%s'
-            , self::P_DATEPICKER=>'{dateFormat:"dd/mm/yy",firstDay:1,dayNamesMin:["Di","Lu","Ma","Me","Je","Ve","Sa"],monthNames:["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"]}'
+            , self::P_DATEPICKER=>array('dateFormat'=>'dd/mm/yy'
+                , 'firstDay'=>1
+                , 'dayNamesMin'=>array('Di','Lu','Ma','Me','Je','Ve','Sa')
+                , 'monthNames'=>array('Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre')
+                )
             )
         , 'ru'=>array(self::P_NAME=>'Русский'
             , self::P_LOCALES=>array('ru_RU', 'Russian_Russia', 'ru')
@@ -102,7 +106,11 @@ class Nls
             , self::P_COLON=>':'
             , self::P_COLON_HTML=>':'
             , self::P_GMAPS_FMT=>'http://maps.google.ru/?q=%s'
-            , self::P_DATEPICKER=>'{dateFormat:"dd.mm.yy",firstDay:1,dayNamesMin:["Вс","Пн","Вт","Ср","Чт","Пт","Сб"],monthNames:["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"]}'
+            , self::P_DATEPICKER=>array('dateFormat'=>'dd.mm.yy'
+                , 'firstDay'=>1
+                , 'dayNamesMin'=>array('Вс','Пн','Вт','Ср','Чт','Пт','Сб')
+                , 'monthNames'=>array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь')
+                )
             )
         );
 
