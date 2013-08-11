@@ -52,8 +52,14 @@ class BootstrapUi
     const P_ADDON_PREFIX    = 16;
     const P_ADDON_SUFFIX    = 17;
     const P_ADDON_BTN       = 18;
+    const P_ALIGN           = 19;
 
     const FT_HORIZONTAL  = 1;
+
+    const A_TOP     = 'top';
+    const A_RIGHT   = 'right';
+    const A_BOTTOM  = 'bottom';
+    const A_LEFT    = 'left';
 
     const WIDTH_1       = 12;
     const WIDTH_11_12   = 11;
@@ -320,6 +326,44 @@ EOco
         return self::button(array(self::P_LABEL=>"$prefix<span class=\"caret\"></span>") + $params);
     }
 
+    /** returns a collapsible group
+     * @param array $params {P_LABEL:'group label'
+     *                      , P_LABEL_attr:'additional label div attributes'
+     *                      , P_CONTENT:'collapsible content'
+     *                      , 'id':'content div id'
+     *                      , additional content div attributes
+     *                      }
+     * @return string
+     */
+    public static function collapsible($params)
+    {
+        $id = isset($params['id']) ? $params['id'] : null;
+
+        $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
+        Params::add($label_attr, 'accordion-heading');
+
+        $label = Params::extract($params, self::P_LABEL);
+        $content = Params::extract($params, self::P_CONTENT);
+
+        Params::add($params, 'accordion-body collapse');
+
+        HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__=>'a.accordion-toggle{background-color:#eee;}')));
+
+        return '<div class="accordion-group">'
+            . '<div'.Html::attr($label_attr).'>'
+                . '<a class="accordion-toggle" data-toggle="collapse" href="#'.$id.'">'
+                . $label
+                . '</a>'
+            . '</div>'
+            . '<div'.Html::attr($params).'>'
+                . '<div class="accordion-inner">'
+                . $content
+                . '</div>'
+            . '</div>'
+            . '</div>'
+            ;
+    }
+
     /** returns form open tag followed by hidden form values
      * @param array $params {P_HIDDEN:{var1:'name',var2:{k2:'v2',...},k3:{input tag attributes}}
      *                      , form tag attributes
@@ -583,6 +627,43 @@ EOco
         return '<div'.Html::attr($params).'>'.$heading.$content.$footer.'</div>';
     }
 
+    /** returns the popover html code
+     * @param array $params {P_LABEL:'popover heading'
+     *                      , P_CONTENT:'popover content'
+     *                      , P_ALIGN:'popover placement'
+     *                      , P_TARGET:'opener element id'
+     *                      , P_CLOSE:whether to display close btn
+     *                      }
+     * @return string
+     */
+    public static function registerPopoverOnElement($params)
+    {
+        self::registerTooltip();
+
+        if ($close = Params::extract($params, self::P_CLOSE))
+        {
+            if (is_array($close))
+                Params::add($close, 'popover', 'data-dismiss');
+            else
+                $close = array('data-dismiss'=>'popover');
+            $close = self::close($close);
+        }
+
+        $title = Params::extract($params, self::P_LABEL);
+        $id = Params::extract($params, self::P_TARGET);
+
+        $options = array('title'=>$title
+            , 'content'=>Params::extract($params, self::P_CONTENT)
+            , 'placement'=>Params::extract($params, self::P_ALIGN, 'bottom')
+            , 'html'=>true
+            , 'container'=>'body'
+            );
+
+        HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=>"$('#$id').popover(".json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).');')));
+
+        return $params;
+    }
+
     /** register alerts js */
     public static function registerAlert()
     {
@@ -615,6 +696,11 @@ EOco
 
     /** register tab js */
     public static function registerTab()
+    {
+    }
+
+    /** register tooltip js */
+    public static function registerTooltip()
     {
     }
 
