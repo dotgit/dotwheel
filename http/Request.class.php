@@ -18,6 +18,7 @@ use dotwheel\util\Params;
 
 class Request
 {
+    const PARAM_OUTPUT  = 'o';
     const PARAM_NEXT    = 'n';
     const PARAM_SORT    = 's';
     const PARAM_FILTERS = 'f';
@@ -91,9 +92,9 @@ class Request
 
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
-            self::$output = (! empty($_REQUEST['o']) and $_REQUEST['o'] == 'a') ? self::OUT_ASIS : self::OUT_JSON;
-        elseif (! empty($_REQUEST['o']))
-            self::$output = $_REQUEST['o'] == 'a' ? self::OUT_ASIS : ($_REQUEST['o'] == 'c' ? self::OUT_CMD : self::OUT_JSON);
+            self::$output = (! empty($_REQUEST[self::PARAM_OUTPUT]) and $_REQUEST[self::PARAM_OUTPUT] == 'a') ? self::OUT_ASIS : self::OUT_JSON;
+        elseif (! empty($_REQUEST[self::PARAM_OUTPUT]))
+            self::$output = $_REQUEST[self::PARAM_OUTPUT] == 'a' ? self::OUT_ASIS : ($_REQUEST[self::PARAM_OUTPUT] == 'c' ? self::OUT_CMD : self::OUT_JSON);
         elseif (isset($_SERVER['REQUEST_METHOD']))
             self::$output = $_SERVER['REQUEST_METHOD'] == 'POST' ? self::OUT_CMD : self::OUT_HTML;
         else
