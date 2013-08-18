@@ -9,10 +9,12 @@ namespace dotwheel\ui;
 
 require_once (__DIR__.'/../ui/Html.class.php');
 require_once (__DIR__.'/../ui/HtmlPage.class.php');
+require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Params.class.php');
 
 use dotwheel\ui\Html;
 use dotwheel\ui\HtmlPage;
+use dotwheel\util\Misc;
 use dotwheel\util\Params;
 
 /**
@@ -41,26 +43,28 @@ class BootstrapUi
     const P_LABEL_ATTR      = 5;
     const P_FOOTER          = 6;
     const P_FORM_TYPE       = 7;
-    const P_FORM_REQ_MODAL  = 8;
-    const P_TARGET          = 9;
-    const P_ACTIVE          = 10;
-    const P_CLOSE           = 11;
-    const P_WRAP_FMT        = 12;
-    const P_HIDDEN          = 13;
-    const P_READONLY        = 14;
-    const P_STATIC          = 15;
-    const P_ADDON_PREFIX    = 16;
-    const P_ADDON_SUFFIX    = 17;
-    const P_ADDON_BTN       = 18;
-    const P_ALIGN           = 19;
+    const P_TARGET          = 8;
+    const P_ACTIVE          = 9;
+    const P_CLOSE           = 10;
+    const P_WRAP_FMT        = 11;
+    const P_HIDDEN          = 12;
+    const P_READONLY        = 13;
+    const P_STATIC          = 14;
+    const P_ADDON_PREFIX    = 15;
+    const P_ADDON_SUFFIX    = 16;
+    const P_ADDON_BTN       = 17;
+    const P_ALIGN           = 18;
 
+    // for P_FORM_TYPE
     const FT_HORIZONTAL  = 1;
 
+    // for P_ALIGN
     const A_TOP     = 'top';
     const A_RIGHT   = 'right';
     const A_BOTTOM  = 'bottom';
     const A_LEFT    = 'left';
 
+    // for P_WIDTH
     const WIDTH_1       = 12;
     const WIDTH_11_12   = 11;
     const WIDTH_5_6     = 10;
@@ -78,6 +82,7 @@ class BootstrapUi
 
     /** returns a div formatted as alert block
      * @param array $params {P_LABEL:'alert body', P_LABEL_ATTR:{label tag attributes}
+     *                      , P_CLOSE:true // show close btn?
      *                      , P_CONTENT:'alert body'
      *                      , div tag arguments
      *                      }
@@ -102,6 +107,15 @@ class BootstrapUi
         Params::add($params, 'alert');
 
         return '<div'.Html::attr($params).">$body</div>";
+    }
+
+    public static function alertWithIcon($params)
+    {
+        $body = Params::extract($params, self::P_CONTENT);
+        Params::add($params, 'clearfix');
+        Params::add($params, 'margin-left:28px;', 'style');
+        $icon = self::icon(array(self::P_LABEL=>'icon-warning-sign', 'style'=>'float:left;margin-left:-28px;font-size:16px;padding-top:5px;'));
+        return "<div".Html::attr($params).">$icon$body</div>";
     }
 
     /** format as comment line
@@ -328,8 +342,9 @@ EOco
 
     /** returns a collapsible group
      * @param array $params {P_LABEL:'group label'
-     *                      , P_LABEL_attr:'additional label div attributes'
+     *                      , P_LABEL_ATTR:'additional label div attributes'
      *                      , P_CONTENT:'collapsible content'
+     *                      , P_FOOTER:'panel footer'
      *                      , 'id':'content div id'
      *                      , additional content div attributes
      *                      }
@@ -340,28 +355,21 @@ EOco
         $id = isset($params['id']) ? $params['id'] : null;
 
         $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
-        Params::add($label_attr, 'accordion-heading');
+        Params::add($label_attr, 'collapse', 'data-toggle');
+        Params::add($label_attr, "#$id", 'href');
 
         $label = Params::extract($params, self::P_LABEL);
+        $footer = Params::extract($params, self::P_FOOTER);
         $content = Params::extract($params, self::P_CONTENT);
 
-        Params::add($params, 'accordion-body collapse');
+        Params::add($params, 'panel-collapse');
+        Params::add($params, 'collapse');
 
-        HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__=>'a.accordion-toggle{background-color:#eee;}')));
-
-        return '<div class="accordion-group">'
-            . '<div'.Html::attr($label_attr).'>'
-                . '<a class="accordion-toggle" data-toggle="collapse" href="#'.$id.'">'
-                . $label
-                . '</a>'
-            . '</div>'
-            . '<div'.Html::attr($params).'>'
-                . '<div class="accordion-inner">'
-                . $content
-                . '</div>'
-            . '</div>'
-            . '</div>'
-            ;
+        return self::panel(array(self::P_LABEL=>'<a'.Html::attr($label_attr).'>'.$label.'</a>'
+            , self::P_FOOTER=>$footer
+            , self::P_CONTENT=>$content
+            , self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
+            ));
     }
 
     /** returns form open tag followed by hidden form values
@@ -497,6 +505,9 @@ EOco
         $footer = Params::extract($params, self::P_FOOTER);
 
         Params::add($params, 'modal');
+        Params::add($params, 'dialog', 'role');
+        Params::add($params, 'true', 'aria-hidden');
+        Params::add($params, 'true', 'data-keyboard');
 
         if (is_array($close))
             Params::add($close, 'modal', 'data-dismiss');
@@ -610,7 +621,11 @@ EOco
     /** returns the panel html code
      * @param array $params {P_LABEL:'panel heading'
      *                      , P_FOOTER:'panel footer'
+     *                      , P_ADDON_PREFIX:'panel content prefix'
+     *                      , P_ADDON_SUFFIX:'panel content suffix'
      *                      , P_CONTENT:'panel content'
+     *                      , P_CONTENT_ATTR:panel content div attributes
+     *                      , P_WRAP_FMT:'%s-style format for content'
      *                      , panel div tag attributes
      *                      }
      * @return string
@@ -618,13 +633,19 @@ EOco
     public static function panel($params)
     {
         if ($heading = Params::extract($params, self::P_LABEL))
-            $heading = "<div class=\"panel-heading\"><h3 class=\"panel-title\">$heading</h3></div>";
-        $content = Params::extract($params, self::P_CONTENT);
+            $heading = "<div class=\"panel-heading\">$heading</div>";
         if ($footer = Params::extract($params, self::P_FOOTER))
             $footer = "<div class=\"panel-footer\">$footer</div>";
+        $fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
+        $content_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
+        Params::add($content_attr, 'panel-body');
+        $prefix = Params::extract($params, self::P_ADDON_PREFIX);
+        $suffix = Params::extract($params, self::P_ADDON_SUFFIX);
+        $content = Params::extract($params, self::P_CONTENT);
+        $content = "<div".Html::attr($content_attr).">$content</div>";
         Params::add($params, 'panel');
 
-        return '<div'.Html::attr($params).'>'.$heading.$content.$footer.'</div>';
+        return '<div'.Html::attr($params).'>'.$heading.sprintf($fmt, $prefix.$content.$suffix.$footer).'</div>';
     }
 
     /** returns the popover html code
@@ -767,7 +788,7 @@ EOco
     public static function width2Attr($width, $attrs=array())
     {
         if (is_int($width))
-            Params::add($attrs, "col-lg-{$width}");
+            Params::add($attrs, "col-sm-{$width}");
         elseif (isset($width))
             Params::add($attrs, "width:{$width};", 'style', '');
         else
@@ -784,7 +805,7 @@ EOco
     public static function widthOffset2Attr($width, $attrs=array())
     {
         if (is_int($width))
-            Params::add($attrs, "col-offset-{$width}");
+            Params::add($attrs, "col-sm-offset-{$width}");
         else
             Params::add($attrs, "margin-left:{$width};", 'style', '');
 
