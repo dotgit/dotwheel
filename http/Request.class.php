@@ -34,11 +34,11 @@ class Request
     const DTL_SORT      = 2;
     const DTL_PAGE      = 3;
 
-    const INI_STATIC_URL        = 1;
-    const INI_ROOT_LEVEL        = 3;
-    const INI_COOKIE_DB         = 4;
-    const INI_DATABASES         = 5;
-    const INI_DB_DEFAULT        = 6;
+    const INI_STATIC_URL    = 1;
+    const INI_ROOT_LEVEL    = 2;
+    const INI_COOKIE_DB     = 3;
+    const INI_DATABASES     = 4;
+    const INI_DB_DEFAULT    = 5;
 
     /**
      * @var string  client-oriented path to document root from current

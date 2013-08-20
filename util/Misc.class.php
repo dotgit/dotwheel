@@ -116,6 +116,19 @@ class Misc
             return null;
     }
 
+    /** sets session cookie ttl and starts the session or regenerates session id
+     * if session already open
+     * @param int $ttl  new time to live in seconds
+     */
+    public static function sessionSetTtl($ttl)
+    {
+        session_set_cookie_params($ttl);
+        if (session_status() == PHP_SESSION_NONE)
+            session_start();
+        else
+            session_regenerate_id(true);
+    }
+
     /** escapes a string to be used in sprintf by doubling the % characters
      * @param string $str   string to escape
      * @return string
@@ -139,16 +152,5 @@ class Misc
             , Nls::$charset
             ).$suffix
             ;
-    }
-
-    /** reopens session file, updates session and closes the file to unlock it
-     * @param array $values session values to update {'last-updated':time(), ...}
-     */
-    public static function updateSession($values)
-    {
-        if (session_status() == PHP_SESSION_NONE)
-            session_start();
-        $_SESSION = array_merge($_SESSION, $values);
-        session_write_close();
     }
 }
