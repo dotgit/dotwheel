@@ -30,10 +30,6 @@ class Request
     const OUT_ASIS  = 4;
     const OUT_CLI   = 5;
 
-    const DTL_FILTERS   = 1;
-    const DTL_SORT      = 2;
-    const DTL_PAGE      = 3;
-
     const INI_STATIC_URL    = 1;
     const INI_ROOT_LEVEL    = 2;
     const INI_COOKIE_DB     = 3;
@@ -161,17 +157,17 @@ class Request
         {
             foreach ($_REQUEST[self::PARAM_FILTERS] as $el=>$f)
                 if (isset(self::$details[$el]))
-                    self::$details[$el][self::DTL_FILTERS] = (array)$f;
+                    self::$details[$el][self::PARAM_FILTERS] = (array)$f;
                 else
-                    self::$details[$el] = array(self::DTL_FILTERS=>(array)$f);
+                    self::$details[$el] = array(self::PARAM_FILTERS=>(array)$f);
         }
         if (! empty($_REQUEST[self::PARAM_SORT]) and is_array($_REQUEST[self::PARAM_SORT]))
         {
             foreach ($_REQUEST[self::PARAM_SORT] as $el=>$s)
                 if (isset(self::$details[$el]))
-                    self::$details[$el][self::DTL_SORT] = (string)$s;
+                    self::$details[$el][self::PARAM_SORT] = (string)$s;
                 else
-                    self::$details[$el] = array(self::DTL_SORT=>(string)$s);
+                    self::$details[$el] = array(self::PARAM_SORT=>(string)$s);
         }
         if (! empty($_REQUEST[self::PARAM_PAGE]) and is_array($_REQUEST[self::PARAM_PAGE]))
         {
@@ -179,9 +175,9 @@ class Request
                 if ((int)$p)
                 {
                     if (isset(self::$details[$el]))
-                        self::$details[$el][self::DTL_PAGE] = (string)$p;
+                        self::$details[$el][self::PARAM_PAGE] = (int)$p;
                     else
-                        self::$details[$el] = array(self::DTL_PAGE=>(string)$p);
+                        self::$details[$el] = array(self::PARAM_PAGE=>(int)$p);
                 }
         }
 
@@ -227,12 +223,12 @@ class Request
         $p = array();
         foreach (self::$details as $tbl=>$detl)
         {
-            if (isset($detl[self::DTL_FILTERS]))
-                $f[$tbl] = $detl[self::DTL_FILTERS];
-            if (isset($detl[self::DTL_SORT]))
-                $s[$tbl] = $detl[self::DTL_SORT];
-            if (isset($detl[self::DTL_PAGE]))
-                $p[$tbl] = $detl[self::DTL_PAGE];
+            if (isset($detl[self::PARAM_FILTERS]))
+                $f[$tbl] = $detl[self::PARAM_FILTERS];
+            if (isset($detl[self::PARAM_SORT]))
+                $s[$tbl] = $detl[self::PARAM_SORT];
+            if (isset($detl[self::PARAM_PAGE]))
+                $p[$tbl] = $detl[self::PARAM_PAGE];
         }
 
         return array(self::PARAM_FILTERS=>$f ? $f : null

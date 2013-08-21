@@ -103,6 +103,7 @@ class BootstrapUi
             else
                 $close = array('data-dismiss'=>'alert');
             $body = self::close($close) . $body;
+            Params::add($params, 'alert-dismissable');
         }
         Params::add($params, 'alert');
 
@@ -644,6 +645,7 @@ EOco
         $content = Params::extract($params, self::P_CONTENT);
         $content = "<div".Html::attr($content_attr).">$content</div>";
         Params::add($params, 'panel');
+        Params::add($params, 'panel-default');
 
         return '<div'.Html::attr($params).'>'.$heading.sprintf($fmt, $prefix.$content.$suffix.$footer).'</div>';
     }

@@ -86,7 +86,6 @@ class HtmlTable
 
     /** returns the html code of a table
      * @param array $params list of table parameters:
-     * <pre>
      *  {id:'tbl1'
      *  , P_ROWS:{R_VALUES:{r1:{fld1:'value',fld2:'value',fld3:'value'}
      *          , r2:{fld1:'value',fld2:'value',fld3:'value'}
@@ -116,7 +115,6 @@ class HtmlTable
      *  , P_LAYOUT:null|'lpt'|'xl'|'csv' // not(yet) implemented
      *  , table tag arguments
      *  }
-     * </pre>
      * @todo implement layout parameter
      * @return string|null
      */
