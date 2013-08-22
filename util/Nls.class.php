@@ -30,12 +30,13 @@ class Nls
     const P_DATETIMESEC_DT      = 13;
     const P_DATETIMESEC_FMT     = 14;
     const P_DATEREV_FMT         = 15;
-    const P_LIST_DELIM          = 16;
-    const P_LIST_DELIM_HTML     = 17;
-    const P_COLON               = 18;
-    const P_COLON_HTML          = 19;
-    const P_GMAPS_FMT           = 20;
-    const P_DATEPICKER          = 21;
+    const P_DATEREV_RE          = 16;
+    const P_LIST_DELIM          = 17;
+    const P_LIST_DELIM_HTML     = 18;
+    const P_COLON               = 19;
+    const P_COLON_HTML          = 10;
+    const P_GMAPS_FMT           = 21;
+    const P_DATEPICKER          = 22;
 
     /** @var array $store list of available nls-settings */
     public static $store = array('en'=>array(self::P_NAME=>'English'
@@ -53,12 +54,13 @@ class Nls
             , self::P_DATETIMESEC_DT=>'m/d/y H:i:s'
             , self::P_DATETIMESEC_FMT=>'%u/%u/%u %2u:%2u:%2u'
             , self::P_DATEREV_FMT=>'%3$u-%1$u-%2$u'
+            , self::P_DATEREV_RE=>'$3-$1-$2'
             , self::P_LIST_DELIM=>','
             , self::P_LIST_DELIM_HTML=>','
             , self::P_COLON=>':'
             , self::P_COLON_HTML=>':'
             , self::P_GMAPS_FMT=>'http://maps.google.com/?q=%s'
-            , self::P_DATEPICKER=>''
+            , self::P_DATEPICKER=>array('language'=>'en')
             )
         , 'fr'=>array(self::P_NAME=>'Français'
             , self::P_LOCALES=>array('fr_FR', 'French_France', 'fr')
@@ -75,15 +77,15 @@ class Nls
             , self::P_DATETIMESEC_DT=>'d/m/y H:i:s'
             , self::P_DATETIMESEC_FMT=>'%u/%u/%u %2u:%2u:%2u'
             , self::P_DATEREV_FMT=>'%3$u-%2$u-%1$u'
+            , self::P_DATEREV_RE=>'$3-$2-$1'
             , self::P_LIST_DELIM=>' ;'
             , self::P_LIST_DELIM_HTML=>'&nbsp;;'
             , self::P_COLON=>' :'
             , self::P_COLON_HTML=>'&nbsp;:'
             , self::P_GMAPS_FMT=>'http://maps.google.fr/?q=%s'
-            , self::P_DATEPICKER=>array('dateFormat'=>'dd/mm/yy'
-                , 'firstDay'=>1
-                , 'dayNamesMin'=>array('Di','Lu','Ma','Me','Je','Ve','Sa')
-                , 'monthNames'=>array('Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre')
+            , self::P_DATEPICKER=>array('language'=>'fr'
+                , 'format'=>'dd/mm/yy'
+                , 'weekStart'=>1
                 )
             )
         , 'ru'=>array(self::P_NAME=>'Русский'
@@ -101,15 +103,15 @@ class Nls
             , self::P_DATETIMESEC_DT=>'d.m.Y H:i:s'
             , self::P_DATETIMESEC_FMT=>'%u.%u.%u %2u:%2u:%2u'
             , self::P_DATEREV_FMT=>'%3$u-%2$u-%1$u'
+            , self::P_DATEREV_RE=>'$3-$2-$1'
             , self::P_LIST_DELIM=>','
             , self::P_LIST_DELIM_HTML=>','
             , self::P_COLON=>':'
             , self::P_COLON_HTML=>':'
             , self::P_GMAPS_FMT=>'http://maps.google.ru/?q=%s'
-            , self::P_DATEPICKER=>array('dateFormat'=>'dd.mm.yy'
-                , 'firstDay'=>1
-                , 'dayNamesMin'=>array('Вс','Пн','Вт','Ср','Чт','Пт','Сб')
-                , 'monthNames'=>array('Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь')
+            , self::P_DATEPICKER=>array('language'=>'ru'
+                , 'format'=>'dd.mm.yy'
+                , 'weekStart'=>1
                 )
             )
         );

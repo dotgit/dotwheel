@@ -505,7 +505,7 @@ class Repo
                     : Html::encode($value)
                     ;
             case self::C_DATE:
-                return Html::asDate($value, isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME);
+                return Html::asDateNls($value, isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME);
             case self::C_ENUM:
                 return (isset($repo[self::P_ITEMS]) && isset($repo[self::P_ITEMS][$value]))
                     ? (isset($repo[self::P_FLAGS])

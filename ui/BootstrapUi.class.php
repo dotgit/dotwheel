@@ -408,12 +408,18 @@ EOco
     }
 
     /** returns html-formatted form legend
-     * @param string $header
+     * @param string|array $header  'legend header'|{P_CONTENT:'legend header', legend tag attr}
      * @return string
      */
     public static function formLegend($header)
     {
-        return "<legend>$header</legend>\n";
+        if (is_array($header))
+        {
+            $content = Params::extract($header, self::P_CONTENT);
+            return "<legend".Html::attr($header).">$content</legend>\n";
+        }
+        else
+            return "<legend>$header</legend>\n";
     }
 
     /** returns form closing tag
@@ -421,7 +427,7 @@ EOco
      */
     public static function formStop()
     {
-        return "</form>\n";
+        return "</form>";
     }
 
     /** returns a div wrapper containing other divs for individual columns
@@ -851,8 +857,8 @@ EOco
 
         if ($prefix or $suffix)
         {
-            $prefix = "<div class=\"input-group\">$prefix";
-            $suffix = "$suffix</div>";
+            $prefix = Misc::sprintfEscape('<div class="input-group">'.$prefix);
+            $suffix = Misc::sprintfEscape($suffix.'</div>');
         }
 
         return "$prefix%s$suffix";

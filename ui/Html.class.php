@@ -228,9 +228,12 @@ class Html
     {
         $datetime = Params::extract($params, self::P_DATETIME);
         if (! empty($params['value']))
-            $params['value'] = self::asDate($params['value'], $datetime);
+            $params['value'] = (empty($params['type']) or $params['type']=='date' or $params['type']=='datetime' or $params['type']=='datetime-local')
+                ? self::asDateRfc($params['value'], $datetime)
+                : self::asDateNls($params['value'], $datetime)
+                ;
 
-        return self::input($params + array('type'=>'text', 'maxlength'=>20));
+        return self::input($params + array('type'=>'date', 'maxlength'=>20));
     }
 
     /**
@@ -514,13 +517,27 @@ class Html
             ;
     }
 
+    /** date representation as YYYY-MM-DD
+     * @param string $dt    YYYY-MM-DD representation of a date(YYYY-MM-DD HH:MM:SS
+     *                      if $datetime set)
+     * @param bool $datetime
+     * @return string
+     */
+    public static function asDateRfc($dt, $datetime=null)
+    {
+        if (strtotime($dt))
+            return $datetime ? str_replace(' ', 'T', $dt) : substr($dt, 0, 10);
+        else
+            return '';
+    }
+
     /** date representation in current Nls format.
      * @param string $dt    YYYY-MM-DD representation of a date(YYYY-MM-DD HH:MM:SS
      *                      if $datetime set)
      * @param bool $datetime
      * @return string
      */
-    public static function asDate($dt, $datetime=null)
+    public static function asDateNls($dt, $datetime=null)
     {
         if ($tm = strtotime($dt))
             return date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
