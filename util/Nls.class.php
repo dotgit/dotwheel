@@ -34,7 +34,7 @@ class Nls
     const P_LIST_DELIM          = 17;
     const P_LIST_DELIM_HTML     = 18;
     const P_COLON               = 19;
-    const P_COLON_HTML          = 10;
+    const P_COLON_HTML          = 20;
     const P_GMAPS_FMT           = 21;
     const P_DATEPICKER          = 22;
 

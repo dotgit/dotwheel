@@ -76,22 +76,34 @@ class Html
     /** Html tables */
 
     /** returns table open tag followed by a CAPTION and COLGROUP constructs
-     * @param array $params {PARAM_CAPTION:'My table'
-     *                      , PARAM_CAPTION_ATTR:{style:'color:red'}
-     *                      , PARAM_COLGROUP:[' width="80%"',' width="20%"']
+     * @param array $params {P_CAPTION:'My table'
+     *                      , P_CAPTION_ATTR:{style:'color:red'}
+     *                      , P_COLGROUP:[{width:"80%"},{width:"20%"}]
      *                      , table tag attributes
      *                      }
      * @return string
      */
     public static function tableStart($params=array())
     {
+        $id = Params::extract($params, 'id');
         $caption_attr = Params::extract($params, self::P_CAPTION_ATTR);
         if ($caption = Params::extract($params, self::P_CAPTION))
-            $caption = "<caption$caption_attr>$caption</caption>\n";
+            $caption = "<caption$caption_attr>$caption</caption>";
         if ($colgroup = Params::extract($params, self::P_COLGROUP))
+        {
+            $k = 0;
+            foreach ($colgroup as &$col)
+            {
+                if ($align = Params::extract($col, 'align'))
+                    HtmlPage::add(array(HtmlPage::STYLE=>array(__MODULE__."-$id"=>"table#$id td:first-child".str_repeat(' + td', $k)."{text-align:$align;}"
+                        . "table#$id th:first-child".str_repeat(' + th', $k)."{text-align:$align;}"
+                        )));
+                ++$k;
+            }
             $colgroup = self::colgroup($colgroup);
+        }
 
-        return "<table". self::attr($params).">\n$caption$colgroup";
+        return '<table'.self::attr(array('id'=>$id) + $params).">$caption$colgroup";
     }
 
     /** returns table closing tag
@@ -99,7 +111,7 @@ class Html
      */
     public static function tableStop()
     {
-        return "</table>\n";
+        return '</table>';
     }
 
     /** returns table heading row implemented with THEAD construct
@@ -110,27 +122,26 @@ class Html
     {
         return '<thead>'
             . (($prefix = Params::extract($params, self::P_PREFIX))
-                ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array(' colspan="'.count($params[self::P_VALUES]).'"')))
+                ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array('colspan'=>count($params[self::P_VALUES]))))
                 : ''
                 )
             . self::tr($params + array(self::P_TAG=>'th'))
-            . "</thead>\n"
             ;
     }
 
     /** returns table columns description implemented with COLGROUP construct
-     * @param array $params [' width="80%"',' width="20%"']
+     * @param array $cols   [{width:"80%"},{width:"20%"}]
      * @return string
      */
-    public static function colgroup($params)
+    public static function colgroup($cols)
     {
-        return '<colgroup><col'.implode('><col', $params)."></colgroup>\n";
+        return '<colgroup><col'.implode('><col', array_map(function($at){return Html::attr($at);}, $cols))."></colgroup>\n";
     }
 
     /** returns table row with a set of TD or TH cells
-     * @param array $params {PARAM_VALUES:{'cell1','cell2','cell3'}
-     *                      , PARAM_TD_ATTR:{null,null,' style="text-align:right"'}|null
-     *                      , PARAM_TAG:'th'|'td'|null
+     * @param array $params {P_VALUES:{'cell1','cell2','cell3'}
+     *                      , P_TD_ATTR:{null,null,' style="text-align:right"'}|null
+     *                      , P_TAG:'th'|'td'|null
      *                      , tr tag attributes
      *                      }
      * @return string
@@ -143,7 +154,7 @@ class Html
 
         if (isset($params[self::P_TD_ATTR]))
             foreach ($params[self::P_VALUES] as $k=>$v)
-                $res .= "<$tag".(isset($params[self::P_TD_ATTR][$k]) ? $params[self::P_TD_ATTR][$k] : '').">$v</$tag>";
+                $res .= "<$tag".(isset($params[self::P_TD_ATTR][$k]) ? self::attr($params[self::P_TD_ATTR][$k]) : '').">$v</$tag>";
         else
             foreach ($params[self::P_VALUES] as $v)
                 $res .= "<$tag>$v</$tag>";
@@ -393,25 +404,26 @@ class Html
     }
 
     /** returns html checkbox element
-     * @param array $params {P_COMMENT:'string'
+     * @param array $params {P_LABEL:'string'
      *                      , P_LABEL_ATTR:{label tag attributes}
      *                      , P_DELIM:' '
+     *                      , P_WRAP_FMT:'%s'
      *                      , input tag attributes
      *                      }
      * @return string
      */
     public static function inputCheckbox($params)
     {
-        $fmt = Params::extract($params, self::P_WRAP_FMT);
-        $label = Params::extract($params, self::P_LABEL);
-        if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
-            $label_attr = Html::attr($label_attr);
-        $delim = Params::extract($params, self::P_DELIM, ' ');
-        $checkbox = self::input(array('type'=>'checkbox') + $params);
+        $attr = array_diff_key($params, array(self::P_WRAP_FMT=>true, self::P_LABEL=>true, self::P_LABEL_ATTR=>true, self::P_DELIM=>true));
+        $fmt = isset($params[self::P_WRAP_FMT]) ? $params[self::P_WRAP_FMT] : '%s';
+        $label = isset($params[self::P_LABEL]) ? self::P_LABEL : null;
+        $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr(self::P_LABEL_ATTR) : null;
+        $delim = isset($params[self::P_DELIM]) ? self::P_DELIM : ' ';
+        $checkbox = self::input(array('type'=>'checkbox') + $attr);
         if (isset($label))
             $checkbox = "<label$label_attr>$checkbox$delim$label</label>";
 
-        return isset($fmt) ? sprintf($fmt, $checkbox) : $checkbox;
+        return sprintf($fmt, $checkbox);
     }
 
 
@@ -507,13 +519,9 @@ class Html
      */
     public static function asCents($cts, $show_cents=true)
     {
-        $thousands_sep = Nls::$formats[Nls::P_MON_THOUSANDS_CHAR];
-        $decimal_point = Nls::$formats[Nls::P_MON_DECIMAL_CHAR];
-        $decimals = $show_cents ? 2 : 0;
-
-        return $thousands_sep === ' '
-            ? str_replace(' ', '&nbsp;', number_format($cts/100, $decimals, $decimal_point, ' '))
-            : number_format($cts/100, $decimals, $decimal_point, $thousands_sep)
+        return Nls::$formats[Nls::P_MON_THOUSANDS_CHAR] === ' '
+            ? str_replace(' ', '&nbsp;', number_format($cts/100, $show_cents ? 2 : 0, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], ' '))
+            : number_format($cts/100, $show_cents ? 2 : 0, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR])
             ;
     }
 
@@ -560,13 +568,13 @@ class Html
 
     /** html representation of a list: 'On'
      * @param string $value         'x'
-     * @param array $items          {x:'On', '':'Off'}
-     * @param string $array_type    if set the $items array is as follows: [['x','On'], ['','Off']]
+     * @param array $items          {'x':'On', '':'Off'}
+     * @param string $flat_array    if set the $items array is as follows: [['x','On'], ['','Off']]
      * @return string
     */
-    public static function asEnum($value, $items, $array_type=null)
+    public static function asEnum($value, $items, $flat_array=null)
     {
-        if ($array_type)
+        if ($flat_array)
         {
             foreach ($items as $item)
             {

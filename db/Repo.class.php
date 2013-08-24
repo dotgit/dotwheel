@@ -487,18 +487,6 @@ class Repo
 
             switch ($repo[self::P_CLASS])
             {
-            case self::C_ID:
-            case self::C_INT:
-                return (int)$value;
-            case self::C_CENTS:
-                return Html::asCents($value, isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
-            case self::C_BOOL:
-                // if P_ITEMS provided, must be a string
-                return Html::asEnum((int)(bool)$value
-                    , isset($repo[self::P_ITEMS])
-                        ? array('', $repo[self::P_ITEMS])
-                        : array(dgettext(Nls::FW_DOMAIN, 'no'), dgettext(Nls::FW_DOMAIN, 'yes'))
-                    );
             case self::C_TEXT:
                 return (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_TEXTAREA)
                     ? Html::encodeNl($value, $repo[self::P_FLAGS] & self::F_TEXT_FORMAT)
@@ -521,6 +509,18 @@ class Repo
                     ;
             case self::C_SET:
                 return Html::asSet($value, $repo[self::P_ITEMS]);
+            case self::C_ID:
+            case self::C_INT:
+                return (int)$value;
+            case self::C_CENTS:
+                return Html::asCents($value, isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL);
+            case self::C_BOOL:
+                // if P_ITEMS provided, must be a string
+                return Html::asEnum((int)((bool)$value)
+                    , isset($repo[self::P_ITEMS])
+                        ? array('', $repo[self::P_ITEMS])
+                        : array(dgettext(Nls::FW_DOMAIN, 'no'), dgettext(Nls::FW_DOMAIN, 'yes'))
+                    );
             case self::C_FILE:
                 return isset($value['name']) ? Html::encode($value['name']) : '';
             default:
@@ -552,17 +552,6 @@ class Repo
 
         switch ($repo[self::P_CLASS])
         {
-        case self::C_ID:
-        case self::C_INT:
-            return Html::inputInt($input + array('name'=>$name, 'value'=>$value));
-        case self::C_CENTS:
-            return Html::inputCents($input + array('name'=>$name, 'value'=>$value));
-        case self::C_BOOL:
-            // if P_ITEMS provided, must be a string
-            return Html::inputCheckbox($input + array('name'=>$name
-                , 'checked'=>$value ? 'on' : null
-                , Html::P_LABEL=>isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : null
-                ));
         case self::C_TEXT:
             if (isset($repo[self::P_FLAGS]))
             {
@@ -626,6 +615,17 @@ class Repo
                         ? $repo[self::P_ITEM_DELIM] : null
                     )
                 );
+        case self::C_ID:
+        case self::C_INT:
+            return Html::inputInt($input + array('name'=>$name, 'value'=>$value));
+        case self::C_CENTS:
+            return Html::inputCents($input + array('name'=>$name, 'value'=>$value));
+        case self::C_BOOL:
+            // if P_ITEMS provided, must be a string
+            return Html::inputCheckbox($input + array('name'=>$name
+                , 'checked'=>$value ? 'on' : null
+                , Html::P_LABEL=>isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : null
+                ));
         case self::C_FILE:
             return Html::input($input + array('name'=>$name, 'type'=>'file'));
         default:

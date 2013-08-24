@@ -13,26 +13,26 @@ namespace dotwheel\ui;
 require_once (__DIR__.'/HtmlPage.class.php');
 require_once (__DIR__.'/Ui.class.php');
 require_once (__DIR__.'/../db/Repo.class.php');
+require_once (__DIR__.'/../http/Request.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
 require_once (__DIR__.'/../util/Params.class.php');
 
 use dotwheel\db\Repo;
+use dotwheel\http\Request;
 use dotwheel\util\Nls;
 use dotwheel\util\Params;
 
 class HtmlTable
 {
     const P_ROWS        = 1;
-    const P_FIELDS      = 2;
-    const P_SORT        = 3;
-    const P_UNIQUE      = 4;
-    const P_LAYOUT      = 5;
-    const P_EMPTY       = 6;
-    const P_PREFIX      = 7;
-    const P_SUFFIX      = 8;
-    const P_GROUP_CLASS = 9;
-    const P_TOTAL_CLASS = 10;
-    const P_EMPTY_CLASS = 11;
+    const P_TD          = 2;
+    const P_TR          = 3;
+    const P_FIELDS      = 4;
+    const P_SORT        = 5;
+    const P_PREFIX      = 6;
+    const P_SUFFIX      = 7;
+    const P_GROUP_CLASS = 8;
+    const P_TOTAL_CLASS = 9;
 
     const R_VALUES  = -1;
     const R_TD      = -2;
@@ -40,39 +40,37 @@ class HtmlTable
 
     const F_WIDTH           = 1;
     const F_ALIGN           = 2;
-    const F_REPOSITORY      = 3;
+    const F_REPO            = 3;
     const F_HEADER          = 4;
     const F_HEADER_LABEL    = 41;
     const F_HEADER_ABBR     = 42;
     const F_CHECKBOX        = 5;
-    const F_CHECKBOX_NAME   = 51;
     const F_SORT            = 6;
-    const F_SORT_EXCLUDE    = 63;
-    const F_SORT_GROUP      = 64;
-    const F_FORMAT          = 7;
+    const F_SORT_EXCLUDE    = 61;
+    const F_SORT_GROUP      = 62;
+    const F_FMT             = 7;
     const F_URL             = 8;
     const F_URL_FIELD       = 81;
-    const F_URL_ADDRESS     = 82;
+    const F_URL_FMT         = 82;
     const F_URL_TARGET      = 83;
     const F_TOTAL           = 9;
     const F_TOTAL_SUM       = 91;
     const F_TOTAL_COUNT     = 92;
     const F_TOTAL_AVG       = 93;
     const F_TOTAL_TEXT      = 94;
+    const F_HIDDEN          = 100;
 
-    const S_PARAMS  = 1;
-    const S_FIELD   = 2;
-    const S_SCRIPT  = 3;
-    const S_TARGET  = 4;
-
-    const U_KEY     = 1;
-    const U_FIELDS  = 2;
+    const S_FIELD   = 1;
+    const S_ICON    = 2;
+    const S_REVERSE = 3;
+    const S_SCRIPT  = 4;
+    const S_PARAMS  = 5;
+    const S_TARGET  = 6;
 
     const L_LPT = 1;
     const L_XL  = 2;
     const L_CSV = 3;
 
-    const SORT_REV_SUFFIX   = '.';
     const PAGES_PER_BLOCK   = 10;
     const ITEMS_PER_PAGE    = 100;
 
@@ -87,32 +85,35 @@ class HtmlTable
     /** returns the html code of a table
      * @param array $params list of table parameters:
      *  {id:'tbl1'
-     *  , P_ROWS:{R_VALUES:{r1:{fld1:'value',fld2:'value',fld3:'value'}
-     *          , r2:{fld1:'value',fld2:'value',fld3:'value'}
-     *          }
-     *      , R_TD:{r1:{fld3:' td tag attributes'}}
-     *      , R_TR:{r2:' tr tag attributes'}
-     *      }
+     *  , P_GROUP_CLASS:'_grp'
+     *  , P_TOTAL_CLASS:'_ttl'
      *  , P_FIELDS:{fld1:{F_WIDTH:'20%'
-     *          , repository:{field repository arguments}
-     *          , header:{label:Repo::PARAM_LABEL_SHORT|null,abbr:Repo::PARAM_LABEL_LONG|true|null, th tag arguments}
-     *          , checkbox:{name:'fld1',form:'form_name'}   // replaces header with a checkbox and a toggler js code
-     *          , F_SORT:{F_SORT_EXCLUDE:true,F_SORT_GROUP:'fld2'|true}
      *          , F_ALIGN:'center'
-     *          , format:'<span class="tag">%s</span>'
-     *          , url:{field:'fld2',address:'/path/script.php?id=%u&mode=edit',target:'_blank'}
-     *          , total:'text'|(TOTAL_SUM|true)|TOTAL_COUNT|TOTAL_AVG
+     *          , F_REPO:{field repository arguments}
+     *          , F_HEADER:{F_HEADER_LABEL:Repo::PARAM_LABEL_SHORT|null, F_HEADER_ABBR:Repo::PARAM_LABEL_LONG|true|null, th tag arguments}
+     *          , F_CHECKBOX:true   // replaces header with a checkbox and a toggler js code
+     *          , F_HIDDEN:true
+     *          , F_SORT:{F_SORT_EXCLUDE:true, F_SORT_GROUP:'fld2'|true}
+     *          , F_FORMAT:'<span class="tag">%s</span>'
+     *          , F_URL:{F_URL_FIELD:'fld2',F_URL_ADDRESS:'/path/script.php?id=%u&mode=edit',F_URL_TARGET:'_blank'}
+     *          , F_TOTAL:(TOTAL_SUM|true)|TOTAL_COUNT|TOTAL_AVG|'text'
      *          }
      *      , fld2:{}
      *      }
-     *  , P_UNIQUE:{U_KEY:'fld1',U_FIELDS:'fld1,fld2,fld3'}
      *  , P_SORT:{S_FIELD:'fld1'
+     *      , S_ICON:'icon-caret-down'
+     *      , S_REVERSE:true
      *      , S_SCRIPT:'/this/script.php'
-     *      , S_PARAMS:{s:{tbl1:'fld_current'},f{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
+     *      , S_PARAMS:{s:{tbl1:'fld_current'},f:{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
      *      , S_TARGET:'_blank'
      *      }
-     *  , P_EMPTY:{display:true,label:'no rows selected'}
-     *  , P_LAYOUT:null|'lpt'|'xl'|'csv' // not(yet) implemented
+     *  , P_ROWS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
+     *          , r2:{fld1:'value',fld2:'value',fld3:'value'}
+     *          }
+     *  , P_TD:{r1:{fld3:' td tag attributes'}, ...}
+     *  , P_TR:{r2:' tr tag attributes'}, ...}
+     *  , P_PREFIX:''
+     *  , P_SUFFIX:''
      *  , table tag arguments
      *  }
      * @todo implement layout parameter
@@ -126,79 +127,70 @@ class HtmlTable
         // initialize parameters
         //
 
-        $table_id = isset($params['id']) ? $params['id'] : ('table_id'.++self::$counter);
+        $table_id = Params::extract($params, 'id', 'tid_'.++self::$counter);
+        Params::add($params, $table_id, 'id');
 
         if ($sort = Params::extract($params, self::P_SORT))
         {
             $sort_params = Params::extract($sort, self::S_PARAMS, array());
-            unset($sort_params['s'][$table_id], $sort_params['p'][$table_id]);
+            unset($sort_params[Request::PARAM_SORT][$table_id], $sort_params[Request::PARAM_PAGE][$table_id]);
         }
         else
             $sort_params = null;
 
         $colgroup = array();
-        $rep = array();
+        $repo = array();
         $headers = array();
         $headers_td = array();
         $sort_group_key = null;
         $sort_group_old = null;
-        $unique_key = null;
-        $unique_old = null;
-        $unique_fields = null;
         $aligns = array();
         $formats = array();
         $checkboxes = array();
         $urls_field = array();
-        $urls_address = array();
+        $urls_fmt = array();
         $urls_target = array();
         $totals = false;
         $totals_fn = array();
         $totals_cnt = array();
+        $hidden = array();
 
         $group_class = Params::extract($params, self::P_GROUP_CLASS, '_grp');
         $total_class = Params::extract($params, self::P_TOTAL_CLASS, '_ttl');
-        $empty_class = Params::extract($params, self::P_EMPTY_CLASS, '_emp');
 
-        foreach (Params::extract($params, self::P_FIELDS) as $field=>$f)
+        foreach (Params::extract($params, self::P_FIELDS, array()) as $field=>$f)
         {
             if (! is_array($f))
                 $f = array(self::F_WIDTH=>$f, self::F_ALIGN=>null, self::F_SORT=>array(self::F_SORT_EXCLUDE=>true));
 
-            if ($colgroup[$field] = Params::extract($f, self::F_WIDTH))
-                $colgroup[$field] = " width=\"{$colgroup[$field]}\"";
-            $rep[$field] = Repo::get($field, isset($f[self::F_REPOSITORY]) ? $f[self::F_REPOSITORY] : array());
+            $colgroup[$field] = ($w = Params::extract($f, self::F_WIDTH))
+                ? array('width'=>$w)
+                : array()
+                ;
+            $repo[$field] = Repo::get($field, isset($f[self::F_REPO]) ? $f[self::F_REPO] : array());
 
             if (isset($f[self::F_HEADER]))
             {
-                if (isset($f[self::F_HEADER][self::F_HEADER_LABEL]))
-                    $l = Repo::getLabel($field, $rep[$field], Params::extract($f[self::F_HEADER], self::F_HEADER_LABEL));
-                else
-                    $l = Repo::getLabel($field, $rep[$field], Repo::P_LABEL);
-                if (isset($f[self::F_HEADER][self::F_HEADER_ABBR]))
-                {
-                    $headers[$field] = Html::asAbbr($l, Repo::getLabel($field
-                        , $rep[$field]
-                        , $f[self::F_HEADER][self::F_HEADER_ABBR] === true
-                            ? Repo::P_LABEL_LONG
-                            : $f[self::F_HEADER][self::F_HEADER_ABBR]
-                        ))
-                        ;
-                    unset($f[self::F_HEADER][self::F_HEADER_ABBR]);
-                }
-                else
-                    $headers[$field] = Html::encode($l);
+                $header = ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_LABEL))
+                    ? Repo::getLabel($field, $repo[$field], $h)
+                    : Repo::getLabel($field, $repo[$field], Repo::P_LABEL)
+                    ;
+                $headers[$field] = ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
+                    ? Html::asAbbr($header, Repo::getLabel($field, $repo[$field], $abbr === true ? Repo::P_LABEL_LONG : $abbr))
+                    : Html::encode($header)
+                    ;
                 if ($f[self::F_HEADER])
                     $headers_td[$field] = $f[self::F_HEADER];
             }
             else
-                $headers[$field] = Html::encode(Repo::getLabel($field, $rep[$field]));
+                $headers[$field] = Html::encode(Repo::getLabel($field, $repo[$field]));
 
-            if (isset($f[self::F_CHECKBOX]) and isset($f[self::F_CHECKBOX][self::F_CHECKBOX_NAME]))
+            if (isset($f[self::F_CHECKBOX]))
             {
-                $checkboxes[$field] = $f[self::F_CHECKBOX][self::F_CHECKBOX_NAME];
+                $checkboxes[$field] = $f[self::F_CHECKBOX];
                 $headers[$field] = Html::inputCheckbox(array('id'=>"{$table_id}_chk"));
                 HtmlPage::add(array(HtmlPage::DOM_READY=>array("{$table_id}_chk"
-                    =>"$('#{$table_id}_chk').change(function(){\$('input:checkbox[name^=\"{$checkboxes[$field]}\"]','#$table_id').attr('checked',this.checked);});"
+                    =>"$('#{$table_id}_chk').change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);});"
                     )));
                 if (! isset($f[self::F_ALIGN]))
                     $f[self::F_ALIGN] = 'center';
@@ -208,33 +200,23 @@ class HtmlTable
                 and isset($sort[self::S_FIELD])
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 and isset($f[self::F_SORT][self::F_SORT_GROUP])
-                and($sort[self::S_FIELD] == $field or $sort[self::S_FIELD] == $field.self::SORT_REV_SUFFIX)
+                and $sort[self::S_FIELD] == $field
                 )
                 $sort_group_key = $f[self::F_SORT][self::F_SORT_GROUP] === true ? $field : $f[self::F_SORT][self::F_SORT_GROUP];
 
             if (isset($f[self::F_ALIGN]))
-            {
-                $aligns[$field] = " align=\"{$f[self::F_ALIGN]}\"";
-                if (isset($headers_td[$field]))
-                    $headers_td[$field]['align'] = $f[self::F_ALIGN];
-                else
-                    $headers_td[$field] = array('align'=>$f[self::F_ALIGN]);
-            }
-            elseif (! isset($headers_td[$field]))
-                $headers_td[$field] = array('align'=>'left');
-            elseif (! isset($headers_td[$field]['align']))
-                $headers_td[$field]['align'] = 'left';
+                $colgroup[$field]['align'] = $f[self::F_ALIGN];
 
-            if (isset($f[self::F_FORMAT]))
-                $formats[$field] = $f[self::F_FORMAT];
+            if (isset($f[self::F_FMT]))
+                $formats[$field] = $f[self::F_FMT];
 
             if (isset($f[self::F_URL])
                 and isset($f[self::F_URL][self::F_URL_FIELD])
-                and isset($f[self::F_URL][self::F_URL_ADDRESS])
+                and isset($f[self::F_URL][self::F_URL_FMT])
                 )
             {
                 $urls_field[$field] = $f[self::F_URL][self::F_URL_FIELD];
-                $urls_address[$field] = $f[self::F_URL][self::F_URL_ADDRESS];
+                $urls_fmt[$field] = $f[self::F_URL][self::F_URL_FMT];
                 if (isset($f[self::F_URL][self::F_URL_TARGET]))
                     $urls_target[$field] = $f[self::F_URL][self::F_URL_TARGET];
             }
@@ -242,209 +224,148 @@ class HtmlTable
             if (isset($f[self::F_TOTAL]))
             {
                 $totals = true;
-                $totals_fn[$field] = ($f[self::F_TOTAL] === true or $f[self::F_TOTAL] === self::F_TOTAL_SUM)
-                    ? self::F_TOTAL_SUM
-                    : ($f[self::F_TOTAL] === self::F_TOTAL_COUNT
-                        ? self::F_TOTAL_COUNT
-                        : ($f[self::F_TOTAL] === self::F_TOTAL_AVG
-                            ? self::F_TOTAL_AVG
-                            : self::F_TOTAL_TEXT
-                            )
-                        )
-                    ;
+                if ($f[self::F_TOTAL] === true)
+                    $totals_fn[$field] = self::F_TOTAL_SUM;
+                elseif (is_string($f[self::F_TOTAL]))
+                    $totals_fn[$field] = self::F_TOTAL_TEXT;
+                else
+                    $totals_fn[$field] = $f[self::F_TOTAL];
                 self::$totals[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT ? Html::encode($f[self::F_TOTAL]) : 0;
                 $totals_cnt[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT ? null : 0;
             }
-
-            if (isset($headers_td[$field]))
-                $headers_td[$field] = Html::attr($headers_td[$field]);
 
             if (isset($sort)
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 )
             {
-                $field_suf = '';
-                if (isset($sort[self::S_FIELD]) and($sort[self::S_FIELD] == $field or $sort[self::S_FIELD] == $field.self::SORT_REV_SUFFIX))
+                if (isset($sort[self::S_FIELD])
+                    and $sort[self::S_FIELD] == $field
+                    and isset($sort[self::S_ICON])
+                    )
                 {
-                    if (strrpos($sort[self::S_FIELD], self::SORT_REV_SUFFIX) !== false)
-                    {
-                        $headers[$field] .= Ui::TBL_SORT_ICON_UP;
-                    }
-                    else
-                    {
-                        $headers[$field] .= Ui::TBL_SORT_ICON_DOWN;
-                        $field_suf = self::SORT_REV_SUFFIX;
-                    }
+                    $headers[$field] .= ' '.Ui::icon($sort[self::S_ICON]);
                 }
                 $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
                     , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
-                        . Html::urlArgs('?', array_merge_recursive($sort_params, array('s'=>array($table_id=>$field.$field_suf))))
+                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::PARAM_SORT=>array($table_id=>$field.(empty($sort[self::S_REVERSE]) ? Request::SORT_REV_SUFFIX : '')))))
                     , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
                     , $headers[$field]
                     );
             }
-        }
 
-        if (isset($params[self::P_ROWS][self::R_VALUES]))
-        {
-            $rows_values = $params[self::P_ROWS][self::R_VALUES];
-            $rows_td = isset($params[self::P_ROWS][self::R_TD]) ? $params[self::P_ROWS][self::R_TD] : array();
-            $rows_tr = isset($params[self::P_ROWS][self::R_TR]) ? $params[self::P_ROWS][self::R_TR] : array();
-        }
-        else
-        {
-            $rows_values = $params[self::P_ROWS];
-            $rows_td = array();
-            $rows_tr = array();
-        }
-        unset($params[self::P_ROWS]);
-
-        if (isset($params[self::P_UNIQUE]))
-        {
-            if (isset($sort[self::S_FIELD])
-                and isset($params[self::P_UNIQUE][self::U_FIELDS])
-                and isset($params[self::P_UNIQUE][self::U_KEY])
-                and strpos($params[self::P_UNIQUE][self::U_FIELDS], $sort[self::S_FIELD]) !== false
-                )
+            if (isset($f[self::F_HIDDEN]))
             {
-                $unique_fields = array_flip(explode(',', $params[self::P_UNIQUE][self::U_FIELDS]));
-                $unique_key = $params[self::P_UNIQUE][self::U_KEY];
+                $hidden[$field] = true;
+                unset($headers[$field], $headers_td[$field]);
             }
-            unset($params[self::P_UNIQUE]);
         }
 
-        $layout = Params::extract($params, self::P_LAYOUT);
+        $rows_values = Params::extract($params, self::P_ROWS);
+        $rows_td = Params::extract($params, self::P_TD, array());
+        $rows_tr = Params::extract($params, self::P_TR, array());
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        $empty_display = true;
-        $empty_label = dgettext(Nls::FW_DOMAIN, 'No records');
-        if (isset($params[self::P_EMPTY]))
-        {
-            if (is_string($params[self::P_EMPTY]))
-                $empty_label = $params[self::P_EMPTY];
-            else
-                $empty_display = $params[self::P_EMPTY];
-            unset($params[self::P_EMPTY]);
-        }
-
         ob_start();
-        if ($rows_values)
+
+        // start table
+        //
+
+        echo Html::tableStart($params + array(Html::P_COLGROUP=>$colgroup))
+            , Html::thead(array(Html::P_VALUES=>$headers, Html::P_TD_ATTR=>$headers_td, Html::P_PREFIX=>$prefix))
+            , '<tbody>'
+            ;
+
+        // cycle through the rows
+        //
+
+        foreach ($rows_values as $krow=>$row)
         {
-            // start table
-            //
+            $values = array();
+            $td = isset($rows_td[$krow]) ? $rows_td[$krow] : array();
+            $tr = isset($rows_tr[$krow]) ? $rows_tr[$krow] : array();
 
-            echo Html::tableStart($params + array(Html::P_COLGROUP=>$colgroup))
-                , Html::thead(array(Html::P_VALUES=>$headers, Html::P_TD_ATTR=>$headers_td, Html::P_PREFIX=>$prefix))
-                , '<tbody>'
-                ;
-
-            // cycle through the rows
-            //
-
-            foreach ($rows_values as $krow=>$row)
+            // grouping
+            if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key])
             {
-                $values = array();
-                $td = isset($rows_td[$krow]) ? $rows_td[$krow] : array();
-                $tr = isset($rows_tr[$krow]) ? $rows_tr[$krow] : array();
-
-                // grouping
-                if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key])
-                {
-                    Params::add($tr, $group_class);
-                    $sort_group_old = $row[$sort_group_key];
-                }
-
-                // cycle through the fields
-                //
-
-                foreach ($rep as $field=>$r)
-                {
-                    // set cell align
-                    if (isset($aligns[$field]))
-                    {
-                        if (isset($td[$field]))
-                            $td[$field] .= $aligns[$field];
-                        else
-                            $td[$field] = $aligns[$field];
-                    }
-
-                    // set cell value
-
-                    // whether checkbox...
-                    if (isset($checkboxes[$field]))
-                        $values[$field] = Html::inputCheckbox(array('name'=>$checkboxes[$field]."[{$row[$field]}]", 'value'=>$row[$field]));
-                    // ...or empty duplicated value...
-                    elseif (isset($unique_key) and $unique_old != $row[$unique_key] and isset($unique_fields[$field]))
-                        $values[$field] = '';
-                    // ...or normal value
-                    else
-                    {
-                        $v = Repo::asHtmlStatic($field, $row[$field], $r);
-                        if (isset($urls_field[$field]))
-                            $v = sprintf('<a href="%s"%s>%s</a>'
-                                , sprintf($urls_address[$field], $row[$urls_field[$field]])
-                                , isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : ''
-                                , $v
-                                );
-                        $values[$field] = isset($formats[$field]) ? sprintf($formats[$field], $v) : $v;
-                        if ($totals and isset($row[$field]) and isset($totals_fn[$field]) and $totals_fn[$field] !== self::F_TOTAL_TEXT)
-                        {
-                            self::$totals[$field] += $row[$field];
-                            ++$totals_cnt[$field];
-                        }
-                    }
-                }
-
-                echo Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
+                Params::add($tr, $group_class);
+                $sort_group_old = $row[$sort_group_key];
             }
 
-            // add totals row
+            // cycle through the fields
             //
 
-            if ($totals)
+            foreach ($repo as $field=>$r)
             {
-                $t = array();
-                foreach ($rep as $field=>$r)
+                // set cell value
+
+                // whether checkbox...
+                if (isset($checkboxes[$field]))
+                    $values[$field] = Html::inputCheckbox(array('name'=>"{$field}[{$row[$field]}]", 'value'=>$row[$field]));
+                // ...or normal value (if not hidden)
+                elseif (empty($hidden[$field]))
                 {
-                    if (isset(self::$totals[$field]))
-                    {
-                        if ($totals_fn[$field] === self::F_TOTAL_COUNT)
-                            self::$totals[$field] = $totals_cnt[$field];
-                        elseif ($totals_fn[$field] == self::F_TOTAL_AVG)
-                            self::$totals[$field] /= $totals_cnt[$field];
-                        $t[$field] = Repo::asHtmlStatic($field
-                            , self::$totals[$field]
-                            , $totals_fn[$field] === self::F_TOTAL_TEXT
-                                ? array(Repo::P_CLASS=>Repo::C_TEXT)
-                                : (Repo::isNumericClass($r)
-                                    ? $r
-                                    : array(Repo::P_CLASS=>Repo::C_INT)
-                                    )
+                    $v = Repo::asHtmlStatic($field, $row[$field], $r);
+                    if (isset($urls_field[$field]))
+                        $v = sprintf('<a href="%s"%s>%s</a>'
+                            , sprintf($urls_fmt[$field], $row[$urls_field[$field]])
+                            , isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : ''
+                            , $v
                             );
+                    $values[$field] = isset($formats[$field]) ? sprintf($formats[$field], $v) : $v;
+                    if ($totals and isset($row[$field]) and isset($totals_fn[$field]) and $totals_fn[$field] !== self::F_TOTAL_TEXT)
+                    {
+                        self::$totals[$field] += $row[$field];
+                        ++$totals_cnt[$field];
                     }
-                    else
-                        $t[$field] = '';
                 }
-                echo Html::tr(array(Html::P_VALUES=>$t, Html::P_TD_ATTR=>$aligns, 'class'=>$total_class));
             }
 
-            // finalize table
-            //
-
-            echo '</tbody>';
-            if (isset($suffix))
-                echo '<tfoot>'
-                    , Html::tr(array(Html::P_VALUES=>array($suffix), Html::P_TD_ATTR=>array(' colspan="'.count($headers).'"')))
-                    , '</tfoot>'
-                    ;
-            echo Html::tableStop();
+            echo Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
         }
-        else
-            echo '<div'.Html::attr(array('class'=>$empty_class)).'>'
-                , Html::encode($empty_label)
-                , '</div>'
-                ;
+
+        $tfoot = null;
+
+        // add totals row
+        //
+
+        if ($totals)
+        {
+            $t = array();
+            foreach ($repo as $field=>$r)
+            {
+                if (isset(self::$totals[$field]))
+                {
+                    if ($totals_fn[$field] === self::F_TOTAL_COUNT)
+                        self::$totals[$field] = $totals_cnt[$field];
+                    elseif ($totals_fn[$field] == self::F_TOTAL_AVG)
+                        self::$totals[$field] /= $totals_cnt[$field];
+                    $t[$field] = Repo::asHtmlStatic($field
+                        , self::$totals[$field]
+                        , $totals_fn[$field] === self::F_TOTAL_TEXT
+                            ? array(Repo::P_CLASS=>Repo::C_TEXT)
+                            : (Repo::isNumericClass($r)
+                                ? $r
+                                : array(Repo::P_CLASS=>Repo::C_INT)
+                                )
+                        );
+                }
+                else
+                    $t[$field] = '';
+            }
+            $tfoot .= Html::tr(array(Html::P_VALUES=>$t, 'class'=>$total_class));
+        }
+
+        // add suffix
+        //
+
+        if (isset($suffix))
+            $tfoot .= Html::tr(array(Html::P_VALUES=>array($suffix), Html::P_TD_ATTR=>array(' colspan="'.count($headers).'"')));
+
+        if ($tfoot)
+            echo '<tfoot>', $tfoot;
+
+        echo Html::tableStop();
 
         return ob_get_clean();
     }

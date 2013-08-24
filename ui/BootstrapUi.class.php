@@ -648,8 +648,8 @@ EOco
         Params::add($content_attr, 'panel-body');
         $prefix = Params::extract($params, self::P_ADDON_PREFIX);
         $suffix = Params::extract($params, self::P_ADDON_SUFFIX);
-        $content = Params::extract($params, self::P_CONTENT);
-        $content = "<div".Html::attr($content_attr).">$content</div>";
+        if ($content = Params::extract($params, self::P_CONTENT))
+            $content = "<div".Html::attr($content_attr).">$content</div>";
         Params::add($params, 'panel');
         Params::add($params, 'panel-default');
 

@@ -24,6 +24,8 @@ class Request
     const PARAM_FILTERS = 'f';
     const PARAM_PAGE    = 'p';
 
+    const SORT_REV_SUFFIX   = '-';
+
     const OUT_HTML  = 1;
     const OUT_CMD   = 2;
     const OUT_JSON  = 3;
@@ -243,5 +245,24 @@ class Request
     public static function getHttpHeaders()
     {
         return array_change_key_case(apache_request_headers(), CASE_LOWER);
+    }
+
+    /** check whether $sort_param exists as a key in $sort_cols and return the name and
+     * @param string $sort_param    'fld2' or 'fld2-' for reverse order
+     * @param array $sort_cols      {fld1:true, fld2:true, ...}
+     * @param string $sort_default  default sort column, like 'fld1'
+     * @return array ['field_name', <i>true</i> if reverse order or <i>false</i> otherwise]
+     */
+    public static function translateSortColumnOrder($sort_param, $sort_cols, $sort_default)
+    {
+        $len_suf = strlen(self::SORT_REV_SUFFIX);
+
+        if (isset($sort_cols[$sort_param]))
+            return array($sort_param, false);
+
+        if (isset($sort_cols[substr($sort_param, -$len_suf)]))
+            return array(substr($sort_param, 0, -$len_suf), true);
+
+        return array($sort_default, false);
     }
 }
