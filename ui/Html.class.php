@@ -95,7 +95,7 @@ class Html
             foreach ($colgroup as &$col)
             {
                 if ($align = Params::extract($col, 'align'))
-                    HtmlPage::add(array(HtmlPage::STYLE=>array(__MODULE__."-$id"=>"table#$id td:first-child".str_repeat(' + td', $k)."{text-align:$align;}"
+                    HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__."-$id-$k"=>"table#$id td:first-child".str_repeat(' + td', $k)."{text-align:$align;}"
                         . "table#$id th:first-child".str_repeat(' + th', $k)."{text-align:$align;}"
                         )));
                 ++$k;
@@ -416,9 +416,9 @@ class Html
     {
         $attr = array_diff_key($params, array(self::P_WRAP_FMT=>true, self::P_LABEL=>true, self::P_LABEL_ATTR=>true, self::P_DELIM=>true));
         $fmt = isset($params[self::P_WRAP_FMT]) ? $params[self::P_WRAP_FMT] : '%s';
-        $label = isset($params[self::P_LABEL]) ? self::P_LABEL : null;
-        $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr(self::P_LABEL_ATTR) : null;
-        $delim = isset($params[self::P_DELIM]) ? self::P_DELIM : ' ';
+        $label = isset($params[self::P_LABEL]) ? $params[self::P_LABEL] : null;
+        $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr($params[self::P_LABEL_ATTR]) : null;
+        $delim = isset($params[self::P_DELIM]) ? $params[self::P_DELIM] : ' ';
         $checkbox = self::input(array('type'=>'checkbox') + $attr);
         if (isset($label))
             $checkbox = "<label$label_attr>$checkbox$delim$label</label>";

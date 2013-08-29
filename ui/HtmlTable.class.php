@@ -90,11 +90,11 @@ class HtmlTable
      *  , P_FIELDS:{fld1:{F_WIDTH:'20%'
      *          , F_ALIGN:'center'
      *          , F_REPO:{field repository arguments}
-     *          , F_HEADER:{F_HEADER_LABEL:Repo::PARAM_LABEL_SHORT|null, F_HEADER_ABBR:Repo::PARAM_LABEL_LONG|true|null, th tag arguments}
+     *          , F_HEADER:{F_HEADER_LABEL:Repo::P_LABEL_SHORT|null, F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null, th tag arguments}
      *          , F_CHECKBOX:true   // replaces header with a checkbox and a toggler js code
      *          , F_HIDDEN:true
      *          , F_SORT:{F_SORT_EXCLUDE:true, F_SORT_GROUP:'fld2'|true}
-     *          , F_FORMAT:'<span class="tag">%s</span>'
+     *          , F_FMT:'<span class="tag">%s</span>'
      *          , F_URL:{F_URL_FIELD:'fld2',F_URL_ADDRESS:'/path/script.php?id=%u&mode=edit',F_URL_TARGET:'_blank'}
      *          , F_TOTAL:(TOTAL_SUM|true)|TOTAL_COUNT|TOTAL_AVG|'text'
      *          }
@@ -108,8 +108,8 @@ class HtmlTable
      *      , S_TARGET:'_blank'
      *      }
      *  , P_ROWS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
-     *          , r2:{fld1:'value',fld2:'value',fld3:'value'}
-     *          }
+     *      , r2:{fld1:'value',fld2:'value',fld3:'value'}
+     *      }
      *  , P_TD:{r1:{fld3:' td tag attributes'}, ...}
      *  , P_TR:{r2:' tr tag attributes'}, ...}
      *  , P_PREFIX:''
@@ -133,7 +133,7 @@ class HtmlTable
         if ($sort = Params::extract($params, self::P_SORT))
         {
             $sort_params = Params::extract($sort, self::S_PARAMS, array());
-            unset($sort_params[Request::PARAM_SORT][$table_id], $sort_params[Request::PARAM_PAGE][$table_id]);
+            unset($sort_params[Request::CGI_SORT][$table_id], $sort_params[Request::CGI_PAGE][$table_id]);
         }
         else
             $sort_params = null;
@@ -244,10 +244,13 @@ class HtmlTable
                     )
                 {
                     $headers[$field] .= ' '.Ui::icon($sort[self::S_ICON]);
+                    $suf = empty($sort[self::S_REVERSE]) ? Request::SORT_REV_SUFFIX : '';
                 }
+                else
+                    $suf = '';
                 $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
                     , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
-                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::PARAM_SORT=>array($table_id=>$field.(empty($sort[self::S_REVERSE]) ? Request::SORT_REV_SUFFIX : '')))))
+                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field.$suf))))
                     , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
                     , $headers[$field]
                     );
