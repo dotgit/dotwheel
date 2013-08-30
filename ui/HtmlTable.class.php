@@ -59,6 +59,7 @@ class HtmlTable
     const F_TOTAL_AVG       = 93;
     const F_TOTAL_TEXT      = 94;
     const F_HIDDEN          = 100;
+    const F_ASIS            = 101;
 
     const S_FIELD   = 1;
     const S_ICON    = 2;
@@ -93,6 +94,7 @@ class HtmlTable
      *          , F_HEADER:{F_HEADER_LABEL:Repo::P_LABEL_SHORT|null, F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null, th tag arguments}
      *          , F_CHECKBOX:true   // replaces header with a checkbox and a toggler js code
      *          , F_HIDDEN:true
+     *          , F_ASIS:true
      *          , F_SORT:{F_SORT_EXCLUDE:true, F_SORT_GROUP:'fld2'|true}
      *          , F_FMT:'<span class="tag">%s</span>'
      *          , F_URL:{F_URL_FIELD:'fld2',F_URL_ADDRESS:'/path/script.php?id=%u&mode=edit',F_URL_TARGET:'_blank'}
@@ -154,6 +156,7 @@ class HtmlTable
         $totals_fn = array();
         $totals_cnt = array();
         $hidden = array();
+        $asis = array();
 
         $group_class = Params::extract($params, self::P_GROUP_CLASS, '_grp');
         $total_class = Params::extract($params, self::P_TOTAL_CLASS, '_ttl');
@@ -261,6 +264,9 @@ class HtmlTable
                 $hidden[$field] = true;
                 unset($headers[$field], $headers_td[$field]);
             }
+
+            if (isset($f[self::F_ASIS]))
+                $asis[$field] = true;
         }
 
         $rows_values = Params::extract($params, self::P_ROWS);
@@ -305,6 +311,9 @@ class HtmlTable
                 // whether checkbox...
                 if (isset($checkboxes[$field]))
                     $values[$field] = Html::inputCheckbox(array('name'=>"{$field}[{$row[$field]}]", 'value'=>$row[$field]));
+                // ...as is column
+                elseif (isset($asis[$field]))
+                    $values[$field] = $row[$field];
                 // ...or normal value (if not hidden)
                 elseif (empty($hidden[$field]))
                 {

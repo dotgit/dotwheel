@@ -114,8 +114,7 @@ class BootstrapUi
     {
         $body = Params::extract($params, self::P_CONTENT);
         Params::add($params, 'clearfix');
-        Params::add($params, 'margin-left:28px;', 'style');
-        $icon = self::icon(array(self::P_LABEL=>'icon-warning-sign', 'style'=>'float:left;margin-left:-28px;font-size:16px;padding-top:5px;'));
+        $icon = self::icon(array(self::P_LABEL=>'icon-warning-sign icon-2x pull-left', 'style'=>'margin:0.25em 0.5em 0 0;'));
         return "<div".Html::attr($params).">$icon$body</div>";
     }
 

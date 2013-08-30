@@ -480,8 +480,6 @@ class Repo
             $repo += self::$store[$name];
         if (isset($value))
         {
-            if (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS)
-                return $value;
             if (empty($repo[self::P_CLASS]))
                 return Html::encode($value);
 
@@ -544,8 +542,6 @@ class Repo
             $repo += self::$store[$name];
         if (empty($repo[self::P_CLASS]))
             $repo[self::P_CLASS] = self::C_TEXT;
-        if (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
-            return $value;
         if (!is_array($input))
             $input = (array)$input;
         $label = self::getLabel($name, $repo);
