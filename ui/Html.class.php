@@ -560,10 +560,7 @@ class Html
      */
     public static function asAbbr($short, $long)
     {
-        return '<abbr title="'.htmlspecialchars($long, ENT_COMPAT, Nls::$charset).'">'
-            . htmlspecialchars($short, ENT_NOQUOTES, Nls::$charset)
-            . '</abbr>'
-            ;
+        return '<abbr title="'.htmlspecialchars($long, ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
     }
 
     /** html representation of a list: 'On'

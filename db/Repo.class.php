@@ -225,32 +225,43 @@ class Repo
         return isset(self::$store[$name]) ? $repo+self::$store[$name] : $repo;
     }
 
-    /** whether the repository entry specifies the numeric class or not
+    /** whether the repository entry specifies numbers that can be added / substracted
      * @param array $repo   {field repository attributes}
      * @return bool
      */
-    public static function isNumericClass($repo)
+    public static function isАrithmetical($repo)
     {
         if (isset($repo[self::P_CLASS]))
             switch ($repo[self::P_CLASS])
             {
             case self::C_CENTS:
             case self::C_INT:
-            case self::C_ID:
                 return true;
             }
         return false;
     }
 
-    /** whether the repository entry specifies the numeric class or not
+    /** whether the repository entry specifies date
      * @param array $repo   {field repository attributes}
      * @return bool
      */
-    public static function isTextClass($repo)
+    public static function isDate($repo)
+    {
+        if (isset($repo[self::P_CLASS])
+            and $repo[self::P_CLASS] == self::C_DATE
+            )
+            return true;
+        return false;
+    }
+
+    /** whether the repository entry specifies the textual data or not
+     * @param array $repo   {field repository attributes}
+     * @return bool
+     */
+    public static function isTextual($repo)
     {
         if (empty($repo[self::P_CLASS])
             or $repo[self::P_CLASS] == self::C_TEXT
-            or $repo[self::P_CLASS] == self::C_DATE
             )
             return true;
         return false;
@@ -496,7 +507,7 @@ class Repo
                 return (isset($repo[self::P_ITEMS]) && isset($repo[self::P_ITEMS][$value]))
                     ? (isset($repo[self::P_FLAGS])
                         ? ($repo[self::P_FLAGS] & self::F_ABBR
-                            ? Html::asAbbr(isset($repo[self::P_ITEMS_SHORT][$value]) ? $repo[self::P_ITEMS_SHORT][$value] : $repo[self::P_ITEMS][$value]
+                            ? Html::asAbbr(Html::encode(isset($repo[self::P_ITEMS_SHORT][$value]) ? $repo[self::P_ITEMS_SHORT][$value] : $repo[self::P_ITEMS][$value])
                                 , isset($repo[self::P_ITEMS_LONG][$value]) ? $repo[self::P_ITEMS_LONG][$value] : $repo[self::P_ITEMS][$value]
                                 )
                             : Html::asEnum($value, $repo[self::P_ITEMS], $repo[self::P_FLAGS] & self::F_ARRAY)

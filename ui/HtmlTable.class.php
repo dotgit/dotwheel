@@ -42,7 +42,7 @@ class HtmlTable
     const F_ALIGN           = 2;
     const F_REPO            = 3;
     const F_HEADER          = 4;
-    const F_HEADER_LABEL    = 41;
+    const F_HEADER_TYPE     = 41;
     const F_HEADER_ABBR     = 42;
     const F_CHECKBOX        = 5;
     const F_SORT            = 6;
@@ -174,14 +174,12 @@ class HtmlTable
 
             if (isset($f[self::F_HEADER]))
             {
-                $header = ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_LABEL))
-                    ? Repo::getLabel($field, $repo[$field], $h)
-                    : Repo::getLabel($field, $repo[$field], Repo::P_LABEL)
-                    ;
-                $headers[$field] = ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
-                    ? Html::asAbbr($header, Repo::getLabel($field, $repo[$field], $abbr === true ? Repo::P_LABEL_LONG : $abbr))
-                    : Html::encode($header)
-                    ;
+                if ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE))
+                    $headers[$field] = Repo::getLabel($field, $repo[$field], $h);
+                elseif ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
+                    $headers[$field] = Html::asAbbr(Html::encode (Repo::getLabel($field, $repo[$field], Repo::P_LABEL_SHORT)), Repo::getLabel($field, $repo[$field], $abbr === true ? Repo::P_LABEL_LONG : $abbr));
+                else
+                    $headers[$field] = Html::encode(Repo::getLabel($field, $repo[$field], Repo::P_LABEL));
                 if ($f[self::F_HEADER])
                     $headers_td[$field] = $f[self::F_HEADER];
             }
@@ -241,22 +239,19 @@ class HtmlTable
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 )
             {
+                $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
+                    , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
+                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field
+                            . (($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE])) ? Request::SORT_REV_SUFFIX : '')
+                            ))))
+                    , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
+                    , $headers[$field]
+                    );
                 if (isset($sort[self::S_FIELD])
                     and $sort[self::S_FIELD] == $field
                     and isset($sort[self::S_ICON])
                     )
-                {
-                    $headers[$field] .= ' '.Ui::icon($sort[self::S_ICON]);
-                    $suf = empty($sort[self::S_REVERSE]) ? Request::SORT_REV_SUFFIX : '';
-                }
-                else
-                    $suf = '';
-                $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
-                    , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
-                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field.$suf))))
-                    , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
-                    , $headers[$field]
-                    );
+                    $headers[$field] .= '&nbsp;'.Ui::icon($sort[self::S_ICON]);
             }
 
             if (isset($f[self::F_HIDDEN]))
@@ -356,7 +351,7 @@ class HtmlTable
                         , self::$totals[$field]
                         , $totals_fn[$field] === self::F_TOTAL_TEXT
                             ? array(Repo::P_CLASS=>Repo::C_TEXT)
-                            : (Repo::isNumericClass($r)
+                            : (Repo::isАrithmetical($r)
                                 ? $r
                                 : array(Repo::P_CLASS=>Repo::C_INT)
                                 )
