@@ -555,7 +555,6 @@ class Repo
             $repo[self::P_CLASS] = self::C_TEXT;
         if (!is_array($input))
             $input = (array)$input;
-        $label = self::getLabel($name, $repo);
 
         switch ($repo[self::P_CLASS])
         {

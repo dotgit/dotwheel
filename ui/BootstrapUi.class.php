@@ -134,12 +134,9 @@ class BootstrapUi
             return isset($comment) ? "<div class=\"help-block\">$comment</div>" : null;
     }
 
-    /** format as form group
-     * @param array|string $control {P_CONTENT:'form group content'
-     *                              , P_CONTENT_ATTR:{content d.t.a.}
-     *                              , P_TARGET:'label tag for attribute target'
-     *                              , P_LABEL:'label content'
-     *                              , P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
+    /** formats the control to be displayed as horizontal form row
+     * @param array|string $control {P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
+     *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
      *                              , d.t.a.
      *                              }
      *                              | 'content to format as form group'
@@ -149,73 +146,71 @@ class BootstrapUi
     {
         if(is_array($control))
         {
-            $l = Params::extract($control, self::P_LABEL);
             $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
             if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_4))
                 $l_attr = static::width2Attr($w, $l_attr);
             Params::add($l_attr, 'control-label');
+            $control[self::P_LABEL_ATTR] = $l_attr;
 
-            if ($t = Params::extract($control, self::P_TARGET))
-                Params::add($l_attr, $t, 'for');
+            $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
+            if ($w = Params::extract($content_attr, self::P_WIDTH, self::WIDTH_3_4))
+                $content_attr = static::width2Attr($w, $content_attr);
+            if ($content_attr)
+                $control[self::P_CONTENT_ATTR] = $content_attr;
 
-            $c = Params::extract($control, self::P_CONTENT);
-            $c_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
-            if ($w = Params::extract($c_attr, self::P_WIDTH, self::WIDTH_3_4))
-                $c_attr = static::width2Attr($w, $c_attr);
-
-            Params::add($control, 'form-group');
             Params::add($control, 'row');
 
-            return "<div".Html::attr($control)."><label".Html::attr($l_attr).">$l</label><div".Html::attr($c_attr).">$c</div></div>";
+            return self::asFormGroup($control);
         }
         elseif (isset($control))
-            return '<div class="form-group row"><div'.Html::attr (Ui::width2Attr(Ui::WIDTH_3_4, Ui::widthOffset2Attr(Ui::WIDTH_1_4))).">$control</div></div>";
+            return self::asFormGroup(array('class'=>'row', self::P_CONTENT=>$control, self::P_CONTENT_ATTR=>self::width2Attr(self::WIDTH_3_4, self::widthOffset2Attr(self::WIDTH_1_4))));
         else
             return null;
     }
 
-    /** format as stacked form group
+    /** format as form group
      * @param array|string $control {P_CONTENT:'form group content'
+     *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
+     *                              , P_TARGET:'label tag for attribute target'
      *                              , P_LABEL:'label content'
+     *                              , P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , d.t.a.
      *                              }
      *                              | 'content to format as form group'
      * @return string
      */
-    public static function asFormGroupStacked($control)
+    public static function asFormGroup($control)
     {
         if(is_array($control))
         {
-            $l = self::asLabel(Params::extract($control, self::P_LABEL));
-            $c = Params::extract($control, self::P_CONTENT);
+            $l = Params::extract($control, self::P_LABEL);
+            $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
+            if ($w = Params::extract($l_attr, self::P_WIDTH))
+                $l_attr = static::width2Attr($w, $l_attr);
+
+            if ($t = Params::extract($control, self::P_TARGET))
+                Params::add($l_attr, $t, 'for');
+
+            if ($l_attr)
+                $label = '<label'.Html::attr($l_attr).">$l</label>";
+            else
+                $label = "<label>$l</label>";
+
+            $content = Params::extract($control, self::P_CONTENT);
+            $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
+            if ($w = Params::extract($content_attr, self::P_WIDTH))
+                $content_attr = static::width2Attr($w, $content_attr);
+            if ($content_attr)
+                $content = "<div".Html::attr($content_attr).">$content</div>";
 
             Params::add($control, 'form-group');
 
-            return "<div".Html::attr($control).">$l$c</div>";
+            return "<div".Html::attr($control).">$label$content</div>";
         }
         elseif (isset($control))
             return "<div class=\"form-group\">$control</div>";
         else
             return null;
-    }
-
-    /** format as label
-     * @param array|string $label   {P_LABEL:'label content'
-     *                              , label tag attributes
-     *                              }
-     *                              | 'content to format as label'
-     * @return string
-     */
-    public static function asLabel($label)
-    {
-        if(is_array($label))
-        {
-            $l = Params::extract($label, self::P_LABEL);
-            Params::add($label, 'label');
-            return "<label".Html::attr($label).">$l</label>";
-        }
-        else
-            return isset($label) ? "<label>$label</label>" : null;
     }
 
     /** get button element
