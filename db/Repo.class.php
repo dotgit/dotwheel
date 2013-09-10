@@ -491,8 +491,9 @@ class Repo
             $repo += self::$store[$name];
         if (isset($value))
         {
+            // if class not provided return value as is
             if (empty($repo[self::P_CLASS]))
-                return Html::encode($value);
+                return $value;
 
             switch ($repo[self::P_CLASS])
             {
@@ -551,10 +552,13 @@ class Repo
     {
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];
-        if (empty($repo[self::P_CLASS]))
-            $repo[self::P_CLASS] = self::C_TEXT;
+
         if (!is_array($input))
             $input = (array)$input;
+
+        // if class not provided return value as is
+        if (empty($repo[self::P_CLASS]))
+            return $value;
 
         switch ($repo[self::P_CLASS])
         {
