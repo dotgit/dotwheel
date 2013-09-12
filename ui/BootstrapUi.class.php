@@ -747,24 +747,37 @@ EOco
         {
             if (is_array($tab))
             {
-                $id = Params::extract($tab, self::P_TARGET);
                 $label = Params::extract($tab, self::P_LABEL);
-                $pane = array('id'=>$id, 'class'=>'tab-pane');
                 $content = Params::extract($tab, self::P_CONTENT);
-                if (Params::extract($tab, self::P_ACTIVE))
+                if (isset($content))
                 {
-                    Params::add($tab, 'active');
-                    Params::add($pane, 'active');
+                    $id = Params::extract($tab, self::P_TARGET);
+                    $pane = array('id'=>$id, 'class'=>'tab-pane');
+                    if (Params::extract($tab, self::P_ACTIVE))
+                    {
+                        Params::add($tab, 'active');
+                        Params::add($pane, 'active');
+                    }
+                    $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>";
+                    $panes[] = '<div'.Html::attr($pane).">$content</div>";
+                    unset($params[$k]);
                 }
-                $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>\n";
-                $panes[] = '<div'.Html::attr($pane).">$content</div>\n";
-                unset($params[$k]);
+                else
+                {
+                    $target = Params::extract($tab, self::P_TARGET);
+                    if (Params::extract($tab, self::P_ACTIVE))
+                        Params::add($tab, 'active');
+                    $tabs[] = '<li'.Html::attr($tab)."><a href=\"$target\">$label</a></li>";
+                }
             }
         }
         Params::add($params, 'nav nav-tabs');
 
-        return '<ul'.Html::attr($params).'>'.implode('', $tabs)."</ul>\n"
-            . '<div class="tab-content">'.implode('', $panes)."</div>\n"
+        return '<ul'.Html::attr($params).'>'.implode('', $tabs).'</ul>'
+            . ($panes
+                ? ('<div class="tab-content">'.implode('', $panes).'</div>')
+                : ''
+                )
             ;
     }
 
