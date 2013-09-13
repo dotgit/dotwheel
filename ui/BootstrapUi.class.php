@@ -163,7 +163,7 @@ class BootstrapUi
             return self::asFormGroup($control);
         }
         elseif (isset($control))
-            return self::asFormGroup(array('class'=>'row', self::P_CONTENT=>$control, self::P_CONTENT_ATTR=>self::width2Attr(self::WIDTH_3_4, self::widthOffset2Attr(self::WIDTH_1_4))));
+            return '<div class="row"><div'.Html::attr(self::width2Attr(self::WIDTH_3_4, self::widthOffset2Attr(self::WIDTH_1_4))).'>'.$control.'</div></div>';
         else
             return null;
     }
@@ -193,8 +193,10 @@ class BootstrapUi
 
             if ($l_attr)
                 $label = '<label'.Html::attr($l_attr).">$l</label>";
-            else
+            elseif (isset($l))
                 $label = "<label>$l</label>";
+            else
+                $l = null;
 
             $content = Params::extract($control, self::P_CONTENT);
             $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
