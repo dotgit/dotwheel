@@ -353,18 +353,25 @@ EOco
 
         $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
         Params::add($label_attr, 'collapse', 'data-toggle');
-        Params::add($label_attr, "#$id", 'href');
+        if (isset($id))
+            Params::add($label_attr, "#$id", 'href');
 
         $label = Params::extract($params, self::P_LABEL);
-        $footer = Params::extract($params, self::P_FOOTER);
         $content = Params::extract($params, self::P_CONTENT);
+        $content_attr = Params::extract($params, self::P_CONTENT_ATTR);
+        $addon_prefix = Params::extract($params, self::P_ADDON_PREFIX);
+        $addon_suffix = Params::extract($params, self::P_ADDON_SUFFIX);
+        $footer = Params::extract($params, self::P_FOOTER);
 
         Params::add($params, 'panel-collapse');
         Params::add($params, 'collapse');
 
-        return self::panel(array(self::P_LABEL=>'<a'.Html::attr($label_attr).'>'.$label.'</a>'
-            , self::P_FOOTER=>$footer
+        return self::panel(array(self::P_LABEL=>'<a'.Html::attr($label_attr).'><div>'.$label.'</div></a>'
             , self::P_CONTENT=>$content
+            , self::P_CONTENT_ATTR=>$content_attr
+            , self::P_ADDON_PREFIX=>$addon_prefix
+            , self::P_ADDON_SUFFIX=>$addon_suffix
+            , self::P_FOOTER=>$footer
             , self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
             ));
     }

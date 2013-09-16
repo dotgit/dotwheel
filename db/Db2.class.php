@@ -30,12 +30,15 @@ class Db2
 
     /** constructs and executes a DML command to insert a row in the specified table.
      * <i>P_FIELDS</i> parameter specifies the type of escaping for each field
-     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes)
+     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes,
+     * FMT_NUM escapes value as a number, FMT_ASIS includes value as is).
+     * only inserts fields present in both <i>P_FIELDS</i> and <i>P_VALUES</i>.
      *
      * @param array $params {P_TABLE:'table_name', required
      * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
-     * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key update'</i> part)
+     * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key
+     * update'</i> part with specified fields)
      * }
      * @return int|bool     number of affected records or <i>false</i> on error
      */
@@ -43,7 +46,7 @@ class Db2
     {
         $ins = array();
         $dupl = array();
-        foreach ($params[self::P_FIELDS] as $name=>$wrap)
+        foreach (array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
             {
@@ -76,9 +79,9 @@ class Db2
 
     /** constructs and executes a DML command to update a row in the specified table.
      * <i>P_FIELDS</i> parameter specifies the type of escaping for each field
-     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes).
-     * to locate a row you may indicate a <i>where</i> parameter or set the id_field
-     * and id_value parameters.
+     * (for example, FMT_ALPHA means escape the value and wrap it in apostrophes,
+     * FMT_NUM escapes value as a number, FMT_ASIS includes value as is).
+     * only inserts fields present in both <i>P_FIELDS</i> and <i>P_VALUES</i>.
      *
      * @param array $params {P_TABLE:'table_name', required
      * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
@@ -89,7 +92,7 @@ class Db2
     public static function update($params)
     {
         $upd = array();
-        foreach ($params[self::P_FIELDS] as $name=>$wrap)
+        foreach (array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
         {
             switch ($wrap)
             {
