@@ -54,7 +54,7 @@ class Html
         $ret = array();
         foreach ($params as $attr=>$value)
             if (isset($value) and !is_int($attr))
-                $ret[] = " $attr=\"".self::encode($value).'"';
+                $ret[] = " $attr=\"".self::encodeAttr($value).'"';
 
         return $ret ? implode('', $ret) : '';
     }
@@ -266,8 +266,8 @@ class Html
 
         if (($blank = Params::extract($params, self::P_BLANK)) !== null)
             $items[] = strlen($blank)
-                ? ('<option value="">'.self::encode($blank)."</option>\n")
-                : "<option></option>\n"
+                ? ('<option value="">'.self::encode($blank)."</option>")
+                : "<option></option>"
                 ;
 
         switch (Params::extract($params, self::P_TYPE))
@@ -276,10 +276,9 @@ class Html
             foreach (Params::extract($params, self::P_ITEMS, array()) as $arr)
             {
                 list($k, $v) = $arr;
-                $v = self::encode($v);
                 $items[] = ($k == $value && ! empty($k))
-                    ? "<option value=\"$k\" selected=\"on\">$v</option>\n"
-                    : "<option value=\"$k\">$v</option>\n"
+                    ? "<option value=\"$k\" selected=\"on\">$v</option>"
+                    : "<option value=\"$k\">$v</option>"
                     ;
             }
             break;
@@ -287,10 +286,9 @@ class Html
         default:
             foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
             {
-                $v = self::encode($v);
                 $items[] = ($k == $value && ! empty($k))
-                    ? ("<option value=\"$k\" selected=\"on\">".self::encode($v)."</option>\n")
-                    : ("<option value=\"$k\">".self::encode($v)."</option>\n")
+                    ? "<option value=\"$k\" selected=\"on\">$v</option>"
+                    : "<option value=\"$k\">$v</option>"
                     ;
             }
         }
@@ -339,7 +337,7 @@ class Html
             $items[] = self::inputCheckbox(array('name'=>"{$name}[$k]"
                 , 'checked'=>isset($value[$k]) ? 'on' : null
                 , 'value'=>$k
-                , self::P_LABEL=>self::encode($v)
+                , self::P_LABEL=>$v
                 ) + $params);
         }
 
@@ -383,7 +381,7 @@ class Html
                 list($k, $v) = $line;
                 $item = "<label$label_attr><input"
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
-                    . '>'.self::encode($v).'</label>'
+                    . ">$v</label>"
                     ;
                 $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
             }
@@ -394,7 +392,7 @@ class Html
             {
                 $item = "<label$label_attr><input"
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
-                    . '>'.self::encode($v).'</label>'
+                    . ">$v</label>"
                     ;
                 $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
             }
@@ -435,6 +433,15 @@ class Html
      * @return string
      */
     public static function encode($str)
+    {
+        return htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset);
+    }
+
+    /** translates special chars in the string to html entities.
+     * @param string $str   value to convert
+     * @return string
+     */
+    public static function encodeAttr($str)
     {
         return htmlspecialchars($str, ENT_COMPAT, Nls::$charset);
     }
@@ -577,12 +584,12 @@ class Html
             {
                 list($k, $v) = $item;
                 if ($value == $k)
-                    return htmlspecialchars($v, ENT_COMPAT, Nls::$charset);
+                    return $v;
             }
             return '';
         }
         else
-            return isset($items[$value]) ? htmlspecialchars($items[$value], ENT_COMPAT, Nls::$charset) : '';
+            return isset($items[$value]) ? $items[$value] : '';
     }
 
     /** html representation of set: 'High, Low'
@@ -598,7 +605,7 @@ class Html
                     ? $delim
                     : Nls::$formats[Nls::P_LIST_DELIM_HTML]
                     ).' '
-                , array_map('Html::encode', array_intersect_key($items, $set))
+                , array_intersect_key($items, $set)
                 )
             : ''
             ;

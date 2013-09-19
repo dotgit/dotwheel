@@ -505,20 +505,33 @@ class Repo
             case self::C_DATE:
                 return Html::asDateNls($value, isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME);
             case self::C_ENUM:
+                $asis = isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS);
                 return (isset($repo[self::P_ITEMS]) && isset($repo[self::P_ITEMS][$value]))
                     ? (isset($repo[self::P_FLAGS])
                         ? ($repo[self::P_FLAGS] & self::F_ABBR
-                            ? Html::asAbbr(Html::encode(isset($repo[self::P_ITEMS_SHORT][$value]) ? $repo[self::P_ITEMS_SHORT][$value] : $repo[self::P_ITEMS][$value])
-                                , isset($repo[self::P_ITEMS_LONG][$value]) ? $repo[self::P_ITEMS_LONG][$value] : $repo[self::P_ITEMS][$value]
+                            ? Html::asAbbr(Html::encode(isset($repo[self::P_ITEMS_SHORT][$value])
+                                    ? ($asis ? $repo[self::P_ITEMS_SHORT][$value] : Html::encode($repo[self::P_ITEMS_SHORT][$value]))
+                                    : ($asis ? $repo[self::P_ITEMS][$value] : Html::encode($repo[self::P_ITEMS][$value]))
+                                    )
+                                , isset($repo[self::P_ITEMS_LONG][$value])
+                                    ? $repo[self::P_ITEMS_LONG][$value]
+                                    : $repo[self::P_ITEMS][$value]
                                 )
-                            : Html::asEnum($value, $repo[self::P_ITEMS], $repo[self::P_FLAGS] & self::F_ARRAY)
+                            : Html::asEnum($value
+                                , $asis ? $repo[self::P_ITEMS] : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                                , $repo[self::P_FLAGS] & self::F_ARRAY
+                                )
                             )
-                        : Html::asEnum($value, $repo[self::P_ITEMS])
+                        : Html::asEnum($value, array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS]))
                         )
                     : ''
                     ;
             case self::C_SET:
-                return Html::asSet($value, $repo[self::P_ITEMS]);
+                return Html::asSet($value
+                    , (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
+                        ? $repo[self::P_ITEMS]
+                        : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                    );
             case self::C_ID:
             case self::C_INT:
                 return (int)$value;
@@ -528,7 +541,11 @@ class Repo
                 // if P_ITEMS provided, must be a string
                 return Html::asEnum((int)((bool)$value)
                     , isset($repo[self::P_ITEMS])
-                        ? array('', $repo[self::P_ITEMS])
+                        ? array(''
+                            , (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
+                                ? $repo[self::P_ITEMS]
+                                : Html::encode($repo[self::P_ITEMS])
+                            )
                         : array(dgettext(Nls::FW_DOMAIN, 'no'), dgettext(Nls::FW_DOMAIN, 'yes'))
                     );
             case self::C_FILE:
@@ -593,7 +610,9 @@ class Repo
                 ? (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_RADIO
                     ? Html::inputRadio($input
                         + array('name'=>$name, 'value'=>$value
-                            , Html::P_ITEMS=>$repo[self::P_ITEMS]
+                            , Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
+                                ? $repo[self::P_ITEMS]
+                                : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                             , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                                 ? Html::T_ARRAY : null
                             , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
@@ -601,7 +620,9 @@ class Repo
                             )
                         )
                     : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
-                        , Html::P_ITEMS=>$repo[self::P_ITEMS]
+                        , Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
+                            ? $repo[self::P_ITEMS]
+                            : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                         , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::T_ARRAY : null
                         , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
@@ -618,7 +639,9 @@ class Repo
         case self::C_SET:
             return Html::inputSet($input
                 + array('name'=>$name, 'value'=>$value
-                    , Html::P_ITEMS=>$repo[self::P_ITEMS]
+                    , Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
+                        ? $repo[self::P_ITEMS]
+                        : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                     , Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
                         ? Html::T_ARRAY : null
                     , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
