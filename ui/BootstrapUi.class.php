@@ -50,8 +50,8 @@ class BootstrapUi
     const P_HIDDEN          = 12;
     const P_READONLY        = 13;
     const P_STATIC          = 14;
-    const P_ADDON_PREFIX    = 15;
-    const P_ADDON_SUFFIX    = 16;
+    const P_PREFIX          = 15;
+    const P_SUFFIX          = 16;
     const P_ADDON_BTN       = 17;
     const P_ALIGN           = 18;
 
@@ -65,6 +65,10 @@ class BootstrapUi
     const A_LEFT    = 'left';
 
     // for P_WIDTH
+    const W_XSMALL      = 'xs';
+    const W_SMALL       = 'sm';
+    const W_MIDDLE      = 'md';
+    const W_LARGE       = 'lg';
     const WIDTH_1       = 12;
     const WIDTH_11_12   = 11;
     const WIDTH_5_6     = 10;
@@ -245,11 +249,12 @@ class BootstrapUi
                     $items[] = '<li'.Html::attr($item)."><a href=\"$target\">$label</a></li>\n";
                 unset($params[$k]);
             }
+            else
+                $items[] = "<li class=\"active\">$item</li>";
         }
         Params::add($params, 'breadcrumb');
 
-        return '<ul'.Html::attr($params).'>'.implode('', $items)."</ul>\n"
-            ;
+        return '<ul'.Html::attr($params).'>'.implode('', $items).'</ul>';
     }
 
     /** get button element
@@ -339,8 +344,9 @@ EOco
 
     /** returns a collapsible group
      * @param array $params {P_LABEL:'group label'
-     *                      , P_LABEL_ATTR:'additional label div attributes'
+     *                      , P_LABEL_ATTR:{additional label div attributes}
      *                      , P_CONTENT:'collapsible content'
+     *                      , P_CONTENT_ATTR:{additional content div attributes}
      *                      , P_FOOTER:'panel footer'
      *                      , 'id':'content div id'
      *                      , additional content div attributes
@@ -359,8 +365,8 @@ EOco
         $label = Params::extract($params, self::P_LABEL);
         $content = Params::extract($params, self::P_CONTENT);
         $content_attr = Params::extract($params, self::P_CONTENT_ATTR);
-        $addon_prefix = Params::extract($params, self::P_ADDON_PREFIX);
-        $addon_suffix = Params::extract($params, self::P_ADDON_SUFFIX);
+        $addon_prefix = Params::extract($params, self::P_PREFIX);
+        $addon_suffix = Params::extract($params, self::P_SUFFIX);
         $footer = Params::extract($params, self::P_FOOTER);
 
         Params::add($params, 'panel-collapse');
@@ -369,68 +375,55 @@ EOco
         return self::panel(array(self::P_LABEL=>'<a'.Html::attr($label_attr).'><div>'.$label.'</div></a>'
             , self::P_CONTENT=>$content
             , self::P_CONTENT_ATTR=>$content_attr
-            , self::P_ADDON_PREFIX=>$addon_prefix
-            , self::P_ADDON_SUFFIX=>$addon_suffix
+            , self::P_PREFIX=>$addon_prefix
+            , self::P_SUFFIX=>$addon_suffix
             , self::P_FOOTER=>$footer
             , self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
             ));
     }
 
-    /** returns form open tag followed by hidden form values
-     * @param array $params {P_HIDDEN:{var1:'name',var2:{k2:'v2',...},k3:{input tag attributes}}
-     *                      , form tag attributes
-     *                      }
-     * @return string
+    /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
+     * format to wrap the field html
+     * @param array $ui {Ui::P_PREFIX:'input prefix addon'
+     *                  , Ui::P_SUFFIX:'input suffix addon'
+     *                  }
+     * @return string   '%s' if no prefixes / suffixes detected, otherwise '...%s...'
      */
-    public static function formStart($params)
+    public static function fmtAddons($ui)
     {
-        $h = '';
-        foreach (Params::extract($params, self::P_HIDDEN, array()) as $k=>$v)
+        if ($prefix = Params::extract($ui, self::P_PREFIX))
         {
-            if (isset($v))
+            if (is_array($prefix))
             {
-                if (is_array($v))
-                {
-                    if (isset($v['id']))
-                        $h .= '<input'.Html::attr($v + array('type'=>'hidden', 'name'=>$k)).'>';
-                    else
-                        foreach ($v as $k2=>$v2)
-                            $h .= "<input type=\"hidden\" name=\"{$k}[$k2]\" value=\"".Html::encode(trim($v2)).'">';
-                }
-                else
-                    $h .= "<input type=\"hidden\" name=\"$k\" value=\"".Html::encode(trim($v)).'">';
+                $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
+                Params::add($prefix, $class);
+                $cnt = Params::extract($prefix, self::P_CONTENT);
+                $prefix = '<span'.Html::attr($prefix).">$cnt</span>";
             }
+            else
+                $prefix = "<span class=\"input-group-addon\">$prefix</span>";
         }
 
-        if (empty($params['method']))
-            $params['method'] = 'post';
-        if (Params::extract($params, self::P_FORM_TYPE) == self::FT_HORIZONTAL)
-            Params::add ($params, 'form-horizontal');
-
-        return '<form'.Html::attr($params).">$h";
-    }
-
-    /** returns html-formatted form legend
-     * @param string|array $header  'legend header'|{P_CONTENT:'legend header', legend tag attr}
-     * @return string
-     */
-    public static function formLegend($header)
-    {
-        if (is_array($header))
+        if ($suffix = Params::extract($ui, self::P_SUFFIX))
         {
-            $content = Params::extract($header, self::P_CONTENT);
-            return "<legend".Html::attr($header).">$content</legend>\n";
+            if (is_array($suffix))
+            {
+                $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
+                Params::add($suffix, $class);
+                $cnt = Params::extract($suffix, self::P_CONTENT);
+                $suffix = '<span'.Html::attr($suffix).">$cnt</span>";
+            }
+            else
+                $suffix = "<span class=\"input-group-addon\">$suffix</span>";
         }
-        else
-            return "<legend>$header</legend>\n";
-    }
 
-    /** returns form closing tag
-     * @return string
-     */
-    public static function formStop()
-    {
-        return "</form>";
+        if ($prefix or $suffix)
+        {
+            $prefix = Misc::sprintfEscape('<div class="input-group">'.$prefix);
+            $suffix = Misc::sprintfEscape($suffix.'</div>');
+        }
+
+        return "$prefix%s$suffix";
     }
 
     /** returns a div wrapper containing other divs for individual columns
@@ -631,8 +624,8 @@ EOco
     /** returns the panel html code
      * @param array $params {P_LABEL:'panel heading'
      *                      , P_FOOTER:'panel footer'
-     *                      , P_ADDON_PREFIX:'panel content prefix'
-     *                      , P_ADDON_SUFFIX:'panel content suffix'
+     *                      , P_PREFIX:'panel content prefix'
+     *                      , P_SUFFIX:'panel content suffix'
      *                      , P_CONTENT:'panel content'
      *                      , P_CONTENT_ATTR:panel content div attributes
      *                      , P_WRAP_FMT:'%s-style format for content'
@@ -649,8 +642,8 @@ EOco
         $fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
         $content_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
         Params::add($content_attr, 'panel-body');
-        $prefix = Params::extract($params, self::P_ADDON_PREFIX);
-        $suffix = Params::extract($params, self::P_ADDON_SUFFIX);
+        $prefix = Params::extract($params, self::P_PREFIX);
+        $suffix = Params::extract($params, self::P_SUFFIX);
         if ($content = Params::extract($params, self::P_CONTENT))
             $content = "<div".Html::attr($content_attr).">$content</div>";
         Params::add($params, 'panel');
@@ -737,22 +730,23 @@ EOco
     }
 
     /** html-formatted bootstrap tabs
-     * @param array $params {{P_TARGET:'pane id'
+     * @param array $items  {{P_TARGET:'pane id'
      *                          , P_LABEL:'tab label'
      *                          , P_CONTENT:'pane content'
      *                          , P_ACTIVE:bool
      *                          }
      *                      , div tag attributes
      *                      }
+     * @param array $params {}
      * @return type
      */
-    public static function tabs($params)
+    public static function tabs($items, $params=array())
     {
         self::registerTab();
 
-        $tabs = array();
+        $labels = array();
         $panes = array();
-        foreach ($params as $k=>$tab)
+        foreach ($items as $k=>$tab)
         {
             if (is_array($tab))
             {
@@ -767,22 +761,26 @@ EOco
                         Params::add($tab, 'active');
                         Params::add($pane, 'active');
                     }
-                    $tabs[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>";
+                    $labels[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>";
                     $panes[] = '<div'.Html::attr($pane).">$content</div>";
-                    unset($params[$k]);
+                    unset($items[$k]);
                 }
                 else
                 {
                     $target = Params::extract($tab, self::P_TARGET);
                     if (Params::extract($tab, self::P_ACTIVE))
                         Params::add($tab, 'active');
-                    $tabs[] = '<li'.Html::attr($tab)."><a href=\"$target\">$label</a></li>";
+                    $labels[] = '<li'.Html::attr($tab)."><a href=\"$target\">$label</a></li>";
                 }
             }
+            else
+                $labels[] = "<li><a href=\"#\">$tab</a></li>";
         }
+        $prefix = Params::extract($params, self::P_PREFIX);
+        $suffix = Params::extract($params, self::P_SUFFIX);
         Params::add($params, 'nav nav-tabs');
 
-        return '<ul'.Html::attr($params).'>'.implode('', $tabs).'</ul>'
+        return '<ul'.Html::attr($params).">$prefix".implode('', $labels)."$suffix</ul>"
             . ($panes
                 ? ('<div class="tab-content">'.implode('', $panes).'</div>')
                 : ''
@@ -813,6 +811,9 @@ EOco
     {
         if (is_int($width))
             Params::add($attrs, "col-sm-{$width}");
+        elseif (is_array($width))
+            foreach ($width as $mode=>$w)
+                Params::add($attrs, "col-$mode-$w");
         elseif (isset($width))
             Params::add($attrs, "width:{$width};", 'style', '');
         else
@@ -834,49 +835,5 @@ EOco
             Params::add($attrs, "margin-left:{$width};", 'style', '');
 
         return $attrs;
-    }
-
-    /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
-     * format to wrap the field html
-     * @param array $ui {Ui::P_INPUT_PREFIX:'input prefix addon'
-     *                  , Ui::P_INPUT_SUFFIX:'input suffix addon'
-     *                  }
-     * @return string   '%s' if no prefixes / suffixes detected, otherwise '...%s...'
-     */
-    public static function fmtAddons($ui)
-    {
-        if ($prefix = Params::extract($ui, self::P_ADDON_PREFIX))
-        {
-            if (is_array($prefix))
-            {
-                $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
-                Params::add($prefix, $class);
-                $cnt = Params::extract($prefix, self::P_CONTENT);
-                $prefix = '<span'.Html::attr($prefix).">$cnt</span>";
-            }
-            else
-                $prefix = "<span class=\"input-group-addon\">$prefix</span>";
-        }
-
-        if ($suffix = Params::extract($ui, self::P_ADDON_SUFFIX))
-        {
-            if (is_array($suffix))
-            {
-                $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
-                Params::add($suffix, $class);
-                $cnt = Params::extract($suffix, self::P_CONTENT);
-                $suffix = '<span'.Html::attr($suffix).">$cnt</span>";
-            }
-            else
-                $suffix = "<span class=\"input-group-addon\">$suffix</span>";
-        }
-
-        if ($prefix or $suffix)
-        {
-            $prefix = Misc::sprintfEscape('<div class="input-group">'.$prefix);
-            $suffix = Misc::sprintfEscape($suffix.'</div>');
-        }
-
-        return "$prefix%s$suffix";
     }
 }
