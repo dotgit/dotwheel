@@ -416,10 +416,10 @@ class Repo
                     case self::C_SET:
                         if (is_scalar($value))
                             $value = explode(',', $value);
-                        $val = isset($repo[self::P_ITEMS])
+                        $val = implode(',', array_keys(isset($repo[self::P_ITEMS])
                             ? array_intersect_key($repo[self::P_ITEMS], array_flip($value))
-                            : array_combine($value, $value)
-                            ;
+                            : array_flip($value)
+                            ));
                         break;
                     }
                     if ($flags & self::F_POSITIVE and $val < 1)
