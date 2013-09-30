@@ -620,7 +620,7 @@ class Repo
                             )
                         )
                     : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
-                        , Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
+                        , Html::P_ITEMS=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
                             ? $repo[self::P_ITEMS]
                             : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                         , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
@@ -629,12 +629,17 @@ class Repo
                             ? $repo[self::P_ITEM_BLANK] : null
                         ))
                     )
-                : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
-                    , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
-                        ? Html::T_ARRAY : null
-                    , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
-                        ? $repo[self::P_ITEM_BLANK] : null
-                    ))
+                : Html::inputSelect($input
+                    + array('name'=>$name, 'value'=>$value
+                        , Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
+                            ? $repo[self::P_ITEMS]
+                            : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                        , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
+                            ? Html::T_ARRAY : null
+                        , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
+                            ? $repo[self::P_ITEM_BLANK] : null
+                        )
+                    )
                 ;
         case self::C_SET:
             return Html::inputSet($input

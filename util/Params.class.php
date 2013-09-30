@@ -13,10 +13,10 @@ namespace dotwheel\util;
 class Params
 {
     /** inject a new attributes into the list of attributes or add new value to the existing attribute
-     * @param array &$params    array of attributes
-     * @param string $value     attribute value
-     * @param string $name      attribute name
-     * @param string $sep       separator of attribute values
+     * @param array $params array of attributes (reference)
+     * @param string $value attribute value
+     * @param string $name  attribute name
+     * @param string $sep   separator of attribute values
      */
     public static function add(&$params, $value, $name='class', $sep=' ')
     {

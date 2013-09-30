@@ -54,6 +54,7 @@ class BootstrapUi
     const P_SUFFIX          = 16;
     const P_ADDON_BTN       = 17;
     const P_ALIGN           = 18;
+    const P_REQUIRED        = 19;
 
     // for P_FORM_TYPE
     const FT_HORIZONTAL  = 1;
@@ -267,7 +268,7 @@ class BootstrapUi
         $params += array('type'=>'button');
         Params::add($params, 'btn');
 
-        return ' <button'.Html::attr($params).">$label</button>";
+        return '<button'.Html::attr($params).">$label</button>";
     }
 
     /** get close icon for alert modal
@@ -382,10 +383,19 @@ EOco
             ));
     }
 
+    /** generate dropdown list
+     * @param string $items ['item 1 html', 'item 2 html', null, 'item post divider']
+     * @return string
+     */
+    public static function dropdown($items)
+    {
+        return '<ul class="dropdown-menu">'.implode('', array_map(function($item){return isset($item) ? "<li>$item</li>" : '<li class="divider"></li>';}, $items)).'</ul>';
+    }
+
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
      * format to wrap the field html
-     * @param array $ui {Ui::P_PREFIX:'input prefix addon'
-     *                  , Ui::P_SUFFIX:'input suffix addon'
+     * @param array $ui {P_PREFIX:"input prefix addon'|{P_CONTENT:'prefix content', P_ADDON_BTN:true, prefix arguments}
+     *                  , P_SUFFIX:'input suffix addon'|{P_CONTENT:'suffix content', P_ADDON_BTN:true, suffix arguments}
      *                  }
      * @return string   '%s' if no prefixes / suffixes detected, otherwise '...%s...'
      */
@@ -395,26 +405,26 @@ EOco
         {
             if (is_array($prefix))
             {
+                $cnt = Params::extract($prefix, self::P_CONTENT);
                 $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
                 Params::add($prefix, $class);
-                $cnt = Params::extract($prefix, self::P_CONTENT);
-                $prefix = '<span'.Html::attr($prefix).">$cnt</span>";
+                $prefix = '<div'.Html::attr($prefix).">$cnt</div>";
             }
             else
-                $prefix = "<span class=\"input-group-addon\">$prefix</span>";
+                $prefix = "<div class=\"input-group-addon\">$prefix</div>";
         }
 
         if ($suffix = Params::extract($ui, self::P_SUFFIX))
         {
             if (is_array($suffix))
             {
+                $cnt = Params::extract($suffix, self::P_CONTENT);
                 $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
                 Params::add($suffix, $class);
-                $cnt = Params::extract($suffix, self::P_CONTENT);
-                $suffix = '<span'.Html::attr($suffix).">$cnt</span>";
+                $suffix = '<div'.Html::attr($suffix).">$cnt</div>";
             }
             else
-                $suffix = "<span class=\"input-group-addon\">$suffix</span>";
+                $suffix = "<div class=\"input-group-addon\">$suffix</div>";
         }
 
         if ($prefix or $suffix)
