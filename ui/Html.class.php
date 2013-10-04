@@ -518,14 +518,14 @@ class Html
             ;
     }
 
-    /** value in the range of 0..100, decimal places displayed only if exist.
-     * Before conversion value is divided by 100
-     * @param int $pct  value to convert
+    /** numeric value with decimal places displayed only if they exist. before conversion
+     * value is divided by 100
+     * @param int $num  value to convert
      * @return string
      */
-    public static function asPct($pct)
+    public static function asNumCompact($num)
     {
-        return str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $pct/100);
+        return str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $num/100);
     }
 
     /** value with thousands/decimal separators and 2 decimal places.

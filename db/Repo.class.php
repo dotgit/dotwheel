@@ -317,22 +317,18 @@ class Repo
                     case self::C_CENTS:
                         if (! is_scalar($value))
                             $val = false;
+                        elseif (! is_numeric(str_replace(array(' ', ' ', '.', ','), '', $value)))
+                            $val = false;
                         else
                         {
-                            $value = str_replace(array(' ', ' '), '', $value);
-                            if (strpos($value, ',') !== false and strpos($value, '.') !== false) // like 1,234.5
-                            {
-                                if (preg_match('/^(.*)[,.](\d+)$/', $value, $m))
+                            $value = str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
+                            if (preg_match('/^(.*),(\d{1,2})$/', $value, $m))
+                                $val = str_replace(',', '', $m[1])
+                                    . $m[2]
+                                    . (isset($m[2][1]) ? '' : '0')
                                     ;
-                                else
-                                    ;
-                            }
-                            elseif (preg_match('/^(.*)[,.](\d+)$/', $value, $m))
-                        		$val = ((int)str_replace(array(',', '.'), '', $value))*100;
-                            elseif (!empty($m[2]))
-                        		$val = ((int)str_replace(array(',', '.'), '', $m[1]))*100 + ($m[2] < 10 ? $m[2]*10 : $m[2]);
                             else
-                        		$val = ((int)str_replace(array(',', '.'), '', $value))*100;
+                                $val = str_replace(',', '', $value).'00';
                         }
                         break;
                     case self::C_BOOL:
