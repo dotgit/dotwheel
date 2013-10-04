@@ -329,7 +329,7 @@ class Repo
                             }
                             elseif (preg_match('/^(.*)[,.](\d+)$/', $value, $m))
                         		$val = ((int)str_replace(array(',', '.'), '', $value))*100;
-                            elseif ($m[2])
+                            elseif (!empty($m[2]))
                         		$val = ((int)str_replace(array(',', '.'), '', $m[1]))*100 + ($m[2] < 10 ? $m[2]*10 : $m[2]);
                             else
                         		$val = ((int)str_replace(array(',', '.'), '', $value))*100;

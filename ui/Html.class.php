@@ -518,17 +518,38 @@ class Html
             ;
     }
 
+    /** value in the range of 0..100, decimal places displayed only if exist.
+     * Before conversion value is divided by 100
+     * @param int $pct  value to convert
+     * @return string
+     */
+    public static function asPct($pct)
+    {
+        return str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $pct/100);
+    }
+
     /** value with thousands/decimal separators and 2 decimal places.
-     * Before conversion value is divided by 100. Spaces converted to &amp;nbsp;
+     * Before conversion value is divided by 100. Spaces converted to &nbsp;
      * @param int $cts          value to convert
-     * @param bool $show_cents  whether to show the decimal part
+     * @param bool $show_cents  whether to show the decimal part. if <i>null</i>
+     *                          passed use compact mode (decimals displayed if exist,
+     *                          up to 2)
      * @return string
      */
     public static function asCents($cts, $show_cents=true)
     {
+        if ($show_cents === null)
+            // minimum decimal places
+            $dec = $cts % 100 ? ($cts % 10 ? 2 : 1) : 0;
+        else
+            // 2 or 0 decimal places
+            $dec = $show_cents ? 2 : 0;
+
+        $value = number_format($cts/100, $dec, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]);
+
         return Nls::$formats[Nls::P_MON_THOUSANDS_CHAR] === ' '
-            ? str_replace(' ', '&nbsp;', number_format($cts/100, $show_cents ? 2 : 0, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], ' '))
-            : number_format($cts/100, $show_cents ? 2 : 0, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR])
+            ? str_replace(' ', '&nbsp;', $value)
+            : $value
             ;
     }
 

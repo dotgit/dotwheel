@@ -385,11 +385,13 @@ EOco
 
     /** generate dropdown list
      * @param string $items ['item 1 html', 'item 2 html', null, 'item post divider']
+     * @param array $params hash of ul tag attributes
      * @return string
      */
-    public static function dropdown($items)
+    public static function dropdown($items, $params=array())
     {
-        return '<ul class="dropdown-menu">'.implode('', array_map(function($item){return isset($item) ? "<li>$item</li>" : '<li class="divider"></li>';}, $items)).'</ul>';
+        Params::add($params, 'dropdown-menu');
+        return '<ul'.Html::attr($params).'>'.implode('', array_map(function($item){return isset($item) ? "<li>$item</li>" : '<li class="divider"></li>';}, $items)).'</ul>';
     }
 
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf

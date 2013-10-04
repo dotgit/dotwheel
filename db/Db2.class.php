@@ -199,4 +199,31 @@ class Db2
     {
         return Db::dml("do release_lock('$token')");
     }
+
+    /** get the next id in the sequence. normally increments the maximal id. if
+     * maximal id cannot be incremented then search from the start to find the free
+     * slot
+     * @param array $ids    array of existing ids
+     * @param int $max      max available id value
+     * @return int|bool next id value in the sequence, an id from a non-used slot
+     * or <i>false</i> if all slots used
+     */
+    public static function nextSequence($ids, $max)
+    {
+        if (empty($ids))
+            return 1;
+        elseif (($m = max($ids)) < $max)
+            return $m + 1;
+        elseif (count($ids) == $max)
+            return false;
+        else
+        {
+            sort($ids, SORT_NUMERIC);
+            foreach ($ids as $i=>$id)
+                if ($id > $i + 1)
+                    return $i + 1;
+        }
+
+        return false;
+    }
 }
