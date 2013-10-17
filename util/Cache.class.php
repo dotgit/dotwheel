@@ -87,8 +87,8 @@ class CacheLocal extends CacheBase
 
 
 
-/** stores cache values in the quick cache(not scalable, process-specific, APC-like) */
-class Cache extends CacheBase
+/** stores cache values in process cache (not scalable, process-specific, requires APC extension) */
+class CacheProcess extends CacheBase
 {
     public static function store($name, $value, $ttl=null)
     {
@@ -100,9 +100,9 @@ class Cache extends CacheBase
 
     public static function fetch($name)
     {
-        $value = apc_fetch(self::$prefix.$name);
+        $value = apc_fetch(self::$prefix.$name, $success);
 
-        return $value ? $value : null;
+        return $success ? $value : null;
     }
 
     public static function delete($name)
@@ -116,4 +116,73 @@ class Cache extends CacheBase
         else
             return apc_delete(self::$prefix.$name);
     }
+}
+
+
+
+/** stores cache values in distributed cache system (scalable, requires memcached extension) */
+class CacheMemcache extends CacheBase
+{
+    public static $conn;
+
+    /** establish a permanent memcache connection and set initial options. connect
+     * to servers if not connected yet
+     * @param string $prefix    prefix to prepend to each key
+     * @param array $servers    list of memcache servers
+     * @param array $options    memcache initial options
+     * @return bool
+     */
+    public static function init($prefix, $servers, $options=array())
+    {
+        self::$conn = new \Memcached(__METHOD__.$prefix);
+
+        if($prefix)
+            $options[\Memcached::OPT_PREFIX_KEY] = "$prefix.";
+        if($options)
+            self::$conn->setOptions($options);
+        if($servers and ! self::$conn->getServerList())
+            self::$conn->addServers($servers);
+
+        return parent::init($prefix);
+    }
+
+    public static function store($name, $value, $ttl=null)
+    {
+        return self::$conn->set($name
+            , $value
+            , isset($ttl) ? $ttl : 86400 // 24 hours
+            );
+    }
+
+    /** get the stored value or <i>null</i> if not found. may use the read-through
+     * callback parameter to handle the loading of the not found value into cache
+     * @link http://www.php.net/manual/en/memcached.callbacks.read-through.php
+     * @param string $name          key to search for
+     * @param callback $callback    callback method <code>$callback($memcache_object,
+     *                              $name, &$value)</code>. if returns <i>true</i>
+     *                              then the <code>$value</code> will be stored
+     *                              in memcache before returning it to the user
+     * @return mixed|null
+     */
+    public static function fetch($name, $callback=null)
+    {
+        $value = self::$conn->get($name, $callback);
+        return $value === false && self::$conn->getResultCode() == \Memcached::RES_NOTFOUND ? null : $value;
+    }
+
+    /** deletes a cached variable(s) from cache
+     * @param string|array $name    a var name to delete or a list of var names
+     * @return bool
+     */
+    public static function delete($name)
+    {
+        if (is_array($name))
+            return self::$conn->deleteMulti($name);
+        else
+            return self::$conn->delete($name);
+    }
+}
+
+class Cache extends CacheMemcache
+{
 }
