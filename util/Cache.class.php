@@ -136,10 +136,9 @@ class CacheMemcache extends CacheBase
     {
         self::$conn = new \Memcached(__METHOD__.$prefix);
 
-        if($prefix)
-            $options[\Memcached::OPT_PREFIX_KEY] = "$prefix.";
-        if($options)
-            self::$conn->setOptions($options);
+        self::$conn->setOptions($options + array(\Memcached::OPT_PREFIX_KEY=>"$prefix."
+            , \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
+            ));
         if($servers and ! self::$conn->getServerList())
             self::$conn->addServers($servers);
 
