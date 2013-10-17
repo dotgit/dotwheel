@@ -175,16 +175,16 @@ class HtmlTable
             if (isset($f[self::F_HEADER]))
             {
                 if ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE))
-                    $headers[$field] = Repo::getLabel($field, $repo[$field], $h);
+                    $headers[$field] = Repo::getLabel($field, $h, $repo[$field]);
                 elseif ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
-                    $headers[$field] = Html::asAbbr(Html::encode (Repo::getLabel($field, $repo[$field], Repo::P_LABEL_SHORT)), Repo::getLabel($field, $repo[$field], $abbr === true ? Repo::P_LABEL_LONG : $abbr));
+                    $headers[$field] = Html::asAbbr(Html::encode (Repo::getLabel($field, Repo::P_LABEL_SHORT, $repo[$field])), Repo::getLabel($field, $abbr === true ? Repo::P_LABEL_LONG : $abbr, $repo[$field]));
                 else
-                    $headers[$field] = Html::encode(Repo::getLabel($field, $repo[$field], Repo::P_LABEL));
+                    $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
                 if ($f[self::F_HEADER])
                     $headers_td[$field] = $f[self::F_HEADER];
             }
             else
-                $headers[$field] = Html::encode(Repo::getLabel($field, $repo[$field]));
+                $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
 
             if (isset($f[self::F_CHECKBOX]))
             {

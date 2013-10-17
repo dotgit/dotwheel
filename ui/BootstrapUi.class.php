@@ -547,6 +547,73 @@ EOco
             ;
     }
 
+    /** html-formatted bootstrap tabs
+     * @param array $items  {{P_TARGET:'pane id'
+     *                          , P_LABEL:'tab label'
+     *                          , P_CONTENT:'pane content'
+     *                          , P_ACTIVE:bool
+     *                          }
+     *                      , div tag attributes
+     *                      }
+     * @param array $params {}
+     * @return type
+     */
+    public static function nav($items, $params=array())
+    {
+        self::registerTab();
+
+        Params::add($params, 'nav');
+        if (strpos($params['class'], 'nav-pills') === false)
+        {
+            Params::add($params, 'nav-tabs');
+            $toggle = 'tab';
+        }
+        else
+            $toggle = 'pill';
+
+        $labels = array();
+        $panes = array();
+        foreach ($items as $k=>$item)
+        {
+            if (is_array($item))
+            {
+                $label = Params::extract($item, self::P_LABEL);
+                $content = Params::extract($item, self::P_CONTENT);
+                if (isset($content))
+                {
+                    $id = Params::extract($item, self::P_TARGET);
+                    $pane = array('id'=>$id, 'class'=>'tab-pane');
+                    if (Params::extract($item, self::P_ACTIVE))
+                    {
+                        Params::add($item, 'active');
+                        Params::add($pane, 'active');
+                    }
+                    $labels[] = '<li'.Html::attr($item)."><a href=\"#$id\" data-toggle=\"$toggle\">$label</a></li>";
+                    $panes[] = '<div'.Html::attr($pane).">$content</div>";
+                    unset($items[$k]);
+                }
+                else
+                {
+                    $target = Params::extract($item, self::P_TARGET);
+                    if (Params::extract($item, self::P_ACTIVE))
+                        Params::add($item, 'active');
+                    $labels[] = '<li'.Html::attr($item)."><a href=\"$target\">$label</a></li>";
+                }
+            }
+            else
+                $labels[] = "<li><a href=\"#\">$item</a></li>";
+        }
+        $prefix = Params::extract($params, self::P_PREFIX);
+        $suffix = Params::extract($params, self::P_SUFFIX);
+
+        return '<ul'.Html::attr($params).">$prefix".implode('', $labels)."$suffix</ul>"
+            . ($panes
+                ? ('<div class="tab-content">'.implode('', $panes).'</div>')
+                : ''
+                )
+            ;
+    }
+
     /** html-formatted pagination based on butons
      * @param array $params {PG_ACTIVE:current page number
      *                      , PG_LAST: last page number
@@ -739,65 +806,6 @@ EOco
     /** register tooltip js */
     public static function registerTooltip()
     {
-    }
-
-    /** html-formatted bootstrap tabs
-     * @param array $items  {{P_TARGET:'pane id'
-     *                          , P_LABEL:'tab label'
-     *                          , P_CONTENT:'pane content'
-     *                          , P_ACTIVE:bool
-     *                          }
-     *                      , div tag attributes
-     *                      }
-     * @param array $params {}
-     * @return type
-     */
-    public static function tabs($items, $params=array())
-    {
-        self::registerTab();
-
-        $labels = array();
-        $panes = array();
-        foreach ($items as $k=>$tab)
-        {
-            if (is_array($tab))
-            {
-                $label = Params::extract($tab, self::P_LABEL);
-                $content = Params::extract($tab, self::P_CONTENT);
-                if (isset($content))
-                {
-                    $id = Params::extract($tab, self::P_TARGET);
-                    $pane = array('id'=>$id, 'class'=>'tab-pane');
-                    if (Params::extract($tab, self::P_ACTIVE))
-                    {
-                        Params::add($tab, 'active');
-                        Params::add($pane, 'active');
-                    }
-                    $labels[] = '<li'.Html::attr($tab)."><a href=\"#$id\" data-toggle=\"tab\">$label</a></li>";
-                    $panes[] = '<div'.Html::attr($pane).">$content</div>";
-                    unset($items[$k]);
-                }
-                else
-                {
-                    $target = Params::extract($tab, self::P_TARGET);
-                    if (Params::extract($tab, self::P_ACTIVE))
-                        Params::add($tab, 'active');
-                    $labels[] = '<li'.Html::attr($tab)."><a href=\"$target\">$label</a></li>";
-                }
-            }
-            else
-                $labels[] = "<li><a href=\"#\">$tab</a></li>";
-        }
-        $prefix = Params::extract($params, self::P_PREFIX);
-        $suffix = Params::extract($params, self::P_SUFFIX);
-        Params::add($params, 'nav nav-tabs');
-
-        return '<ul'.Html::attr($params).">$prefix".implode('', $labels)."$suffix</ul>"
-            . ($panes
-                ? ('<div class="tab-content">'.implode('', $panes).'</div>')
-                : ''
-                )
-            ;
     }
 
     /** returns a div formatted as a well block

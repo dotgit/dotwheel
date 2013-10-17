@@ -154,7 +154,7 @@ class Repo
      * @param int $param    which label to return
      * @return string|null
      */
-    public static function getLabel($name, $repo=array(), $param=null)
+    public static function getLabel($name, $param=null, $repo=array())
     {
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];
@@ -188,11 +188,11 @@ class Repo
 
     /** returns a specified list if set(otherwise the PARAM_LIST)
      * @param string $name  field name
-     * @param array $repo   {field repository attributes}
      * @param int $param    which list to return
+     * @param array $repo   {field repository attributes}
      * @return array
      */
-    public static function getList($name, $repo=array(), $param=null)
+    public static function getList($name, $param=null, $repo=array())
     {
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];

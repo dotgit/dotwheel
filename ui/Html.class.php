@@ -420,6 +420,8 @@ class Html
         $checkbox = self::input(array('type'=>'checkbox') + $attr);
         if (isset($label))
             $checkbox = "<label$label_attr>$checkbox$delim$label</label>";
+        elseif (isset($label_attr))
+            $checkbox = "<div$label_attr>$checkbox</div>";
 
         return sprintf($fmt, $checkbox);
     }
