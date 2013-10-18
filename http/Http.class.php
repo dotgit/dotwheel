@@ -22,13 +22,14 @@ use dotwheel\util\Nls;
 class Http
 {
     /** creates a redirect URL
-     * @param string $page  a name of the script including module, like desk/index.php
-     * @param array $params a hash with parameters to attach
+     * @param string $page  name of the script including module, like desk/index.php
+     * @param array $params hash with parameters to attach
+     * @param string $hash  url hash part (omit hash sign)
      * @return string returns a full URL to a specified view embedding the passed parameters to use in a Location header
      */
-    public static function getRedirect($page, $params=array())
+    public static function getRedirect($page, $params=array(), $hash=null)
     {
-        return Request::$root_url.$page.Html::urlArgs('?', $params);
+        return Request::$root_url.$page.Html::urlArgs('?', $params).(isset($hash) ? "#$hash" : '');
     }
 
     /**

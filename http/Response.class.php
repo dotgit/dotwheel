@@ -28,6 +28,8 @@ class Response
     public static $description;
     /** @var array  input parameters that need to be passed to the next page */
     public static $url_params = array();
+    /** @var string url hash part that needs to be passed to the next page */
+    public static $url_hash = null;
     /** @var array  list of html-encoded errors */
     public static $errors = array();
 
@@ -180,7 +182,7 @@ class Response
     public static function outputCmd($redirect)
     {
         if ($redirect === true)
-            header('Location: '.Http::getRedirect(Request::$next, static::$url_params));
+            header('Location: '.Http::getRedirect(Request::$next, static::$url_params, static::$url_hash));
         elseif (is_string($redirect))
             header("Location: $redirect");
     }
@@ -192,7 +194,7 @@ class Response
     {
         header('Content-Type: application/json;charset='.Nls::$charset);
         echo ($result === true)
-            ? json_encode(Http::getRedirect(Request::$next, static::$url_params))
+            ? json_encode(Http::getRedirect(Request::$next, static::$url_params, static::$url_hash))
             : json_encode($result)
             ;
     }
