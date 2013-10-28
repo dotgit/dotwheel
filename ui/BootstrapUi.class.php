@@ -24,8 +24,31 @@ use dotwheel\util\Params;
  */
 class BootstrapUi
 {
-    const TBL_SORT_ICON_UP      = ' <i class="icon-arrow-up"></i>';
-    const TBL_SORT_ICON_DOWN    = ' <i class="icon-arrow-down"></i>';
+    const ICN_BASE = 'fa';
+
+    const ICN_2X = 'fa-2x';
+    const ICN_BRIEFCASE = 'fa-briefcase';
+    const ICN_CALENDAR = 'fa-calendar';
+    const ICN_CERTIFICATE = 'fa-certificate';
+    const ICN_COGS = 'fa-cogs';
+    const ICN_ENVELOPE = 'fa-envelope-o';
+    const ICN_HOME = 'fa-home';
+    const ICN_LOCK = 'fa-lock';
+    const ICN_PLUS = 'fa-plus';
+    const ICN_POWER_OFF = 'fa-power-off';
+    const ICN_SAVE = 'fa-floppy-o';
+    const ICN_SIGN_IN = 'fa-sign-in';
+    const ICN_SORT_CHAR = 'fa-sort-alpha-asc';
+    const ICN_SORT_CHAR_DESC = 'fa-sort-alpha-desc';
+    const ICN_SORT_NUM = 'fa-sort-numeric-asc';
+    const ICN_SORT_NUM_DESC   = 'fa-sort-numeric-desc';
+    const ICN_SORT_VAL = 'fa-sort-amount-asc';
+    const ICN_SORT_VAL_DESC = 'fa-sort-amount-desc';
+    const ICN_TIME = 'fa-clock-o';
+    const ICN_TRASH = 'fa-trash-o';
+    const ICN_UNLOCK = 'fa-unlock-alt';
+    const ICN_USER = 'fa-user';
+    const ICN_WARNING = 'fa-exclamation-triangle';
 
     const PGN_CLASS     = 'pagination pagination-centered';
     const PGN_ACTIVE    = 1;
@@ -119,7 +142,7 @@ class BootstrapUi
     {
         $body = Params::extract($params, self::P_CONTENT);
         Params::add($params, 'clearfix');
-        $icon = self::icon(array(self::P_LABEL=>'icon-warning-sign icon-2x pull-left', 'style'=>'margin:0.25em 0.5em 0 0;'));
+        $icon = self::icon(array(self::P_LABEL=>Ui::ICN_WARNING.' '.Ui::ICN_2X.' pull-left', 'style'=>'margin:0.25em 0.5em 0 0;'));
         return "<div".Html::attr($params).">$icon$body</div>";
     }
 
@@ -304,14 +327,14 @@ class BootstrapUi
      * @staticvar int $cnt  to generate missing id
      * @param array $params {P_TARGET:'target id'
      *                      , P_LABEL:'button text'
-     *                      , P_LABEL_ATTR:{class:'icon-filter'}
+     *                      , P_LABEL_ATTR:{class:ICN_FILTER}
      *                      , button div attributes
      *                      }
      * @return string
      */
     public static function collapseOpenerButton($params)
     {
-        static $cnt;
+        static $cnt = 0;
 
         self::registerButton();
         self::registerCollapse();
@@ -493,12 +516,13 @@ EOco
         if (is_array($icon))
         {
             $label = Params::extract($icon, self::P_LABEL);
+            Params::add($icon, self::ICN_BASE);
             Params::add($icon, $label);
 
             return '<i'.Html::attr($icon).'></i>';
         }
         else
-            return "<i class=\"$icon\"></i>";
+            return '<i class="'.self::ICN_BASE." $icon\"></i>";
     }
 
     /** returns a modal dialog window with specified header, body and buttons
@@ -686,7 +710,7 @@ EOco
         $s = array('<ul>');
         if ($active_page > 1)
             $s[] = '<li><a href="'.sprintf($link_1, $active_page - 1).'">&larr;</a></li>';
-        foreach ($pages as $i=>$n)
+        foreach ($pages as $n)
         {
             if ($n == $active_page)
                 $s[] = '<li class="active"><span>'.$n.'</span></li>';

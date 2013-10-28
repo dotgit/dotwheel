@@ -103,7 +103,7 @@ class HtmlTable
      *      , fld2:{}
      *      }
      *  , P_SORT:{S_FIELD:'fld1'
-     *      , S_ICON:'icon-caret-down'
+     *      , S_ICON:ICN_SORT_CHAR
      *      , S_REVERSE:true
      *      , S_SCRIPT:'/this/script.php'
      *      , S_PARAMS:{s:{tbl1:'fld_current'},f:{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
@@ -146,7 +146,6 @@ class HtmlTable
         $headers_td = array();
         $sort_group_key = null;
         $sort_group_old = null;
-        $aligns = array();
         $formats = array();
         $checkboxes = array();
         $urls_field = array();
