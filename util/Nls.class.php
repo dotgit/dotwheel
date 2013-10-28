@@ -206,6 +206,7 @@ class Nls
      */
     public static function asDate($value, $datetime=null)
     {
+        $d1 = $d2 = $d3 = $h = $m = $s = null;
         sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
         list($year, $month, $day) = explode('-', sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
         if (empty($year))

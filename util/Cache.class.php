@@ -100,6 +100,7 @@ class CacheProcess extends CacheBase
 
     public static function fetch($name)
     {
+        $success = true;
         $value = apc_fetch(self::$prefix.$name, $success);
 
         return $success ? $value : null;

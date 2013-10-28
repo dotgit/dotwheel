@@ -11,12 +11,10 @@ repository management.
 namespace dotwheel\db;
 
 require_once (__DIR__.'/../ui/Html.class.php');
-require_once (__DIR__.'/../util/Crypt.class.php');
 require_once (__DIR__.'/../util/Misc.class.php');
 require_once (__DIR__.'/../util/Nls.class.php');
 
 use dotwheel\ui\Html;
-use dotwheel\util\Crypt;
 use dotwheel\util\Misc;
 use dotwheel\util\Nls;
 
@@ -277,9 +275,6 @@ class Repo
     {
         if (empty($values))
             $values = $_REQUEST;
-        $filter_params = array();
-        $filter_values = array();
-        $errors = array();
 
         foreach ($fields as $fld=>$params)
         {
@@ -322,6 +317,7 @@ class Repo
                         else
                         {
                             $value = str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
+                            $m = array();
                             if (preg_match('/^(.*),(\d{1,2})$/', $value, $m))
                                 $val = str_replace(',', '', $m[1])
                                     . $m[2]
@@ -764,6 +760,7 @@ class Repo
     public static function asSqlDate($name, $value, $repo=array())
     {
         $datetime = isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME;
+        $matches = array();
         if (empty($value))
             return "$name is null";
         elseif (preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)

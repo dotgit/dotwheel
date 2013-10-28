@@ -22,7 +22,7 @@ class Algo
     public static function luhn($num_str)
     {
         $str = '';
-        foreach (array_reverse(str_split($num)) as $i=>$c)
+        foreach (array_reverse(str_split($num_str)) as $i=>$c)
             $str .= ($i % 2 ? $c * 2 : $c );
 
         return array_sum(str_split($str)) % 10 == 0;

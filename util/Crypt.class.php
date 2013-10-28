@@ -24,12 +24,12 @@ class Crypt
         return CRYPT_BLOWFISH == 1
             ? sprintf ('$2a$%02u$%s$'
                 , $cost
-// faster
+// faster, small memory footprint
                 , substr(str_shuffle(self::SALT_ALPHABET)
                     , 0
                     , self::SALT_LEN_BLOWFISH
                     )
-// stronger
+// stronger, large memory footprint
 //              , substr(str_shuffle(str_repeat(self::SALT_ALPHABET, 64))
 //                  , rand(0, (64<<6) - self::SALT_LEN_BLOWFISH)
 //                  , self::SALT_LEN_BLOWFISH
