@@ -16,13 +16,15 @@ namespace dotwheel\util;
 
 class CacheBase
 {
+    const P_PREFIX  = 1;
+
     /** @var string connection prefix to distinguish between different datasets on shared server */
     static protected $prefix;
 
 
-    public static function init($prefix)
+    public static function init($params)
     {
-        self::$prefix = "$prefix:";
+        self::$prefix = $params[self::P_PREFIX].':';
     }
 
     /** stores the value in the cache under the specified name using TTL
@@ -124,26 +126,31 @@ class CacheProcess extends CacheBase
 /** stores cache values in distributed cache system (scalable, requires memcached extension) */
 class CacheMemcache extends CacheBase
 {
+    const P_SERVERS = 2;
+    const P_OPTIONS = 3;
+
     public static $conn;
 
     /** establish a permanent memcache connection and set initial options. connect
      * to servers if not connected yet
-     * @param string $prefix    prefix to prepend to each key
-     * @param array $servers    list of memcache servers
-     * @param array $options    memcache initial options
+     * @param array $params parameters {P_PREFIX:'dev'
+     *                      , P_SERVERS:['123.45.67.89', '123.45.67.90']
+     *                      , P_OPTIONS:{\Memcached::OPT_SERIALIZER: \Memcached::SERIALIZER_JSON_ARRAY}
+     *                      }
      * @return bool
      */
-    public static function init($prefix, $servers, $options=array())
+    public static function init($params)
     {
-        self::$conn = new \Memcached(__METHOD__.$prefix);
+        self::$conn = new \Memcached(__METHOD__.$params[self::P_PREFIX]);
 
-        self::$conn->setOptions($options + array(\Memcached::OPT_PREFIX_KEY=>"$prefix."
+        $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
+        self::$conn->setOptions($options + array(\Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.'
             , \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
             ));
-        if($servers and ! self::$conn->getServerList())
-            self::$conn->addServers($servers);
+        if(isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
+            self::$conn->addServers($params[self::P_SERVERS]);
 
-        return parent::init($prefix);
+        return parent::init($params[self::P_PREFIX]);
     }
 
     public static function store($name, $value, $ttl=null)
