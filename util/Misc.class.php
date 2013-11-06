@@ -89,6 +89,15 @@ class Misc
         return min(self::convertSize(ini_get('upload_max_filesize')), self::convertSize(ini_get('post_max_size')));
     }
 
+    /** returns the parts from <code>$params</code> joined using the first parameter
+     * as separator. if part is an array then calls itself recursively providing
+     * this array as parameter. if the glue is an array then uses it as ['prefix',
+     * 'separator', 'suffix']
+     * @param array $params [separator, part1, part2, ...] where
+     *                      separator may be a string or array ['prefix', 'separator', 'suffix']
+     *                      partN may be a string or array [separatorN, partN1, partN2, ...]
+     * @return string
+     */
     public static function joinWs($params=array())
     {
         $elements = array();

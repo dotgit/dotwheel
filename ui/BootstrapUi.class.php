@@ -414,7 +414,32 @@ EOco
     public static function dropdown($items, $params=array())
     {
         Params::add($params, 'dropdown-menu');
-        return '<ul'.Html::attr($params).'>'.implode('', array_map(function($item){return isset($item) ? "<li>$item</li>" : '<li class="divider"></li>';}, $items)).'</ul>';
+        Params::add($params, 'menu', 'role');
+        return '<ul'.Html::attr($params).'>'
+            . implode('', array_map(function($item){if (isset($item))
+                {
+                    if (is_array($item))
+                    {
+                        $label = Params::extract($item, self::P_LABEL);
+                        Params::add($item, 'presentatoion', 'role');
+                        $li_attr = Html::attr($item);
+                    }
+                    else
+                    {
+                        $label = $item;
+                        $li_attr = ' role="presentation"';
+                    }
+                }
+                else
+                {
+                    $label = '';
+                    $li_attr = ' role="presentation" class="divider"';
+                }
+                return "<li$li_attr>$label</li>";
+                }, $items
+                ))
+            . '</ul>'
+            ;
     }
 
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
