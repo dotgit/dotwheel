@@ -195,7 +195,7 @@ class Response
         header('Content-Type: application/json;charset='.Nls::$charset);
         echo ($result === true)
             ? json_encode(Http::getRedirect(Request::$next, static::$url_params, static::$url_hash))
-            : json_encode($result)
+            : json_encode($result, JSON_UNESCAPED_UNICODE)
             ;
     }
 
