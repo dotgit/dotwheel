@@ -3,9 +3,9 @@
 /**
  * caching mechanisms.
  *
- * types of cache: local(description: class static var, speed: instant, handler: php)
- * , quick(process-based, quick, apc)
- * , distributed(multi server, permanent, memcache)
+ * types of cache: local (description: class static var, speed: instant, handler: php)
+ * , quick (process-based, quick, apc)
+ * , distributed (multi server, permanent, memcache)
  *
  * [type: library]
  *
@@ -30,10 +30,20 @@ class CacheBase
     /** stores the value in the cache under the specified name using TTL
      * @param string $name structure name
      * @param string $value structure value
-     * @param int $ttl time-to-live in seconds(0 means no TTL)
+     * @param int $ttl time-to-live in seconds (0 means no TTL)
      * @return bool returns whether the value could be stored
      */
     public static function store($name, $value, $ttl)
+    {
+        return false;
+    }
+
+    /** stores multiple values in cache in a single operation for the specified TTL
+     * @param array $values hash of values like {name1:value1, nameN:valueN, ...}
+     * @param int $ttl      time-to-live in seconds (0 means no TTL)
+     * @return bool
+     */
+    public static function storeMulti($values, $ttl)
     {
         return false;
     }
@@ -43,6 +53,15 @@ class CacheBase
      * @return mixed returns the structure stored or <i>false</i> if not found
      */
     public static function fetch($name)
+    {
+        return null;
+    }
+
+    /** gets the stored values for provided <code>$names</code>
+     * @param array $names  array of keys to search for
+     * @return array        hash of found entries like {name1:value1, nameN:valueN, ...}
+     */
+    public static function fetchMulti($names)
     {
         return null;
     }
@@ -100,12 +119,39 @@ class CacheProcess extends CacheBase
             );
     }
 
+    public static function storeMulti($values, $ttl=null)
+    {
+        $t = isset($ttl) ? $ttl : 86400;    // 24 hours
+
+        foreach ($values as $name=>$value)
+            $last_res = apc_add(self::$prefix.$name
+                , $value
+                , $t
+                );
+
+        return $last_res;
+    }
+
     public static function fetch($name)
     {
         $success = true;
         $value = apc_fetch(self::$prefix.$name, $success);
 
         return $success ? $value : null;
+    }
+
+    public static function fetchMulti($names)
+    {
+        $res = array();
+        foreach ($names as $name)
+        {
+            $success = true;
+            $value = apc_fetch(self::$prefix.$name, $success);
+            if ($success)
+                $res[$name] = $value;
+        }
+
+        return $success;
     }
 
     public static function delete($name)
@@ -131,8 +177,10 @@ class CacheMemcache extends CacheBase
 
     public static $conn;
 
-    /** establish a permanent memcache connection and set initial options. connect
-     * to servers if not connected yet
+
+
+    /** establishes a permanent memcache connection and set initial options. connects
+     * to servers if needed
      * @param array $params parameters {P_PREFIX:'dev'
      *                      , P_SERVERS:['123.45.67.89', '123.45.67.90']
      *                      , P_OPTIONS:{\Memcached::OPT_SERIALIZER: \Memcached::SERIALIZER_JSON_ARRAY}
@@ -161,7 +209,14 @@ class CacheMemcache extends CacheBase
             );
     }
 
-    /** get the stored value or <i>null</i> if not found. may use the read-through
+    public static function storeMulti($values, $ttl=null)
+    {
+        return self::$conn->setMulti($values
+            , isset($ttl) ? $ttl : 86400 // 24 hours
+            );
+    }
+
+    /** gets the stored value or <i>null</i> if not found. may use the read-through
      * callback parameter to handle the loading of the not found value into cache
      * @link http://www.php.net/manual/en/memcached.callbacks.read-through.php
      * @param string $name          key to search for
@@ -174,7 +229,13 @@ class CacheMemcache extends CacheBase
     public static function fetch($name, $callback=null)
     {
         $value = self::$conn->get($name, $callback);
-        return $value === false && self::$conn->getResultCode() == \Memcached::RES_NOTFOUND ? null : $value;
+        return $value === false ? null : $value;
+    }
+
+    public static function fetchMulti($names)
+    {
+        $values = self::$conn->getMulti($names);
+        return $values === false ? array() : $values;
     }
 
     /** deletes a cached variable(s) from cache

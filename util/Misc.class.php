@@ -126,6 +126,39 @@ class Misc
             return null;
     }
 
+    /** compacts $values by removing all null values from the array and adding the
+     * corresponding keys to a new 'N' field
+     * @param array $values hash of values to compact
+     * @return array resulting array like {key1:value1, key3:value3, N:[key2,key4]}
+     */
+    public static function nullCompact($values)
+    {
+        if ($empty = array_keys($values, null, true))
+        {
+            $res = array_diff_key($values, array_flip($empty));
+            $res['N'] = $empty;
+            return $res;
+        }
+        else
+            return $values;
+    }
+
+    /** restores null values in the array from the 'N' field and removes the
+     * 'N' field afterwards
+     * @param array $values hash, compacted with hash_compact()
+     * @return array restored array like {key1:value1, key2:null, key3:value3, key4:null}
+     */
+    public static function nullRestore($values)
+    {
+        if (isset($values['N']))
+        {
+            $values += array_fill_keys($values['N'], null);
+            unset($values['N']);
+        }
+
+        return $values;
+    }
+
     /** sets session cookie ttl and starts the session or regenerates session id
      * if session already open
      * @param int $ttl  new time to live in seconds
