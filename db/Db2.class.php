@@ -10,8 +10,6 @@
 
 namespace dotwheel\db;
 
-require_once (__DIR__.'/Db.class.php');
-
 use dotwheel\db\Db;
 
 class Db2

@@ -7,11 +7,6 @@
 
 namespace dotwheel\ui;
 
-require_once (__DIR__.'/../ui/Html.class.php');
-require_once (__DIR__.'/../ui/HtmlPage.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
-require_once (__DIR__.'/../util/Params.class.php');
-
 use dotwheel\ui\Html;
 use dotwheel\ui\HtmlPage;
 use dotwheel\util\Misc;

@@ -10,12 +10,6 @@
 
 namespace dotwheel\http;
 
-require_once (__DIR__.'/Http.class.php');
-require_once (__DIR__.'/Request.class.php');
-require_once (__DIR__.'/../ui/Html.class.php');
-require_once (__DIR__.'/../ui/HtmlPage.class.php');
-require_once (__DIR__.'/../util/Nls.class.php');
-
 use dotwheel\ui\Html;
 use dotwheel\ui\HtmlPage;
 use dotwheel\util\Nls;

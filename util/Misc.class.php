@@ -10,8 +10,6 @@
 
 namespace dotwheel\util;
 
-require_once (__DIR__.'/Nls.class.php');
-
 class Misc
 {
     /** converts the proposed size to from K, M or G form to bytes

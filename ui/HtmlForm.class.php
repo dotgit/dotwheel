@@ -10,13 +10,6 @@ handles html form display, list of required fields etc.
 
 namespace dotwheel\ui;
 
-require_once (__DIR__.'/HtmlPage.class.php');
-require_once (__DIR__.'/Html.class.php');
-require_once (__DIR__.'/Ui.class.php');
-require_once (__DIR__.'/../db/Repo.class.php');
-require_once (__DIR__.'/../util/Misc.class.php');
-require_once (__DIR__.'/../util/Params.class.php');
-
 use dotwheel\db\Repo;
 use dotwheel\util\Misc;
 use dotwheel\util\Params;

@@ -10,8 +10,6 @@
 
 namespace dotwheel\http;
 
-require_once (__DIR__.'/../util/Params.class.php');
-
 use dotwheel\util\Params;
 
 class Request

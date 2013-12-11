@@ -16,9 +16,6 @@
 
 namespace dotwheel\ui;
 
-require_once (__DIR__.'/../util/Nls.class.php');
-require_once (__DIR__.'/../util/Params.class.php');
-
 use dotwheel\util\Nls;
 use dotwheel\util\Params;
 
