@@ -1,12 +1,12 @@
 <?php
 
 /**
-Lists pagination using different methods.
-
-[type: library]
-
-@author stas trefilov
-*/
+ * Lists pagination using different methods.
+ *
+ * [type: library]
+ *
+ * @author stas trefilov
+ */
 
 namespace dotwheel\util;
 

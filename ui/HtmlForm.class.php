@@ -1,12 +1,12 @@
 <?php
 
 /**
-handles html form display, list of required fields etc.
-
-[type: library]
-
-@author stas trefilov
-*/
+ * handles html form display, list of required fields etc.
+ *
+ * [type: library]
+ *
+ * @author stas trefilov
+ */
 
 namespace dotwheel\ui;
 
