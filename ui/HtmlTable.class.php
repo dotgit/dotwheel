@@ -155,7 +155,7 @@ class HtmlTable
 
         foreach (Params::extract($params, self::P_FIELDS, array()) as $field=>$f)
         {
-            if (! is_array($f))
+            if (! \is_array($f))
                 $f = array(self::F_WIDTH=>$f, self::F_ALIGN=>null, self::F_SORT=>array(self::F_SORT_EXCLUDE=>true));
 
             $colgroup[$field] = ($w = Params::extract($f, self::F_WIDTH))
@@ -219,7 +219,7 @@ class HtmlTable
                 $totals = true;
                 if ($f[self::F_TOTAL] === true)
                     $totals_fn[$field] = self::F_TOTAL_SUM;
-                elseif (is_string($f[self::F_TOTAL]))
+                elseif (\is_string($f[self::F_TOTAL]))
                     $totals_fn[$field] = self::F_TOTAL_TEXT;
                 else
                     $totals_fn[$field] = $f[self::F_TOTAL];
@@ -231,9 +231,9 @@ class HtmlTable
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 )
             {
-                $headers[$field] = sprintf('<a href="%s"%s>%s</a>'
+                $headers[$field] = \sprintf('<a href="%s"%s>%s</a>'
                     , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
-                        . Html::urlArgs('?', array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field
+                        . Html::urlArgs('?', \array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field
                             . (($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE])) ? Request::SORT_REV_SUFFIX : '')
                             ))))
                     , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
@@ -262,7 +262,7 @@ class HtmlTable
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        ob_start();
+        \ob_start();
 
         // start table
         //
@@ -306,12 +306,12 @@ class HtmlTable
                 {
                     $v = Repo::asHtmlStatic($field, $row[$field], $r);
                     if (isset($urls_field[$field]))
-                        $v = sprintf('<a href="%s"%s>%s</a>'
-                            , sprintf($urls_fmt[$field], $row[$urls_field[$field]])
+                        $v = \sprintf('<a href="%s"%s>%s</a>'
+                            , \sprintf($urls_fmt[$field], $row[$urls_field[$field]])
                             , isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : ''
                             , $v
                             );
-                    $values[$field] = isset($formats[$field]) ? sprintf($formats[$field], $v) : $v;
+                    $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
                     if ($totals and isset($row[$field]) and isset($totals_fn[$field]) and $totals_fn[$field] !== self::F_TOTAL_TEXT)
                     {
                         self::$totals[$field] += $row[$field];
@@ -343,7 +343,7 @@ class HtmlTable
                         , self::$totals[$field]
                         , $totals_fn[$field] === self::F_TOTAL_TEXT
                             ? array(Repo::P_CLASS=>Repo::C_TEXT)
-                            : (Repo::isАrithmetical($r)
+                            : (Repo::isArithmetical($r)
                                 ? $r
                                 : array(Repo::P_CLASS=>Repo::C_INT)
                                 )
@@ -359,21 +359,21 @@ class HtmlTable
         //
 
         if (isset($suffix))
-            $tfoot .= Html::tr(array(Html::P_VALUES=>array($suffix), Html::P_TD_ATTR=>array(' colspan="'.count($headers).'"')));
+            $tfoot .= Html::tr(array(Html::P_VALUES=>array($suffix), Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"')));
 
         if ($tfoot)
             echo '<tfoot>', $tfoot;
 
         echo Html::tableStop();
 
-        return ob_get_clean();
+        return \ob_get_clean();
     }
 
     /** draw the pagination element
      * @param type $action      script to load for the next page
      * @param type $hidden      url params to pass to the next page
      * @param type $total       total number of items
-     * @param type $page        current page(0-based)
+     * @param type $page        current page (0-based)
      * @param type $table_id    table id
      * @param type $items       items per page
      * @return string           an html to visualize the pagination
@@ -390,7 +390,7 @@ class HtmlTable
                 $args0 = isset($hidden) ? Html::urlArgs('?', $hidden) : '';
                 $pages = (int)(($total-1) / $items) + 1;
                 $page_first = (int)($page / self::PAGES_PER_BLOCK) * self::PAGES_PER_BLOCK;
-                $page_next = min($page_first + self::PAGES_PER_BLOCK, $pages);
+                $page_next = \min($page_first + self::PAGES_PER_BLOCK, $pages);
                 $url0 = $action.$args0;
                 $url = $url0 . ($args0 ? "&p%5B$table_id%5D=" : "?p%5B$table_id%5D=");
                 $parts = array();
@@ -398,23 +398,23 @@ class HtmlTable
                 // first/prev page
                 if ($page)
                 {
-                    $parts[] = sprintf($str_link_3, '', $url0, '&laquo;');
-                    $parts[] = sprintf($str_link_3, '', $page > 1 ? ($url.($page-1)) : $url0, '&larr; '.dgettext(Nls::FW_DOMAIN, 'Prev'));
+                    $parts[] = \sprintf($str_link_3, '', $url0, '&laquo;');
+                    $parts[] = \sprintf($str_link_3, '', $page > 1 ? ($url.($page-1)) : $url0, '&larr; '.\dgettext(Nls::FW_DOMAIN, 'Prev'));
                 }
                 // numbered pages
                 for ($i = $page_first; $i < $page_next; ++$i)
                     $parts[] = $i == $page
-                        ? sprintf($str_act_1, $i+1)
-                        : sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i+1)
+                        ? \sprintf($str_act_1, $i+1)
+                        : \sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i+1)
                         ;
                 // next/last page
                 if ($page < $pages-1)
                 {
-                    $parts[] = sprintf($str_link_3, '', $url.($page+1), dgettext(Nls::FW_DOMAIN, 'Next').' &rarr;');
-                    $parts[] = sprintf($str_link_3, '', $url.($pages-1), '&raquo;');
+                    $parts[] = \sprintf($str_link_3, '', $url.($page+1), \dgettext(Nls::FW_DOMAIN, 'Next').' &rarr;');
+                    $parts[] = \sprintf($str_link_3, '', $url.($pages-1), '&raquo;');
                 }
 
-                return ' <div class="'.Ui::PGN_CLASS.'"><ul>'.implode('', $parts)."</ul></div>";
+                return ' <div class="'.Ui::PGN_CLASS.'"><ul>'.\implode('', $parts)."</ul></div>";
             }
             else
                 return ' <span class="'.Ui::PGN_CLASS."\">[$total]</span>";

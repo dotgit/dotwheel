@@ -53,68 +53,68 @@ class HtmlPage
             switch ($basket)
             {
             case self::HTML_FOOTER:
-                if (is_array($items))
-                    self::$bin_html_footer = array_merge(self::$bin_html_footer
-                        , array_map(function($item){return trim($item);}, $items)
+                if (\is_array($items))
+                    self::$bin_html_footer = \array_merge(self::$bin_html_footer
+                        , \array_map(function($item){return \trim($item);}, $items)
                         );
                 else
-                    self::$bin_html_footer[] = trim($items);
+                    self::$bin_html_footer[] = \trim($items);
                 break;
             case self::DOM_READY:
-                if (is_array($items))
-                    self::$bin_dom_ready = array_merge(self::$bin_dom_ready
-                        , array_map(function($item){return trim($item);}, $items)
+                if (\is_array($items))
+                    self::$bin_dom_ready = \array_merge(self::$bin_dom_ready
+                        , \array_map(function($item){return \trim($item);}, $items)
                         );
                 else
                     self::$bin_dom_ready[] = trim($items);
                 break;
             case self::SCRIPT:
-                if (is_array($items))
-                    self::$bin_script = array_merge(self::$bin_script
-                        , array_map(function($item){return trim($item);}, $items)
+                if (\is_array($items))
+                    self::$bin_script = \array_merge(self::$bin_script
+                        , \array_map(function($item){return \trim($item);}, $items)
                         );
                 else
-                    self::$bin_script[] = trim($items);
+                    self::$bin_script[] = \trim($items);
                 break;
             case self::SCRIPT_SRC_INIT:
-                if (is_array($items))
-                    self::$bin_script_src_init = array_merge(self::$bin_script_src_init
-                        , array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
+                if (\is_array($items))
+                    self::$bin_script_src_init = \array_merge(self::$bin_script_src_init
+                        , \array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
                         );
                 else
                     self::$bin_script_src_init[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
                 break;
             case self::SCRIPT_SRC:
-                if (is_array($items))
-                    self::$bin_script_src = array_merge(self::$bin_script_src
-                        , array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
+                if (\is_array($items))
+                    self::$bin_script_src = \array_merge(self::$bin_script_src
+                        , \array_map(function($item){return "<script type=\"text/javascript\" src=\"$item\"></script>";}, $items)
                         );
                 else
                     self::$bin_script_src[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
                 break;
             case self::SCRIPT_LAST:
-                if (is_array($items))
-                   self::$bin_script_last = array_merge(self::$bin_script_last
-                        , array_map(function($item){return trim($item);}, $items)
+                if (\is_array($items))
+                   self::$bin_script_last = \array_merge(self::$bin_script_last
+                        , \array_map(function($item){return \trim($item);}, $items)
                         );
                 else
-                    self::$bin_script_last[] = trim($items);
+                    self::$bin_script_last[] = \trim($items);
                 break;
             case self::STYLE_SRC:
-                if (is_array($items))
-                    self::$bin_style_src = array_merge(self::$bin_style_src
-                        , array_map(function($item){return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$item\">";}, $items)
+                if (\is_array($items))
+                    self::$bin_style_src = \array_merge(self::$bin_style_src
+                        , \array_map(function($item){return "<link rel=\"stylesheet\" type=\"text/css\" href=\"$item\">";}, $items)
                         );
                 else
                     self::$bin_style_src[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$items\">";
                 break;
             case self::STYLE:
-                if (is_array($items))
-                    self::$bin_style = array_merge(self::$bin_style
-                        , array_map(function($item){return trim($item);}, $items)
+                if (\is_array($items))
+                    self::$bin_style = \array_merge(self::$bin_style
+                        , \array_map(function($item){return \trim($item);}, $items)
                         );
                 else
-                    self::$bin_style[] = trim($items);
+                    self::$bin_style[] = \trim($items);
                 break;
             case self::TITLE:
                 self::$bin_meta[self::TITLE] = "<title>$items</title>";
@@ -123,17 +123,17 @@ class HtmlPage
                 self::$bin_meta[self::META_DESCRIPTION] = '<meta name="description" content="'.Html::encode($items).'">';
                 break;
             case self::META:
-                if (is_array($items))
-                    self::$bin_meta = array_merge(self::$bin_meta
-                        , array_map(function($item){return "<meta$item>";}, $items)
+                if (\is_array($items))
+                    self::$bin_meta = \array_merge(self::$bin_meta
+                        , \array_map(function($item){return "<meta$item>";}, $items)
                         );
                 else
                     self::$bin_meta[] = "<meta$items>";
                 break;
             case self::LINK:
-                if (is_array($items))
-                    self::$bin_meta = array_merge(self::$bin_meta
-                        , array_map(function($item){return "<link$item>";}, $items)
+                if (\is_array($items))
+                    self::$bin_meta = \array_merge(self::$bin_meta
+                        , \array_map(function($item){return "<link$item>";}, $items)
                         );
                 else
                     self::$bin_meta[] = "<link$items>";
@@ -146,7 +146,7 @@ class HtmlPage
 
     /** start the page
      * @param array $params additional params to pass into self::add()
-     * @return string       html head contents(styles, title, etc.)
+     * @return string       html head contents (styles, title, etc.)
      */
     public static function getHead(array $params=null)
     {
@@ -155,18 +155,18 @@ class HtmlPage
 
         $ret = '';
         if (self::$bin_meta)
-            $ret .= implode("\n", self::$bin_meta)."\n";
+            $ret .= \implode("\n", self::$bin_meta)."\n";
         if (self::$bin_style_src)
-            $ret .= implode("\n", self::$bin_style_src)."\n";
+            $ret .= \implode("\n", self::$bin_style_src)."\n";
         if (self::$bin_style)
-            $ret .= "<style type=\"text/css\">\n".implode("\n", self::$bin_style)."\n</style>\n";
+            $ret .= "<style type=\"text/css\">\n".\implode("\n", self::$bin_style)."\n</style>\n";
 
         return $ret;
     }
 
     /** close the page
      * @param array $params additional params to pass into self::add()
-     * @return string       html page trailing contents(scripts)
+     * @return string       html page trailing contents (scripts)
      */
     public static function getTail(array $params=null)
     {
@@ -175,20 +175,20 @@ class HtmlPage
 
         $ret = '';
         if (self::$bin_html_footer)
-            $ret .= implode("\n", self::$bin_html_footer)."\n";
+            $ret .= \implode("\n", self::$bin_html_footer)."\n";
         if (self::$bin_script_src_init)
-            $ret .= implode("\n", self::$bin_script_src_init)."\n";
+            $ret .= \implode("\n", self::$bin_script_src_init)."\n";
         if (self::$bin_script_src)
-            $ret .= implode("\n", self::$bin_script_src)."\n";
+            $ret .= \implode("\n", self::$bin_script_src)."\n";
         if (self::$bin_script or self::$bin_dom_ready or self::$bin_script_last)
         {
             $ret .= "<script type=\"text/javascript\">\n";
             if (self::$bin_script)
-                $ret .= implode("\n", self::$bin_script)."\n";
+                $ret .= \implode("\n", self::$bin_script)."\n";
             if (self::$bin_dom_ready)
-                $ret .= "jQuery(document).ready(function(){\n".implode("\n", self::$bin_dom_ready)."\n});\n";
+                $ret .= "jQuery(document).ready(function(){\n".\implode("\n", self::$bin_dom_ready)."\n});\n";
             if (self::$bin_script_last)
-                $ret .= implode("\n", self::$bin_script_last)."\n";
+                $ret .= \implode("\n", self::$bin_script_last)."\n";
             $ret .= "</script>\n";
         }
 

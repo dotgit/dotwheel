@@ -44,7 +44,7 @@ class Db2
     {
         $ins = array();
         $dupl = array();
-        foreach (array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
+        foreach (\array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
         {
             if (isset($params[self::P_VALUES][$name]))
             {
@@ -60,15 +60,15 @@ class Db2
             $dupl[$name] = "$name = values($name)";
         }
         $on_dupl = isset($params[self::P_DUPLICATES])
-            ? (' on duplicate key update '.implode(',', array_intersect_key($dupl, $params[self::P_DUPLICATES])))
+            ? (' on duplicate key update '.\implode(',', \array_intersect_key($dupl, $params[self::P_DUPLICATES])))
             : ''
             ;
 
         return $ins
-            ? Db::dml(sprintf("insert into %s (%s) values (%s)%s"
+            ? Db::dml(\sprintf("insert into %s (%s) values (%s)%s"
                 , $params[self::P_TABLE]
-                , implode(',', array_keys($ins))
-                , implode(',', array_values($ins))
+                , \implode(',', \array_keys($ins))
+                , \implode(',', \array_values($ins))
                 , $on_dupl
                 ))
             : 0
@@ -90,7 +90,7 @@ class Db2
     public static function update($params)
     {
         $upd = array();
-        foreach (array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
+        foreach (\array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=>$wrap)
         {
             switch ($wrap)
             {
@@ -101,9 +101,9 @@ class Db2
         }
 
         return $upd
-            ? Db::dml(sprintf('update %s set %s where %s'
+            ? Db::dml(\sprintf('update %s set %s where %s'
                 , $params[self::P_TABLE]
-                , implode(', ', $upd)
+                , \implode(', ', $upd)
                 , isset($params[self::P_WHERE])
                     ? $params[self::P_WHERE]
                     : 'NULL'
@@ -125,7 +125,7 @@ class Db2
      */
     public static function changePos($params)
     {
-        // get ids of all the items(a small number for a given application)
+        // get ids of all the items (a small number for a given application)
         foreach ($all = Db::fetchArray("select {$params['id_field']}, {$params['pos_field']}"
             . " from {$params['table']}"
             . " where {$params['main_id_field']} = ".(int)$params['main_id_value']
@@ -149,13 +149,13 @@ class Db2
             $another = $all[$current-1];
             break;
         default:
-            if ($current + 1 == count($all))
+            if ($current + 1 == \count($all))
                 return true;
             $another = $all[$current+1];
         }
 
         // dml to change *_pos values
-        return Db::dml(sprintf('update %s'
+        return Db::dml(\sprintf('update %s'
             . ' set %s = if (%s = %u, %u, %u)'
             . ' where %s = %u'
                 . ' and %s in(%u, %u)'
@@ -168,7 +168,7 @@ class Db2
     }
 
     /** tries to lock a <i>$token</i>
-     * @param string $token the name of the token(must be properly escaped)
+     * @param string $token the name of the token (must be properly escaped)
      * @param int $ttl max nbr of seconds to spend trying
      * @return bool whether the lock is obtained
      */
@@ -180,7 +180,7 @@ class Db2
     }
 
     /** sees whether the token is already locked
-     * @param string $token the name of the token(must be properly escaped)
+     * @param string $token the name of the token (must be properly escaped)
      * @return bool whether the token is locked by someone
      */
     public static function lockIsUsed($token)
@@ -191,7 +191,7 @@ class Db2
     }
 
     /** releases a locked token
-     * @param string $token the name of the token(must be properly escaped)
+     * @param string $token the name of the token (must be properly escaped)
      */
     public static function lockRelease($token)
     {
@@ -210,13 +210,13 @@ class Db2
     {
         if (empty($ids))
             return 1;
-        elseif (($m = max($ids)) < $max)
+        elseif (($m = \max($ids)) < $max)
             return $m + 1;
-        elseif (count($ids) == $max)
+        elseif (\count($ids) == $max)
             return false;
         else
         {
-            sort($ids, SORT_NUMERIC);
+            \sort($ids, SORT_NUMERIC);
             foreach ($ids as $i=>$id)
                 if ($id > $i + 1)
                     return $i + 1;

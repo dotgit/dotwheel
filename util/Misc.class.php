@@ -13,12 +13,12 @@ namespace dotwheel\util;
 class Misc
 {
     /** converts the proposed size to from K, M or G form to bytes
-     * @param string $size_str  string with size representation(128M, 2G etc.)
+     * @param string $size_str  string with size representation (128M, 2G etc.)
      * @return int              size in bytes
      */
     public static function convertSize($size_str)
     {
-        switch (substr($size_str, -1))
+        switch (\substr($size_str, -1))
         {
             case 'M': case 'm': return (int)$size_str * 1048576;
             case 'K': case 'k': return (int)$size_str * 1024;
@@ -43,14 +43,14 @@ class Misc
     }
 
     /** html-formatted string with some bb-style formatting convertion
-     * @param string $text  bb-style formatted string(recognizes *bold*, /italic/,
+     * @param string $text  bb-style formatted string (recognizes *bold*, /italic/,
      *                      ---header lines---, lines started with dash are bulleted)
      * @return string
      * @see Snippets::preview_txt()
      */
     public static function formatPreview($text)
     {
-        return preg_replace(array('#&#', '#<#', '#>#'
+        return \preg_replace(array('#&#', '#<#', '#>#'
                 , '#/([^/\r\n]*)/#m', '#\*([^*\\r\\n]*)\*#m'
                 , '#^#m', '#$#m'
                 , '#^<p>---(.*)---</p>$#m'
@@ -72,11 +72,11 @@ class Misc
      */
     public static function formatTel($tel)
     {
-        $t = str_replace(array(' ', '.', '-', '(0)'), '', $tel);
+        $t = \str_replace(array(' ', '.', '-', '(0)'), '', $tel);
         $m = array();
-        if (preg_match('/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
+        if (\preg_match('/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
             return "$m[1] $m[2] $m[3] $m[4] $m[5]";
-        elseif (preg_match('/^\+?\(?(\d{2})\)?(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
+        elseif (\preg_match('/^\+?\(?(\d{2})\)?(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
             return "+$m[1] $m[2] $m[3] $m[4] $m[5] $m[6]";
         else
             return $tel;
@@ -84,7 +84,7 @@ class Misc
 
     public static function getMaxUploadSize()
     {
-        return min(self::convertSize(ini_get('upload_max_filesize')), self::convertSize(ini_get('post_max_size')));
+        return \min(self::convertSize(\ini_get('upload_max_filesize')), self::convertSize(\ini_get('post_max_size')));
     }
 
     /** returns the parts from <code>$params</code> joined using the first parameter
@@ -107,7 +107,7 @@ class Misc
             {
                 if (isset($v))
                 {
-                    if (is_scalar($v))
+                    if (\is_scalar($v))
                         $elements[] = $v;
                     elseif (($v = self::joinWs($v)) !== null)
                         $elements[] = $v;
@@ -116,10 +116,10 @@ class Misc
             else
                 $splitter = $v;
         }
-        if (is_scalar($splitter))
-            return $elements ? implode($splitter, $elements) : null;
+        if (\is_scalar($splitter))
+            return $elements ? \implode($splitter, $elements) : null;
         elseif ($elements)
-            return $splitter[0].implode($splitter[1], $elements).$splitter[2];
+            return $splitter[0].\implode($splitter[1], $elements).$splitter[2];
         else
             return null;
     }
@@ -131,9 +131,9 @@ class Misc
      */
     public static function nullCompact($values)
     {
-        if ($empty = array_keys($values, null, true))
+        if ($empty = \array_keys($values, null, true))
         {
-            $res = array_diff_key($values, array_flip($empty));
+            $res = \array_diff_key($values, \array_flip($empty));
             $res['N'] = $empty;
             return $res;
         }
@@ -150,7 +150,7 @@ class Misc
     {
         if (isset($values['N']))
         {
-            $values += array_fill_keys($values['N'], null);
+            $values += \array_fill_keys($values['N'], null);
             unset($values['N']);
         }
 
@@ -163,11 +163,11 @@ class Misc
      */
     public static function sessionSetTtl($ttl)
     {
-        session_set_cookie_params($ttl);
-        if (session_status() == PHP_SESSION_NONE)
-            session_start();
+        \session_set_cookie_params($ttl);
+        if (\session_status() == PHP_SESSION_NONE)
+            \session_start();
         else
-            session_regenerate_id(true);
+            \session_regenerate_id(true);
     }
 
     /** escapes a string to be used in sprintf by doubling the % characters
@@ -176,7 +176,7 @@ class Misc
      */
     public static function sprintfEscape($str)
     {
-        return str_replace('%', '%%', $str);
+        return \str_replace('%', '%%', $str);
     }
 
     /** trims string to the specified length by word boundary adding suffix
@@ -187,9 +187,9 @@ class Misc
      */
     public static function trimWord($str, $len=100, $suffix='...')
     {
-        return mb_substr($str
+        return \mb_substr($str
             , 0
-            , $len - mb_strlen(mb_strrchr(mb_substr($str, 0, $len, Nls::$charset), ' ', false, Nls::$charset), Nls::$charset)
+            , $len - \mb_strlen(\mb_strrchr(\mb_substr($str, 0, $len, Nls::$charset), ' ', false, Nls::$charset), Nls::$charset)
             , Nls::$charset
             ).$suffix
             ;

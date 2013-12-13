@@ -119,7 +119,7 @@ class Nls
     /** @var string $lang current language */
     public static $lang = self::LANG_DEFAULT;
 
-    /** @var array $formats current nls parameters(set from self::$store[self::$list]) */
+    /** @var array $formats current nls parameters (set from self::$store[self::$list]) */
     public static $formats = array();
 
     /** @var string $charset current charset */
@@ -141,14 +141,14 @@ class Nls
             if (empty($_COOKIE[$cookie_lang])
                 or $_COOKIE[$cookie_lang] != $ln
                 )
-                setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
+                \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
             return $ln;
         }
         // ...or guess language if cookie empty
         if (empty($_COOKIE[$cookie_lang]))
         {
             $ln = self::guessLang();
-            setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
+            \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
             return $ln;
         }
         // ...or return value from cookie
@@ -165,9 +165,9 @@ class Nls
     {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
         {
-            foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lng)
+            foreach (\explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lng)
             {
-                $ln = substr(ltrim($lng), 0, 2);
+                $ln = \substr(\ltrim($lng), 0, 2);
                 if (isset(self::$store[$ln]))
                     return $ln;
             }
@@ -189,12 +189,12 @@ class Nls
         self::$formats = self::$store[self::$lang];
 
         // gettext configuration
-        putenv('LANGUAGE='.self::$lang);
-        bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
-        bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
-        bindtextdomain($app_domain, $app_dir);
-        bind_textdomain_codeset($app_domain, self::$charset);
-        textdomain($app_domain);
+        \putenv('LANGUAGE='.self::$lang);
+        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
+        \bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
+        \bindtextdomain($app_domain, $app_dir);
+        \bind_textdomain_codeset($app_domain, self::$charset);
+        \textdomain($app_domain);
 
         return self::$lang;
     }
@@ -207,21 +207,21 @@ class Nls
     public static function asDate($value, $datetime=null)
     {
         $d1 = $d2 = $d3 = $h = $m = $s = null;
-        sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
-        list($year, $month, $day) = explode('-', sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
+        \sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
+        list($year, $month, $day) = \explode('-', \sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
         if (empty($year))
-            $year = date('Y');
+            $year = \date('Y');
         elseif ($year < 50)
             $year += 2000;
         elseif ($year < 100)
             $year += 1900;
 
-        if (! checkdate($month, $day, $year))
+        if (! \checkdate($month, $day, $year))
             return false;
         else
             return $datetime
-                ? sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $h, $m, $s)
-                : sprintf('%04d-%02d-%02d', $year, $month, $day)
+                ? \sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $h, $m, $s)
+                : \sprintf('%04d-%02d-%02d', $year, $month, $day)
                 ;
     }
 }

@@ -142,7 +142,7 @@ class Repo
         return null;
     }
 
-    /** returns a specified html-escaped label if set(otherwise the P_LABEL)
+    /** returns a specified html-escaped label if set (otherwise the P_LABEL)
      * @param string $name  field name
      * @param array $repo   {field repository attributes}
      * @param int $param    which label to return
@@ -223,7 +223,7 @@ class Repo
      * @param array $repo   {field repository attributes}
      * @return bool
      */
-    public static function isАrithmetical($repo)
+    public static function isArithmetical($repo)
     {
         if (isset($repo[self::P_CLASS]))
             switch ($repo[self::P_CLASS])
@@ -265,7 +265,7 @@ class Repo
      * during validation then Repository::$input_errors array contains error messages.
      * @param array $fields {field1:{repository parameters}, field2:{repository parameters}}
      * @param array $values {field1:val1, field2:val2, ...} if omitted then uses $_REQUEST
-     * @return bool whether validation is passed ok(no input errors)
+     * @return bool whether validation is passed ok (no input errors)
      */
     public static function validateInput($fields, $values=null)
     {
@@ -274,15 +274,15 @@ class Repo
 
         foreach ($fields as $fld=>$params)
         {
-            if (is_scalar($params))
+            if (\is_scalar($params))
                 $params = array($params=>true);
             $repo = self::get($fld, $params);
 
             $err = null;
-            $label = isset($repo[self::P_LABEL]) ? strip_tags($repo[self::P_LABEL]) : '';
+            $label = isset($repo[self::P_LABEL]) ? \strip_tags($repo[self::P_LABEL]) : '';
             $value = isset($values[$fld])
-                ? (is_scalar($values[$fld])
-                    ? trim($values[$fld])
+                ? (\is_scalar($values[$fld])
+                    ? \trim($values[$fld])
                     : ($values[$fld] ? $values[$fld] : null)
                     )
                 : null
@@ -306,76 +306,76 @@ class Repo
                         $val = (int)$value;
                         break;
                     case self::C_CENTS:
-                        if (! is_scalar($value))
+                        if (! \is_scalar($value))
                             $val = false;
-                        elseif (! is_numeric(str_replace(array(' ', ' ', '.', ','), '', $value)))
+                        elseif (! \is_numeric(\str_replace(array(' ', ' ', '.', ','), '', $value)))
                             $val = false;
                         else
                         {
                             $value = str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
                             $m = array();
-                            if (preg_match('/^(.*),(\d{1,2})$/', $value, $m))
-                                $val = str_replace(',', '', $m[1])
+                            if (\preg_match('/^(.*),(\d{1,2})$/', $value, $m))
+                                $val = \str_replace(',', '', $m[1])
                                     . $m[2]
                                     . (isset($m[2][1]) ? '' : '0')
                                     ;
                             else
-                                $val = str_replace(',', '', $value).'00';
+                                $val = \str_replace(',', '', $value).'00';
                         }
                         break;
                     case self::C_BOOL:
                         $val = $value ? 1 : null;
                         break;
                     case self::C_TEXT:
-                        if (is_scalar($value))
+                        if (\is_scalar($value))
                         {
                             if (! ($flags & self::F_TEXTAREA))
-                                $value = preg_replace('/\s{2,}/', ' ', $value);
-                            if (isset($repo[self::P_WIDTH]) and mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH])
+                                $value = \preg_replace('/\s{2,}/', ' ', $value);
+                            if (isset($repo[self::P_WIDTH]) and \mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH])
                             {
                                 $val = false;
-                                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"), $label, $repo[self::P_WIDTH]);
+                                $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"), $label, $repo[self::P_WIDTH]);
                             }
                             else
                             {
                                 $val = $value;
                                 if (isset($repo[self::P_VALIDATE_CALLBACK])
-                                    and($val = call_user_func_array($repo[self::P_VALIDATE_CALLBACK], array($val))) === false
+                                    and ($val = \call_user_func_array($repo[self::P_VALIDATE_CALLBACK], array($val))) === false
                                     )
                                     break;
                                 if ($flags & self::F_EMAIL
-                                    and ! filter_var($val, FILTER_VALIDATE_EMAIL)
+                                    and ! \filter_var($val, FILTER_VALIDATE_EMAIL)
                                     )
                                 {
                                     $val = false;
-                                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent an email address"), $label);
+                                    $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent an email address"), $label);
                                     break;
                                 }
 
                                 if ($flags & self::F_URL
-                                    and ! filter_var($val, FILTER_VALIDATE_URL)
+                                    and ! \filter_var($val, FILTER_VALIDATE_URL)
                                     )
                                 {
                                     $val = false;
-                                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent a web address"), $label);
+                                    $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent a web address"), $label);
                                     break;
                                 }
                                 if (isset($repo[self::P_VALIDATE_REGEXP])
-                                    and ! preg_match($repo[self::P_VALIDATE_REGEXP], $val)
+                                    and ! \preg_match($repo[self::P_VALIDATE_REGEXP], $val)
                                     )
                                 {
                                     $val = false;
-                                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' does not match the required format"), $label);
+                                    $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' does not match the required format"), $label);
                                     break;
                                 }
                                 if ($flags & self::F_UPPERCASE)
-                                    $val = mb_strtoupper($val, Nls::$charset);
+                                    $val = \mb_strtoupper($val, Nls::$charset);
                                 if ($flags & self::F_UCFIRST)
-                                    $val = mb_strtoupper(mb_substr($val, 0, 1, Nls::$charset), Nls::$charset)
-                                        . mb_substr($val, 1, strlen($val), Nls::$charset)
+                                    $val = \mb_strtoupper(\mb_substr($val, 0, 1, Nls::$charset), Nls::$charset)
+                                        . \mb_substr($val, 1, \strlen($val), Nls::$charset)
                                         ;
                                 if ($flags & self::F_LOWERCASE)
-                                    $val = mb_strtolower($val, Nls::$charset);
+                                    $val = \mb_strtolower($val, Nls::$charset);
                                 if ($flags & self::F_TEL)
                                     $val = Misc::formatTel($val);
                             }
@@ -384,16 +384,16 @@ class Repo
                             $val = false;
                         break;
                     case self::C_DATE:
-                        if (is_scalar($value))
+                        if (\is_scalar($value))
                             $val = Nls::asDate($value, $flags & self::F_DATETIME);
                         else
                             $val = false;
 
                         if ($val === false)
-                            $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' is not a valid date"), $label);
+                            $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' is not a valid date"), $label);
                         break;
                     case self::C_ENUM:
-                        if (is_scalar($value))
+                        if (\is_scalar($value))
                             $val = isset($repo[self::P_ITEMS])
                                 ? (isset($repo[self::P_ITEMS][$value]) ? $value : null)
                                 : $value
@@ -402,18 +402,18 @@ class Repo
                             $val = false;
                         break;
                     case self::C_SET:
-                        if (is_scalar($value))
-                            $value = explode(',', $value);
-                        $val = implode(',', array_keys(isset($repo[self::P_ITEMS])
-                            ? array_intersect_key($repo[self::P_ITEMS], array_flip($value))
-                            : array_flip($value)
+                        if (\is_scalar($value))
+                            $value = \explode(',', $value);
+                        $val = \implode(',', \array_keys(isset($repo[self::P_ITEMS])
+                            ? \array_intersect_key($repo[self::P_ITEMS], \array_flip($value))
+                            : \array_flip($value)
                             ));
                         break;
                     }
                     if ($flags & self::F_POSITIVE and $val < 1)
                     {
                         $val = false;
-                        $err = sprintf(dgettext(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
+                        $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
                     }
                 }
             }
@@ -422,7 +422,7 @@ class Repo
                 if (empty($_FILES[$fld]))
                 {
                     $val = false;
-                    $err = sprintf(dgettext(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
+                    $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
                 }
                 elseif ($_FILES[$fld]['error'] == UPLOAD_ERR_NO_FILE)
                     $val = null;
@@ -432,10 +432,10 @@ class Repo
                     {
                     case UPLOAD_ERR_INI_SIZE:
                     case UPLOAD_ERR_FORM_SIZE:
-                        $msg = sprintf(dgettext(Nls::FW_DOMAIN, "file too big (max allowed size %uMb) in '%s'"), Misc::getMaxUploadSize() / 1048576, $label);
+                        $msg = \sprintf(\dgettext(Nls::FW_DOMAIN, "file too big (max allowed size %uMb) in '%s'"), Misc::getMaxUploadSize() / 1048576, $label);
                         break;
                     default:
-                        $msg = sprintf(dgettext(Nls::FW_DOMAIN, "error uploading file from '%s'"), $label);
+                        $msg = \sprintf(\dgettext(Nls::FW_DOMAIN, "error uploading file from '%s'"), $label);
                     }
                     $val = false;
                     $err = $msg." [err: {$_FILES[$fld]['error']}]";
@@ -452,7 +452,7 @@ class Repo
             if ($val === null and ! empty($repo[self::P_REQUIRED]))
             {
                 $val = false;
-                $err = sprintf(dgettext(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
+                $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
             }
 
             if ($val !== false)
@@ -460,7 +460,7 @@ class Repo
             else
                 self::$input_errors[] = isset($err)
                     ? $err
-                    : sprintf(dgettext(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label)
+                    : \sprintf(\dgettext(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label)
                     ;
         }
 
@@ -506,11 +506,11 @@ class Repo
                                     : $repo[self::P_ITEMS][$value]
                                 )
                             : Html::asEnum($value
-                                , $asis ? $repo[self::P_ITEMS] : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                                , $asis ? $repo[self::P_ITEMS] : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                                 , $repo[self::P_FLAGS] & self::F_ARRAY
                                 )
                             )
-                        : Html::asEnum($value, array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS]))
+                        : Html::asEnum($value, \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS]))
                         )
                     : ''
                     ;
@@ -518,7 +518,7 @@ class Repo
                 return Html::asSet($value
                     , (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                         ? $repo[self::P_ITEMS]
-                        : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                        : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                     );
             case self::C_ID:
             case self::C_INT:
@@ -534,7 +534,7 @@ class Repo
                                 ? $repo[self::P_ITEMS]
                                 : Html::encode($repo[self::P_ITEMS])
                             )
-                        : array(dgettext(Nls::FW_DOMAIN, 'no'), dgettext(Nls::FW_DOMAIN, 'yes'))
+                        : array(\dgettext(Nls::FW_DOMAIN, 'no'), \dgettext(Nls::FW_DOMAIN, 'yes'))
                     );
             case self::C_FILE:
                 return isset($value['name']) ? Html::encode($value['name']) : '';
@@ -558,7 +558,7 @@ class Repo
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];
 
-        if (!is_array($input))
+        if (!\is_array($input))
             $input = (array)$input;
 
         // if class not provided return value as is
@@ -600,7 +600,7 @@ class Repo
                         + array('name'=>$name, 'value'=>$value
                             , Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
                                 ? $repo[self::P_ITEMS]
-                                : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                                : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                             , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                                 ? Html::T_ARRAY : null
                             , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
@@ -610,7 +610,7 @@ class Repo
                     : Html::inputSelect($input + array('name'=>$name, 'value'=>$value
                         , Html::P_ITEMS=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
                             ? $repo[self::P_ITEMS]
-                            : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                            : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                         , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::T_ARRAY : null
                         , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
@@ -621,7 +621,7 @@ class Repo
                     + array('name'=>$name, 'value'=>$value
                         , Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                             ? $repo[self::P_ITEMS]
-                            : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                            : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                         , Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::T_ARRAY : null
                         , Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK])
@@ -634,7 +634,7 @@ class Repo
                 + array('name'=>$name, 'value'=>$value
                     , Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                         ? $repo[self::P_ITEMS]
-                        : array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
+                        : \array_map(function($el){return Html::encode($el);}, $repo[self::P_ITEMS])
                     , Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
                         ? Html::T_ARRAY : null
                     , Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM])
@@ -675,7 +675,7 @@ class Repo
             ;
 
         if (isset($Rep[self::P_WHERE_CALLBACK]))
-            return call_user_func_array($Rep[self::P_WHERE_CALLBACK], array($name, $value, $Rep));
+            return \call_user_func_array($Rep[self::P_WHERE_CALLBACK], array($name, $value, $Rep));
         else
         {
             switch (isset($Rep[self::P_CLASS]) ? $Rep[self::P_CLASS] : self::C_TEXT)
@@ -745,7 +745,7 @@ class Repo
 
     /** returns sql condition for the date field value
      * @param string $name  field name
-     * @param mixed $value  field value(possible values: '31/12/2012'
+     * @param mixed $value  field value (possible values: '31/12/2012'
      *                      || '1/12/2012 - 31/12/2012' // spaces around - sign!
      *                      || '< 31/12/2012'
      *                      || '> 31/12/2012'
@@ -759,20 +759,20 @@ class Repo
         $matches = array();
         if (empty($value))
             return "$name is null";
-        elseif (preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
+        elseif (\preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
             and $d1 = Nls::asDate($matches[1], $datetime)
             and $d2 = Nls::asDate($matches[2], $datetime)
             )
         {
-            if ($datetime and substr($d2, -8) == '00:00:00')
-                $d2 = substr_replace($d2, '23:59:59', -8);
+            if ($datetime and \substr($d2, -8) == '00:00:00')
+                $d2 = \substr_replace($d2, '23:59:59', -8);
             return "$name between ".Db::wrap($d1).' and '.Db::wrap($d2);
         }
-        elseif (preg_match('/^<\s*(\S+)$/', $value, $matches)
+        elseif (\preg_match('/^<\s*(\S+)$/', $value, $matches)
             and $d = Nls::asDate($matches[1], $datetime)
             )
             return "$name < ".Db::wrap($d);
-        elseif (preg_match('/^>\s*(\S+)$/', $value, $matches)
+        elseif (\preg_match('/^>\s*(\S+)$/', $value, $matches)
             and $d = Nls::asDate($matches[1], $datetime)
             )
             return "$name > ".Db::wrap($d);

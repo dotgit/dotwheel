@@ -67,7 +67,7 @@ class CacheBase
     }
 
     /** deletes the named value from the cache
-     * @param string|array $name structure name(or a list of names)
+     * @param string|array $name structure name (or a list of names)
      */
     public static function delete($name)
     {
@@ -95,7 +95,7 @@ class CacheLocal extends CacheBase
 
     public static function delete($name)
     {
-        if (is_array($name))
+        if (\is_array($name))
         {
             foreach ($name as $key)
                 unset(static::$store[$key]);
@@ -113,7 +113,7 @@ class CacheProcess extends CacheBase
 {
     public static function store($name, $value, $ttl=null)
     {
-        return apc_add(self::$prefix.$name
+        return \apc_add(self::$prefix.$name
             , $value
             , isset($ttl) ? $ttl : 86400 // 24 hours
             );
@@ -124,7 +124,7 @@ class CacheProcess extends CacheBase
         $t = isset($ttl) ? $ttl : 86400;    // 24 hours
 
         foreach ($values as $name=>$value)
-            $last_res = apc_add(self::$prefix.$name
+            $last_res = \apc_add(self::$prefix.$name
                 , $value
                 , $t
                 );
@@ -135,7 +135,7 @@ class CacheProcess extends CacheBase
     public static function fetch($name)
     {
         $success = true;
-        $value = apc_fetch(self::$prefix.$name, $success);
+        $value = \apc_fetch(self::$prefix.$name, $success);
 
         return $success ? $value : null;
     }
@@ -146,7 +146,7 @@ class CacheProcess extends CacheBase
         foreach ($names as $name)
         {
             $success = true;
-            $value = apc_fetch(self::$prefix.$name, $success);
+            $value = \apc_fetch(self::$prefix.$name, $success);
             if ($success)
                 $res[$name] = $value;
         }
@@ -156,14 +156,14 @@ class CacheProcess extends CacheBase
 
     public static function delete($name)
     {
-        if (is_array($name))
+        if (\is_array($name))
         {
             foreach ($name as $key)
-                apc_delete(self::$prefix.$key);
+                \apc_delete(self::$prefix.$key);
             return true;
         }
         else
-            return apc_delete(self::$prefix.$name);
+            return \apc_delete(self::$prefix.$name);
     }
 }
 
@@ -195,7 +195,7 @@ class CacheMemcache extends CacheBase
         self::$conn->setOptions($options + array(\Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.'
             , \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
             ));
-        if(isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
+        if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
             self::$conn->addServers($params[self::P_SERVERS]);
 
         return parent::init($params[self::P_PREFIX]);
@@ -244,7 +244,7 @@ class CacheMemcache extends CacheBase
      */
     public static function delete($name)
     {
-        if (is_array($name))
+        if (\is_array($name))
             return self::$conn->deleteMulti($name);
         else
             return self::$conn->delete($name);

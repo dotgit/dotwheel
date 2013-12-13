@@ -28,16 +28,16 @@ class Db
      */
     public static function connect($host=null, $username=null, $password=null, $database=null, $charset='UTF8')
     {
-        if (self::$conn = mysqli_init()
-            and mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
-            and mysqli_real_connect(self::$conn, $host, $username, $password, $database)
+        if (self::$conn = \mysqli_init()
+            and \mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
+            and \mysqli_real_connect(self::$conn, $host, $username, $password, $database)
             )
         {
             return self::$conn;
         }
         else
         {
-            error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".mysqli_connect_error());
+            \error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".\mysqli_connect_error());
             return false;
         }
     }
@@ -49,18 +49,18 @@ class Db
      */
     public static function fetchRow($sql)
     {
-        if ($_ = mysqli_query(self::$conn, $sql))
-            return mysqli_fetch_assoc($_);
+        if ($_ = \mysqli_query(self::$conn, $sql))
+            return \mysqli_fetch_assoc($_);
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchRowDEBUG($sql)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql);
+        \error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchRow($sql);
     }
 
@@ -71,26 +71,26 @@ class Db
      */
     public static function fetchList($sql)
     {
-        if ($_ = mysqli_query(self::$conn, $sql))
+        if ($_ = \mysqli_query(self::$conn, $sql))
         {
             $lst = array();
-            if ($rows = mysqli_fetch_all($_))
+            if ($rows = \mysqli_fetch_all($_))
                 foreach ($rows as $row)
                     $lst[$row[0]] = $row[1];
-            mysqli_free_result($_);
+            \mysqli_free_result($_);
 
             return $lst;
         }
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchListDEBUG($sql)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql);
+        \error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchList($sql);
     }
 
@@ -103,26 +103,26 @@ class Db
      */
     public static function fetchHash($sql, $key)
     {
-        if ($_ = mysqli_query(self::$conn, $sql))
+        if ($_ = \mysqli_query(self::$conn, $sql))
         {
             $hash = array();
-            if ($rows = mysqli_fetch_all($_, MYSQLI_ASSOC))
+            if ($rows = \mysqli_fetch_all($_, MYSQLI_ASSOC))
                 foreach ($rows as $row)
                     $hash[$row[$key]] = $row;
-            mysqli_free_result($_);
+            \mysqli_free_result($_);
 
             return $hash;
         }
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchHashDEBUG($sql, $key)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql.'; KEY: '.$key);
+        \error_log('['.__METHOD__.'] SQL: '.$sql.'; KEY: '.$key);
         return self::fetchHash($sql, $key);
     }
 
@@ -132,23 +132,23 @@ class Db
      */
     public static function fetchArray($sql)
     {
-        if ($_ = mysqli_query(self::$conn, $sql))
+        if ($_ = \mysqli_query(self::$conn, $sql))
         {
-            $lst = mysqli_fetch_all($_, MYSQLI_ASSOC);
-            mysqli_free_result($_);
+            $lst = \mysqli_fetch_all($_, MYSQLI_ASSOC);
+            \mysqli_free_result($_);
 
             return isset($lst) ? $lst : array();
         }
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchArrayDEBUG($sql)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql);
+        \error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchArray($sql);
     }
 
@@ -159,26 +159,26 @@ class Db
      */
     public static function fetchCsv($sql)
     {
-        if ($_ = mysqli_query(self::$conn, $sql))
+        if ($_ = \mysqli_query(self::$conn, $sql))
         {
             $lst = array();
-            if ($rows = mysqli_fetch_all($_))
+            if ($rows = \mysqli_fetch_all($_))
                 foreach ($rows as $row)
                     $lst[] = $row[0];
-            mysqli_free_result($_);
+            \mysqli_free_result($_);
 
-            return implode(',', $lst);
+            return \implode(',', $lst);
         }
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function fetchCsvDEBUG($sql)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql);
+        \error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::fetchCsv($sql);
     }
 
@@ -191,25 +191,25 @@ class Db
      */
     public static function getPrimary($table, $pk)
     {
-        $key = is_array($pk) ? self::escapeIntCsv($pk) : (int)$pk;
-        if (mysqli_query(self::$conn, "handler $table open"))
+        $key = \is_array($pk) ? self::escapeIntCsv($pk) : (int)$pk;
+        if (\mysqli_query(self::$conn, "handler $table open"))
         {
-            if ($_ = mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
+            if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
             {
-                $row = mysqli_fetch_assoc($_);
-                mysqli_query(self::$conn, "handler $table close");
+                $row = \mysqli_fetch_assoc($_);
+                \mysqli_query(self::$conn, "handler $table close");
 
                 return $row;
             }
             else
             {
-                error_log('['.__METHOD__.'] '.mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+                \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
                 return false;
             }
         }
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
             return false;
         }
     }
@@ -220,18 +220,18 @@ class Db
      */
     public static function dml($sql)
     {
-        if (mysqli_query(self::$conn, $sql))
-            return mysqli_affected_rows(self::$conn);
+        if (\mysqli_query(self::$conn, $sql))
+            return \mysqli_affected_rows(self::$conn);
         else
         {
-            error_log('['.__METHOD__.'] '.mysqli_error(self::$conn).'; SQL: '.$sql);
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
             return false;
         }
     }
 
     public static function dmlDEBUG($sql)
     {
-        error_log('['.__METHOD__.'] SQL: '.$sql);
+        \error_log('['.__METHOD__.'] SQL: '.$sql);
         return self::dml($sql);
     }
 
@@ -244,39 +244,39 @@ class Db
      */
     public static function dmlBind($sql, $types, $params)
     {
-        if ($stmt = mysqli_prepare(self::$conn, $sql)
-            and call_user_func_array('mysqli_stmt_bind_param', array_merge(array($stmt, $types), array_map(function(&$el){return $el;}, $params)))
-            and mysqli_stmt_execute($stmt)
+        if ($stmt = \mysqli_prepare(self::$conn, $sql)
+            and \call_user_func_array('mysqli_stmt_bind_param', \array_merge(array($stmt, $types), \array_map(function(&$el){return $el;}, $params)))
+            and \mysqli_stmt_execute($stmt)
             )
         {
-            $res = mysqli_stmt_affected_rows($stmt);
-            mysqli_stmt_close($stmt);
+            $res = \mysqli_stmt_affected_rows($stmt);
+            \mysqli_stmt_close($stmt);
             return $res;
         }
         else
         {
             if($stmt)
             {
-                $err = mysqli_stmt_error($stmt);
-                mysqli_stmt_close($stmt);
+                $err = \mysqli_stmt_error($stmt);
+                \mysqli_stmt_close($stmt);
             }
             else
-                $err = mysqli_error(self::$conn);
-            error_log('['.__METHOD__."] $err; SQL: $sql; TYPES: $types; PARAMS: ".json_encode($params));
+                $err = \mysqli_error(self::$conn);
+            \error_log('['.__METHOD__."] $err; SQL: $sql; TYPES: $types; PARAMS: ".\json_encode($params));
             return false;
         }
     }
 
     public static function dmlBindDEBUG($sql, $types, $params)
     {
-        error_log('['.__METHOD__."] SQL: $sql; TYPES: $types; PARAMS: ".json_encode($params));
+        \error_log('['.__METHOD__."] SQL: $sql; TYPES: $types; PARAMS: ".\json_encode($params));
         return self::dmlBind($sql, $types, $params);
     }
 
     /** @return int last insert id */
     public static function insertId()
     {
-        return mysqli_insert_id(self::$conn);
+        return \mysqli_insert_id(self::$conn);
     }
 
     /** restores blob value encoded with blobEncode()
@@ -285,10 +285,10 @@ class Db
      */
     public static function blobDecode($blob)
     {
-        if (substr($blob, 0, 3) == ' z:')
-            $blob = gzinflate(substr($blob, 3));
-        if (substr($blob, 0, 3) == ' j:')
-            $blob = json_decode(substr($blob, 3), true);
+        if (\substr($blob, 0, 3) == ' z:')
+            $blob = \gzinflate(\substr($blob, 3));
+        if (\substr($blob, 0, 3) == ' j:')
+            $blob = \json_decode(\substr($blob, 3), true);
 
         return $blob;
     }
@@ -299,12 +299,12 @@ class Db
      */
     public static function blobEncode($blob)
     {
-        if (isset($blob) and ! is_scalar($blob))
-            $blob = ' j:'.json_encode($blob, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
-        if (strlen($blob) > 127)
-            $blob = ' z:'.gzdeflate($blob);
+        if (isset($blob) and ! \is_scalar($blob))
+            $blob = ' j:'.\json_encode($blob, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
+        if (\strlen($blob) > 127)
+            $blob = ' z:'.\gzdeflate($blob);
 
-        return strlen($blob) <= 65535 ? $blob : null;
+        return \strlen($blob) <= 65535 ? $blob : null;
     }
 
     /** escapes the passed value following tha database rules (normally used to
@@ -315,7 +315,7 @@ class Db
      */
     public static function escape($value)
     {
-        return isset($value) ? mysqli_real_escape_string(self::$conn, $value) : 'NULL';
+        return isset($value) ? \mysqli_real_escape_string(self::$conn, $value) : 'NULL';
     }
 
     /** escapes the passed value following tha database rules and wraps it in apostrophes
@@ -328,10 +328,10 @@ class Db
      */
     public static function wrap($value)
     {
-        if (is_array($value))
-            return "'".implode(',', array_map('self::escape', $value))."'";
+        if (\is_array($value))
+            return "'".\implode(',', \array_map('self::escape', $value))."'";
         elseif (isset($value))
-            return "'".mysqli_real_escape_string(self::$conn, $value)."'";
+            return "'".\mysqli_real_escape_string(self::$conn, $value)."'";
         else
             return 'NULL';
     }
@@ -343,10 +343,10 @@ class Db
      */
     public static function escapeIntCsv($values)
     {
-        if (is_array($values))
+        if (\is_array($values))
         {
-            return ($res = array_filter($values))
-                ? implode(',', array_map('intval', $res))
+            return ($res = \array_filter($values))
+                ? \implode(',', \array_map('intval', $res))
                 : 'NULL'
                 ;
         }

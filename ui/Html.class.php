@@ -50,22 +50,22 @@ class Html
     {
         $ret = array();
         foreach ($params as $attr=>$value)
-            if (isset($value) and !is_int($attr))
+            if (isset($value) and !\is_int($attr))
                 $ret[] = " $attr=\"".self::encodeAttr($value).'"';
 
-        return $ret ? implode('', $ret) : '';
+        return $ret ? \implode('', $ret) : '';
     }
 
     /** returns a string with url-encoded parameters
-     * @param string $prefix    prefix to use(normally '?')
+     * @param string $prefix    prefix to use (normally '?')
      * @param array $params     hash of parameters to encode, like {a:'b',c:{d:'e'}}
      * @return string           url-encoded list, like '?a=b&c%5Bd%5D=e'
      */
     public static function urlArgs($prefix, $params)
     {
-        $args = is_array($params) ? http_build_query($params) : '';
+        $args = \is_array($params) ? \http_build_query($params) : '';
 
-        return strlen($args) ? "$prefix$args" : '';
+        return \strlen($args) ? "$prefix$args" : '';
     }
 
 
@@ -92,8 +92,8 @@ class Html
             foreach ($colgroup as &$col)
             {
                 if ($align = Params::extract($col, 'align'))
-                    HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__."-$id-$k"=>"table#$id td:first-child".str_repeat(' + td', $k)."{text-align:$align;}"
-                        . "table#$id th:first-child".str_repeat(' + th', $k)."{text-align:$align;}"
+                    HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k)."{text-align:$align;}"
+                        . "table#$id th:first-child".\str_repeat(' + th', $k)."{text-align:$align;}"
                         )));
                 ++$k;
             }
@@ -112,14 +112,14 @@ class Html
     }
 
     /** returns table heading row implemented with THEAD construct
-     * @param array $params is passed to html_tr()
+     * @param array $params is passed to self::tr()
      * @return string       table row wrapped by thead tags
      */
     public static function thead($params)
     {
         return '<thead>'
             . (($prefix = Params::extract($params, self::P_PREFIX))
-                ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array('colspan'=>count($params[self::P_VALUES]))))
+                ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array('colspan'=>\count($params[self::P_VALUES]))))
                 : ''
                 )
             . self::tr($params + array(self::P_TAG=>'th'))
@@ -132,7 +132,7 @@ class Html
      */
     public static function colgroup($cols)
     {
-        return '<colgroup><col'.implode('><col', array_map(function($at){return Html::attr($at);}, $cols))."></colgroup>\n";
+        return '<colgroup><col'.\implode('><col', \array_map(function($at){return Html::attr($at);}, $cols))."></colgroup>\n";
     }
 
     /** returns table row with a set of TD or TH cells
@@ -145,7 +145,7 @@ class Html
      */
     public static function tr($params)
     {
-        $attr = array_diff_key($params, array(self::P_VALUES=>true, self::P_TD_ATTR=>true, self::P_TAG=>true));
+        $attr = \array_diff_key($params, array(self::P_VALUES=>true, self::P_TD_ATTR=>true, self::P_TAG=>true));
         $res = '<tr'.($attr ? self::attr($attr) : '').'>';
         $tag = isset($params[self::P_TAG]) ? $params[self::P_TAG] : 'td';
 
@@ -223,7 +223,7 @@ class Html
     public static function inputCents($params)
     {
         if (isset($params['value']))
-            $params['value'] = number_format($params['value']/100, 2, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], '');
+            $params['value'] = \number_format($params['value']/100, 2, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], '');
 
         return self::input($params + array('type'=>'text', 'maxlength'=>10));
     }
@@ -262,7 +262,7 @@ class Html
         $items = array();
 
         if (($blank = Params::extract($params, self::P_BLANK)) !== null)
-            $items[] = strlen($blank)
+            $items[] = \strlen($blank)
                 ? ('<option value="">'.self::encode($blank)."</option>")
                 : "<option></option>"
                 ;
@@ -291,10 +291,10 @@ class Html
         }
         $attr = self::attr($params);
 
-        return "<select$attr>\n".implode('', $items).'</select>';
+        return "<select$attr>\n".\implode('', $items).'</select>';
     }
 
-    /** multiple checkboxes with labels(names are suffixed with *[k] and ids with *_k)
+    /** multiple checkboxes with labels (names are suffixed with *[k] and ids with *_k)
      * @param array $params {id:'fld'
      *                      , name:'field_name'
      *                      , value:'a,i'|{a:'a',i:'i'}
@@ -317,12 +317,12 @@ class Html
         $delim = Params::extract($params, self::P_DELIM, '<br>');
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
-        if (! is_array($value))
+        if (! \is_array($value))
         {
             if (isset($value))
             {
-                $_ = explode(',', $value);
-                $value = array_combine($_, $_);
+                $_ = \explode(',', $value);
+                $value = \array_combine($_, $_);
             }
             else
                 $value = array();
@@ -338,7 +338,7 @@ class Html
                 ) + $params);
         }
 
-        return $item_prefix.implode($delim, $items).$item_suffix;
+        return $item_prefix.\implode($delim, $items).$item_suffix;
     }
 
     /** returns html radios with labels
@@ -380,7 +380,7 @@ class Html
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
                     . ">$v</label>"
                     ;
-                $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
+                $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
             }
             break;
 
@@ -391,11 +391,11 @@ class Html
                     . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
                     . ">$v</label>"
                     ;
-                $items[] = isset($fmt) ? sprintf($fmt, $item) : $item;
+                $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
             }
         }
 
-        return $item_prefix.implode($delim, $items).$item_suffix;
+        return $item_prefix.\implode($delim, $items).$item_suffix;
     }
 
     /** returns html checkbox element
@@ -409,7 +409,7 @@ class Html
      */
     public static function inputCheckbox($params)
     {
-        $attr = array_diff_key($params, array(self::P_WRAP_FMT=>true, self::P_LABEL=>true, self::P_LABEL_ATTR=>true, self::P_DELIM=>true));
+        $attr = \array_diff_key($params, array(self::P_WRAP_FMT=>true, self::P_LABEL=>true, self::P_LABEL_ATTR=>true, self::P_DELIM=>true));
         $fmt = isset($params[self::P_WRAP_FMT]) ? $params[self::P_WRAP_FMT] : '%s';
         $label = isset($params[self::P_LABEL]) ? $params[self::P_LABEL] : null;
         $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr($params[self::P_LABEL_ATTR]) : null;
@@ -420,7 +420,7 @@ class Html
         elseif (isset($label_attr))
             $checkbox = "<div$label_attr>$checkbox</div>";
 
-        return sprintf($fmt, $checkbox);
+        return \sprintf($fmt, $checkbox);
     }
 
 
@@ -442,7 +442,7 @@ class Html
      */
     public static function encodeAttr($str)
     {
-        return htmlspecialchars($str, ENT_COMPAT, Nls::$charset);
+        return \htmlspecialchars($str, ENT_COMPAT, Nls::$charset);
     }
 
     /** translates special chars in the string to html entities, then converts newlines to &lt;br /&gt;.
@@ -453,23 +453,23 @@ class Html
     public static function encodeNl($str, $format=false)
     {
         if (! $format)
-            return nl2br(htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset));
+            return \nl2br(\htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset));
         else
-            return nl2br(preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u')
+            return \nl2br(\preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u')
                 , array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1')
-                , htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset)
+                , \htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset)
                 ));
     }
 
     /** html formatted email address
      * @param string $email email address
-     * @param int $width    max width of displayed string(0 == unrestricted)
+     * @param int $width    max width of displayed string (0 == unrestricted)
      * @return string
      */
     public static function asEmail($email, $width=0)
     {
-        return '<a href="mailto:'.htmlspecialchars($email, ENT_COMPAT, Nls::$charset).'">'
-            . htmlspecialchars(($width > 0 and strlen($email) > $width) ? substr_replace($email, '...', $width) : $email
+        return '<a href="mailto:'.\htmlspecialchars($email, ENT_COMPAT, Nls::$charset).'">'
+            . \htmlspecialchars(($width > 0 and \strlen($email) > $width) ? \substr_replace($email, '...', $width) : $email
                 , ENT_NOQUOTES
                 , Nls::$charset
                 )
@@ -484,9 +484,9 @@ class Html
      */
     public static function asUrl($url, $width=0)
     {
-        $href = strpos($url, ':') && preg_match('/^\w+:\/\//', $url) ? $url : "http://$url";
+        $href = \strpos($url, ':') && \preg_match('/^\w+:\/\//', $url) ? $url : "http://$url";
         return "<a href=\"$href\" target=\"_blank\">"
-            . htmlspecialchars(($width > 0 and strlen($url) > $width) ? substr_replace($url, '...', $width) : $url
+            . \htmlspecialchars(($width > 0 and \strlen($url) > $width) ? \substr_replace($url, '...', $width) : $url
                 , ENT_NOQUOTES
                 , Nls::$charset
                 )
@@ -494,13 +494,13 @@ class Html
             ;
     }
 
-    /** html formatted telephone number(whitespace replaced with &amp;nbsp;)
+    /** html formatted telephone number (whitespace replaced with &amp;nbsp;)
      * @param string $tel   telephone
      * @return string
      */
     public static function asTel($tel)
     {
-        return str_replace(array(' ', "\t"), '&nbsp;', htmlspecialchars($tel, ENT_NOQUOTES, Nls::$charset));
+        return \str_replace(array(' ', "\t"), '&nbsp;', \htmlspecialchars($tel, ENT_NOQUOTES, Nls::$charset));
     }
 
     /** integer value using specified thousands separator or Nls format if empty
@@ -512,8 +512,8 @@ class Html
         if (! isset($sep))
             $sep = Nls::$formats[Nls::P_THOUSANDS_CHAR];
         return $sep === ' '
-            ? str_replace(' ', '&nbsp;', number_format($i, 0, '', ' '))
-            : number_format($i, 0, '', $sep)
+            ? \str_replace(' ', '&nbsp;', \number_format($i, 0, '', ' '))
+            : \number_format($i, 0, '', $sep)
             ;
     }
 
@@ -524,7 +524,7 @@ class Html
      */
     public static function asNumCompact($num)
     {
-        return str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $num/100);
+        return \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $num/100);
     }
 
     /** value with thousands/decimal separators and 2 decimal places.
@@ -544,38 +544,38 @@ class Html
             // 2 or 0 decimal places
             $dec = $show_cents ? 2 : 0;
 
-        $value = number_format($cts/100, $dec, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]);
+        $value = \number_format($cts/100, $dec, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]);
 
         return Nls::$formats[Nls::P_MON_THOUSANDS_CHAR] === ' '
-            ? str_replace(' ', '&nbsp;', $value)
+            ? \str_replace(' ', '&nbsp;', $value)
             : $value
             ;
     }
 
     /** date representation as YYYY-MM-DD
-     * @param string $dt    YYYY-MM-DD representation of a date(YYYY-MM-DD HH:MM:SS
+     * @param string $dt    YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS
      *                      if $datetime set)
      * @param bool $datetime
      * @return string
      */
     public static function asDateRfc($dt, $datetime=null)
     {
-        if (strtotime($dt))
-            return $datetime ? str_replace(' ', 'T', $dt) : substr($dt, 0, 10);
+        if (\strtotime($dt))
+            return $datetime ? \str_replace(' ', 'T', $dt) : \substr($dt, 0, 10);
         else
             return '';
     }
 
     /** date representation in current Nls format.
-     * @param string $dt    YYYY-MM-DD representation of a date(YYYY-MM-DD HH:MM:SS
+     * @param string $dt    YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS
      *                      if $datetime set)
      * @param bool $datetime
      * @return string
      */
     public static function asDateNls($dt, $datetime=null)
     {
-        if ($tm = strtotime($dt))
-            return date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
+        if ($tm = \strtotime($dt))
+            return \date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
         else
             return '';
     }
@@ -587,7 +587,7 @@ class Html
      */
     public static function asAbbr($short, $long)
     {
-        return '<abbr title="'.htmlspecialchars($long, ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
+        return '<abbr title="'.\htmlspecialchars($long, ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
     }
 
     /** html representation of a list: 'On'
@@ -620,12 +620,12 @@ class Html
      */
     public static function asSet($value, $items, $delim=null)
     {
-        return ($set = array_flip(explode(',', $value)))
-            ? implode((isset($delim)
+        return ($set = \array_flip(explode(',', $value)))
+            ? \implode((isset($delim)
                     ? $delim
                     : Nls::$formats[Nls::P_LIST_DELIM_HTML]
                     ).' '
-                , array_intersect_key($items, $set)
+                , \array_intersect_key($items, $set)
                 )
             : ''
             ;

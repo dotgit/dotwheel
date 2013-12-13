@@ -61,16 +61,17 @@ class Request
     /** @var string next view to redirect on successful command execution, like '/dir/index.php' */
     public static $next;
 
-    /** @var array  list of elements(tables) with corresponding details, like {users:{CGI_SORT:'u_lastname,r'
+    /** @var array  list of elements (tables) with corresponding details,
+     *              like {users:{CGI_SORT:'u_lastname,r'
      *                  , CGI_FILTERS:{u_status:'online',u_lastname:'tref'}
      *                  , CGI_PAGE:2
      *                  }
      *              , roles:...
      *              }
      *              details per table come from the following request parameters:
-     *              - s(sort): s[users]=u_lastname,r
-     *              - f(filters): f[users][u_status]=online&f[users][u_lastname]=tref
-     *              - p(page): p[users]=2
+     *              - s (sort): s[users]=u_lastname,r
+     *              - f (filters): f[users][u_status]=online&f[users][u_lastname]=tref
+     *              - p (page): p[users]=2
      */
     public static $details = array();
 
@@ -108,51 +109,51 @@ class Request
             else
             {
                 // for json requests use HTTP_REFERER
-                $path = substr($_SERVER['HTTP_REFERER'], strpos($_SERVER['HTTP_REFERER'], '/', 8));    // first slash after https://...
-                if ($p = strpos($path, '?'))
-                    $path = substr($path, 0, $p);
+                $path = \substr($_SERVER['HTTP_REFERER'], \strpos($_SERVER['HTTP_REFERER'], '/', 8));    // first slash after https://...
+                if ($p = \strpos($path, '?'))
+                    $path = \substr($path, 0, $p);
             }
-            $level = substr_count($path, '/') - $root_level;
-            self::$root = str_repeat('../', $level);
+            $level = \substr_count($path, '/') - $root_level;
+            self::$root = \str_repeat('../', $level);
 
-            $dir = dirname($path);
+            $dir = \dirname($path);
             $modules = array();
             while ($level--)
             {
-                $modules[] = basename($dir);
-                $dir = dirname($dir);
+                $modules[] = \basename($dir);
+                $dir = \dirname($dir);
             }
             if (DIRECTORY_SEPARATOR == '\\')
-                $dir = strtr($dir, '\\', '/');
+                $dir = \strtr($dir, '\\', '/');
             self::$root_url = ($_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http')
                 . "://{$_SERVER['HTTP_HOST']}$dir"
-                . (substr($dir, -1) == '/' ? '' : '/')
+                . (\substr($dir, -1) == '/' ? '' : '/')
                 ;
             if ($modules)
-                self::$module = implode('/', array_reverse($modules));
+                self::$module = \implode('/', \array_reverse($modules));
         }
-        self::$controller = basename($_SERVER['SCRIPT_NAME'], '.php');
+        self::$controller = \basename($_SERVER['SCRIPT_NAME'], '.php');
         if (self::$module === 'cmd')
         {
             self::$module = '';
             self::$controller = 'cmd/'.self::$controller;
         }
-        elseif ($suffix = strrchr(self::$module, '/')
+        elseif ($suffix = \strrchr(self::$module, '/')
             and $suffix === '/cmd'
             )
         {
-            self::$module = substr(self::$module, 0, -4);
+            self::$module = \substr(self::$module, 0, -4);
             self::$controller = 'cmd/'.self::$controller;
         }
 
         // identify $next
-        self::$next = (! empty($_REQUEST[self::CGI_NEXT]) && is_scalar($_REQUEST[self::CGI_NEXT]))
-            ? ltrim(substr($_REQUEST[self::CGI_NEXT], 0, strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)), '/')
+        self::$next = (! empty($_REQUEST[self::CGI_NEXT]) && \is_scalar($_REQUEST[self::CGI_NEXT]))
+            ? \ltrim(\substr($_REQUEST[self::CGI_NEXT], 0, \strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)), '/')
             : ''
             ;
 
         // identify $details
-        if (! empty($_REQUEST[self::CGI_FILTERS]) and is_array($_REQUEST[self::CGI_FILTERS]))
+        if (! empty($_REQUEST[self::CGI_FILTERS]) and \is_array($_REQUEST[self::CGI_FILTERS]))
         {
             foreach ($_REQUEST[self::CGI_FILTERS] as $el=>$f)
                 if (isset(self::$details[self::CGI_FILTERS]))
@@ -160,7 +161,7 @@ class Request
                 else
                     self::$details[self::CGI_FILTERS] = array($el=>(array)$f);
         }
-        if (! empty($_REQUEST[self::CGI_SORT]) and is_array($_REQUEST[self::CGI_SORT]))
+        if (! empty($_REQUEST[self::CGI_SORT]) and \is_array($_REQUEST[self::CGI_SORT]))
         {
             foreach ($_REQUEST[self::CGI_SORT] as $el=>$s)
                 if (isset(self::$details[self::CGI_SORT]))
@@ -168,7 +169,7 @@ class Request
                 else
                     self::$details[self::CGI_SORT] = array($el=>(string)$s);
         }
-        if (! empty($_REQUEST[self::CGI_PAGE]) and is_array($_REQUEST[self::CGI_PAGE]))
+        if (! empty($_REQUEST[self::CGI_PAGE]) and \is_array($_REQUEST[self::CGI_PAGE]))
         {
             foreach ($_REQUEST[self::CGI_PAGE] as $el=>$p)
                 if ((int)$p)
@@ -201,7 +202,7 @@ class Request
      */
     public static function getHttpHeaders()
     {
-        return array_change_key_case(apache_request_headers(), CASE_LOWER);
+        return \array_change_key_case(\apache_request_headers(), CASE_LOWER);
     }
 
     /** check whether $sort_param exists as a key in $sort_cols and return the name and
@@ -220,9 +221,9 @@ class Request
         $sort_fld = isset(self::$details[self::CGI_SORT][$element_id]) ? self::$details[self::CGI_SORT][$element_id] : null;
         if (isset($sort_cols[$sort_fld]))
             $sort_rev = false;
-        elseif (isset($sort_cols[substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)]))
+        elseif (isset($sort_cols[\substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)]))
         {
-            $sort_fld = substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH);
+            $sort_fld = \substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH);
             $sort_rev = true;
         }
         else

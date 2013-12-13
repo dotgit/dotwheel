@@ -38,25 +38,25 @@ class Http
      */
     public static function post($url, $data, $headers=array())
     {
-        $data_url = http_build_query($data);
-        $data_len = strlen($data_url);
+        $data_url = \http_build_query($data);
+        $data_len = \strlen($data_url);
         $headers += array('Connection'=>'close'
             , 'Content-Length'=>$data_len
             , 'Content-Type'=>'application/x-www-form-urlencoded; charset="'.Nls::$charset.'"'
             );
-        array_walk($headers, function(&$v, $k) {$v = "$k: $v";});
+        \array_walk($headers, function(&$v, $k){$v = "$k: $v";});
 
-        $fgc = file_get_contents($url
+        $fgc = \file_get_contents($url
             , false
             , stream_context_create(array('http'=>array('method'=>'POST'
-                , 'header'=>implode("\r\n", $headers)
+                , 'header'=>\implode("\r\n", $headers)
                 , 'content'=>$data_url
                 , 'follow_location'=>false
                 )))
             );
 
         if ($fgc === false)
-            error_log(print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
+            \error_log(\print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
 
         return array('content'=>$fgc ?: null
             , 'headers'=>isset($http_response_header) ? $http_response_header : null
@@ -79,16 +79,16 @@ class Http
      */
     public static function postUpload($url, $data, $headers=array())
     {
-        $boundary = uniqid('', true);
+        $boundary = \uniqid('', true);
         $parts = array();
         foreach ($data as $name=>$value)
         {
-            if (is_array($value))
+            if (\is_array($value))
             {
                 if (isset($value['headers']))
                 {
                     $h = $value['headers'];
-                    array_walk($h, function(&$v, $k) {$v = "$k: $v\r\n";});
+                    \array_walk($h, function(&$v, $k){$v = "$k: $v\r\n";});
                 }
                 else
                     $h = array();
@@ -103,29 +103,29 @@ class Http
             }
 
             $parts[] = "--$boundary\r\n"
-                . "Content-Disposition: form-data; name=\"$name\"$filename\r\n".implode('', $h)."\r\n"
+                . "Content-Disposition: form-data; name=\"$name\"$filename\r\n".\implode('', $h)."\r\n"
                 . $content
                 ;
         }
-        $data_url = implode("\r\n", $parts)."\r\n--$boundary--";
-        $data_len = strlen($data_url);
+        $data_url = \implode("\r\n", $parts)."\r\n--$boundary--";
+        $data_len = \strlen($data_url);
         $headers += array('Connection'=>'close'
             , 'Content-Length'=>$data_len
             , 'Content-Type'=>"multipart/form-data; boundary=$boundary"
             );
-        array_walk($headers, function(&$v, $k) {$v = "$k: $v";});
+        \array_walk($headers, function(&$v, $k){$v = "$k: $v";});
 
-        $fgc = file_get_contents($url
+        $fgc = \file_get_contents($url
             , false
-            , stream_context_create(array('http'=>array('method'=>'POST'
-                , 'header'=>implode("\r\n", $headers)
+            , \stream_context_create(array('http'=>array('method'=>'POST'
+                , 'header'=>\implode("\r\n", $headers)
                 , 'content'=>$data_url
                 , 'follow_location'=>false
                 )))
             );
 
         if ($fgc === false)
-            error_log(print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
+            \error_log(\print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
 
         return array('content'=>$fgc ?: null
             , 'headers'=>isset($http_response_header) ? $http_response_header : null
@@ -133,7 +133,7 @@ class Http
     }
 
     /**
-     * @return string   the ip address of the client(together with that of proxy if used)
+     * @return string   the ip address of the client (together with that of proxy if used)
      */
     public static function remoteAddr()
     {
@@ -152,14 +152,14 @@ class Http
         if ($url_short = Cache::fetch("bit.ly:$url"))
             return $url_short;
 
-        if ($url_short = @file_get_contents('http://api.bit.ly/v3/shorten'
+        if ($url_short = @\file_get_contents('http://api.bit.ly/v3/shorten'
             . "?login=$login"
             . "&apiKey=$key"
             . "&uri=$url"
             . '&format=txt'
             ))
         {
-            $u = urlencode($url_short);
+            $u = \urlencode($url_short);
             Cache::store("bit.ly:$url", $u);
             return $u;
         }

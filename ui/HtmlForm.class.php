@@ -69,7 +69,7 @@ class HtmlForm
      *                                  , d.t.a. (for field)
      *                                  }
      *                              , 0:'field content string', ...
-     *                              , div tag attributes(for row)
+     *                              , div tag attributes (for row)
      *                              }
      *                          , 1:{0:{FIELD_REQUIRED:...
      *                                  , FIELD_LABEL:...
@@ -97,12 +97,12 @@ class HtmlForm
 
         foreach (Params::extract($params, self::P_SETS, array()) as $set)
         {
-            if (is_array($set))
+            if (\is_array($set))
             {
                 // fieldset legend
                 if (isset($set[self::SET_LEGEND]))
                 {
-                    if (is_array($set[self::SET_LEGEND]))
+                    if (\is_array($set[self::SET_LEGEND]))
                     {
                         $legend = $set[self::SET_LEGEND][self::SET_LEGEND_CONTENT];
                         unset($set[self::SET_LEGEND][self::SET_LEGEND_CONTENT]);
@@ -125,15 +125,15 @@ class HtmlForm
                 {
                     $columns = array();
                     // row is an array of fields
-                    if (is_array($row))
+                    if (\is_array($row))
                     {
                         $with_next_buffer = null;
                         foreach ($row as $fld=>$f)
                         {
                             // $f is an array of field params
-                            if (is_array($f))
+                            if (\is_array($f))
                             {
-                                if (is_int($fld))
+                                if (\is_int($fld))
                                     $fld = null;
 
                                 // field edit mode
@@ -172,7 +172,7 @@ class HtmlForm
                                 unset($row[$fld]);
                             }
                             // $f is a content string
-                            elseif (is_int($fld))
+                            elseif (\is_int($fld))
                             {
                                 $columns[] = array(Ui::P_WIDTH=>Ui::WIDTH_1, Ui::P_CONTENT=>$f);
                                 unset($row[$fld]);
@@ -183,7 +183,7 @@ class HtmlForm
                         unset($set[$rkey]);
                     }
                     // $row is a content string
-                    elseif (is_int($rkey))
+                    elseif (\is_int($rkey))
                     {
                         $columns[] = $row;
                         $rargs = array();
@@ -195,10 +195,10 @@ class HtmlForm
 
                     $rows[] = Ui::gridRow($columns + $rargs);
                 }
-                $sets[] = sprintf("<fieldset%s>%s%s</fieldset>\n"
+                $sets[] = \sprintf("<fieldset%s>%s%s</fieldset>\n"
                     , Html::attr($set)
                     , $legend
-                    , implode("\n", $rows)
+                    , \implode("\n", $rows)
                     );
             }
             elseif ($set)
@@ -216,7 +216,7 @@ class HtmlForm
 
             $pre = '<form'.Html::attr($params).">";
             foreach ($hidden as $n=>$v)
-                $pre .= "<input type=\"hidden\" name=\"$n\" value=\"".Html::encodeAttr(trim($v)).'">';
+                $pre .= "<input type=\"hidden\" name=\"$n\" value=\"".Html::encodeAttr(\trim($v)).'">';
             $post = '</form>';
         }
         else
@@ -225,7 +225,7 @@ class HtmlForm
             $post = '';
         }
 
-        return $pre . implode('', $sets) . $post;
+        return $pre . \implode('', $sets) . $post;
     }
 
     /** html presentation of a field
@@ -247,7 +247,7 @@ class HtmlForm
             : ''
             ;
         if ($comment = Params::extract($params, self::FIELD_COMMENT))
-            $comment = sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
+            $comment = \sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
         $fmt = Params::extract($params, self::FIELD_FMT);
         $content = (isset($params[self::FIELD_CONTENT])
             ? $params[self::FIELD_CONTENT]
@@ -258,7 +258,7 @@ class HtmlForm
             ) . $comment
             ;
 
-        return $fmt ? sprintf($fmt, "$label_str$content") : "$label_str$content";
+        return $fmt ? \sprintf($fmt, "$label_str$content") : "$label_str$content";
     }
 
     /** html presentation of a field in input form
@@ -298,7 +298,7 @@ class HtmlForm
             : ''
             ;
         if ($comment = Params::extract($params, self::FIELD_COMMENT))
-            $comment = sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
+            $comment = \sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
         $fmt = Params::extract($params, self::FIELD_FMT);
         $content = Repo::asHtmlInput($field
                 , isset($params[self::FIELD_VALUE]) ? $params[self::FIELD_VALUE] : null
@@ -308,6 +308,6 @@ class HtmlForm
             . $comment
             ;
 
-        return $fmt ? sprintf($fmt, "$label_str$content") : "$label_str$content";
+        return $fmt ? \sprintf($fmt, "$label_str$content") : "$label_str$content";
     }
 }

@@ -16,7 +16,7 @@ use dotwheel\util\Nls;
 
 class Response
 {
-    /** @var string request name(used as page title etc.) */
+    /** @var string request name (used as page title etc.) */
     public static $name = '';
     /** @var string request page description */
     public static $description;
@@ -36,9 +36,9 @@ class Response
      */
     public static function addError($msg, $html=false)
     {
-        if (is_array($msg))
-            static::$errors = array_merge(static::$errors
-                , $html ? $msg : array_map('dotwheel\ui\Html::encode', $msg)
+        if (\is_array($msg))
+            static::$errors = \array_merge(static::$errors
+                , $html ? $msg : \array_map('dotwheel\ui\Html::encode', $msg)
                 );
         else
             static::$errors[] = $html ? $msg : Html::encode($msg);
@@ -54,7 +54,7 @@ class Response
         {
         case Request::OUT_HTML:
         case Request::OUT_CMD:
-            header('HTTP/1.1 400 Application Error');
+            \header('HTTP/1.1 400 Application Error');
             static::outputHtmlError($msg);
             break;
         case Request::OUT_JSON:
@@ -71,7 +71,7 @@ class Response
     {
         static::outputHtml('<section><h1>'.Html::encode($msg).'</h1>'
             . (static::$errors
-                ? ('<ul><li>'.implode('</li><li>', static::$errors).'</li></ul>')
+                ? ('<ul><li>'.\implode('</li><li>', static::$errors).'</li></ul>')
                 : ''
                 )
             . '</section>'
@@ -90,7 +90,7 @@ class Response
     /** error message on asis page */
     public static function outputAsisError($msg=null)
     {
-        static::outputAsis(Html::encode($msg)."\n".implode("\n", static::$errors));
+        static::outputAsis(Html::encode($msg)."\n".\implode("\n", static::$errors));
     }
 
     /** sets page name, checks request parameters and user access rights, loads
@@ -106,7 +106,7 @@ class Response
     /** error message on context inavailability */
     public static function outputErrorInit()
     {
-        static::outputError(dgettext(Nls::FW_DOMAIN, 'Input verification error'));
+        static::outputError(\dgettext(Nls::FW_DOMAIN, 'Input verification error'));
     }
 
     /** executes the requested operation
@@ -125,7 +125,7 @@ class Response
     /** error message on execution fault */
     public static function outputErrorExec()
     {
-        static::outputError(dgettext(Nls::FW_DOMAIN, 'Command execution error'));
+        static::outputError(\dgettext(Nls::FW_DOMAIN, 'Command execution error'));
     }
 
     /** select an output method based on request arguments and pass result to it
@@ -155,8 +155,8 @@ class Response
      */
     public static function outputHtml($html)
     {
-        header('Content-Language: '.Nls::$lang);
-        header('Content-Type: text/html;charset='.Nls::$charset);
+        \header('Content-Language: '.Nls::$lang);
+        \header('Content-Type: text/html;charset='.Nls::$charset);
 
         HtmlPage::add(array(HtmlPage::TITLE=>static::$name));
         if (isset(static::$description))
@@ -176,9 +176,9 @@ class Response
     public static function outputCmd($redirect)
     {
         if ($redirect === true)
-            header('Location: '.Http::getRedirect(Request::$next, static::$url_params, static::$url_hash));
-        elseif (is_string($redirect))
-            header("Location: $redirect");
+            \header('Location: '.Http::getRedirect(Request::$next, static::$url_params, static::$url_hash));
+        elseif (\is_string($redirect))
+            \header("Location: $redirect");
     }
 
     /** produce and output the result array in json format
@@ -186,10 +186,10 @@ class Response
      */
     public static function outputJson($result)
     {
-        header('Content-Type: application/json;charset='.Nls::$charset);
+        \header('Content-Type: application/json;charset='.Nls::$charset);
         echo ($result === true)
-            ? json_encode(Http::getRedirect(Request::$next, static::$url_params, static::$url_hash))
-            : json_encode($result, JSON_UNESCAPED_UNICODE)
+            ? \json_encode(Http::getRedirect(Request::$next, static::$url_params, static::$url_hash))
+            : \json_encode($result, JSON_UNESCAPED_UNICODE)
             ;
     }
 

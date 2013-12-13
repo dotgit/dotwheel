@@ -20,11 +20,11 @@ class Params
      */
     public static function add(&$params, $value, $name='class', $sep=' ')
     {
-        if (! is_array($params))
+        if (! \is_array($params))
             $params = array($name=>$value);
         elseif (empty($params[$name]))
             $params[$name] = $value;
-        elseif (strpos("$sep{$params[$name]}$sep", "$sep$value$sep") === false)
+        elseif (\strpos("$sep{$params[$name]}$sep", "$sep$value$sep") === false)
             $params[$name] .= "$sep$value";
     }
 
@@ -36,7 +36,7 @@ class Params
      */
     public static function extract(&$params, $name, $default=null)
     {
-        if (! is_array($params) or ! array_key_exists($name, $params))
+        if (! \is_array($params) or ! \array_key_exists($name, $params))
             return $default;
 
         $ret = $params[$name];

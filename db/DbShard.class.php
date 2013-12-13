@@ -102,6 +102,6 @@ class DbShard extends Db
      */
     public static function selectHost($hosts)
     {
-        return $hosts[array_rand($hosts)];
+        return $hosts[\array_rand($hosts)];
     }
 }

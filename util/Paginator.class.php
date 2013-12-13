@@ -36,18 +36,18 @@ class Paginator
             return array();
 
         if ($last_page <= $slots)
-            return range(1, $last_page);
+            return \range(1, $last_page);
 
-        if(abs($range) < $slots)
-            return range ($active_page, min($last_page, $active_page + $slots - 1));
+        if (\abs($range) < $slots)
+            return \range($active_page, \min($last_page, $active_page + $slots - 1));
 
         $d = 1;
-        if($active_page > 1)
+        if ($active_page > 1)
             $ret = array(1, $active_page);
         else
             $ret = array(1);
 
-        for($i = count($ret); $i < $slots; ++$i)
+        for ($i = \count($ret); $i < $slots; ++$i)
         {
             $ret[$i] = $active_page + $d;
             $d <<= 1;
@@ -79,9 +79,9 @@ class Paginator
             $active_page = $last_page;
 
         $first_in_block = (int)(($active_page - 1)/$slots)*$slots + 1;
-        $last_in_block = min($first_in_block + $slots - 1, $last_page);
+        $last_in_block = \min($first_in_block + $slots - 1, $last_page);
 
-        return range($first_in_block, $last_in_block);
+        return \range($first_in_block, $last_in_block);
     }
 
     /** use inversed logarithmic scale for big page sets
@@ -101,7 +101,7 @@ class Paginator
             return array();
 
         if ($last_page <= $slots)
-            return range(1, $last_page);
+            return \range(1, $last_page);
 
         if ($active_page < 1)
             $active_page = 1;
@@ -135,7 +135,7 @@ class Paginator
             $empty_slots = $slots - 5;
             if ($lp)
             {
-                $l = (int)round($active_page/$last_page*$empty_slots);
+                $l = (int)\round($active_page/$last_page*$empty_slots);
                 if ($l == 0)
                     $l = 1;
                 elseif ($l > $lp)
@@ -154,7 +154,7 @@ class Paginator
         $ret = array (1);
         // left slots (linear)
         if ($l)
-            $ret = array_merge($ret, range($active_page - $l - 1, $active_page - 2));
+            $ret = \array_merge($ret, \range($active_page - $l - 1, $active_page - 2));
         // previous page
         if ($active_page > 2)
             $ret[] = $active_page - 1;
@@ -166,7 +166,7 @@ class Paginator
             $ret[] = $active_page + 1;
         // right slots (linear)
         if ($r)
-            $ret = array_merge($ret, range($active_page + 2, $active_page + $r + 1));
+            $ret = \array_merge($ret, \range($active_page + 2, $active_page + $r + 1));
         // last page
         $ret[] = $last_page;
 

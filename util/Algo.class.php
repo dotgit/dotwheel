@@ -22,10 +22,10 @@ class Algo
     public static function luhn($num_str)
     {
         $str = '';
-        foreach (array_reverse(str_split($num_str)) as $i=>$c)
+        foreach (\array_reverse(\str_split($num_str)) as $i=>$c)
             $str .= ($i % 2 ? $c * 2 : $c );
 
-        return array_sum(str_split($str)) % 10 == 0;
+        return \array_sum(str_split($str)) % 10 == 0;
     }
 
     /** tests the string has a valid mod97 checksum. used for IBAN and VAT checks.
@@ -38,7 +38,7 @@ class Algo
     {
         $ai = 1;
         $sum = 0;
-        $len = strlen($num_str);
+        $len = \strlen($num_str);
         for ($i = 0; $i < $len; ++$i)
         {
             $sum += ($num_str[$len-$i-1] * $ai);

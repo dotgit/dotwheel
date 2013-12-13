@@ -117,7 +117,7 @@ class BootstrapUi
         }
         if ($close = Params::extract($params, self::P_CLOSE))
         {
-            if (is_array($close))
+            if (\is_array($close))
                 Params::add($close, 'alert', 'data-dismiss');
             else
                 $close = array('data-dismiss'=>'alert');
@@ -143,7 +143,7 @@ class BootstrapUi
      */
     public static function asComment($comment)
     {
-        if(is_array($comment))
+        if(\is_array($comment))
         {
             $c = Params::extract($comment, self::P_CONTENT);
             Params::add($comment, 'help-block');
@@ -163,7 +163,7 @@ class BootstrapUi
      */
     public static function asFormGroupLine($control)
     {
-        if(is_array($control))
+        if (\is_array($control))
         {
             $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
             if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_4))
@@ -200,7 +200,7 @@ class BootstrapUi
      */
     public static function asFormGroup($control)
     {
-        if(is_array($control))
+        if (\is_array($control))
         {
             $l = Params::extract($control, self::P_LABEL);
             $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
@@ -251,7 +251,7 @@ class BootstrapUi
         $items = array();
         foreach ($params as $k=>$item)
         {
-            if (is_array($item))
+            if (\is_array($item))
             {
                 $target = Params::extract($item, self::P_TARGET);
                 $label = Params::extract($item, self::P_LABEL);
@@ -269,7 +269,7 @@ class BootstrapUi
         }
         Params::add($params, 'breadcrumb');
 
-        return '<ul'.Html::attr($params).'>'.implode('', $items).'</ul>';
+        return '<ul'.Html::attr($params).'>'.\implode('', $items).'</ul>';
     }
 
     /** get button element
@@ -298,7 +298,7 @@ class BootstrapUi
         return '<button'.Html::attr($params).">&times;</button>";
     }
 
-    /** returns collapsed container(hidden by default)
+    /** returns collapsed container (hidden by default)
      * @param array $params {P_CONTENT:'content body'
      *                      , container tag attributes
      *                      }
@@ -407,9 +407,9 @@ EOco
         Params::add($params, 'dropdown-menu');
         Params::add($params, 'menu', 'role');
         return '<ul'.Html::attr($params).'>'
-            . implode('', array_map(function($item){if (isset($item))
+            . \implode('', \array_map(function($item){if (isset($item))
                 {
-                    if (is_array($item))
+                    if (\is_array($item))
                     {
                         $label = Params::extract($item, self::P_LABEL);
                         Params::add($item, 'presentatoion', 'role');
@@ -444,7 +444,7 @@ EOco
     {
         if ($prefix = Params::extract($ui, self::P_PREFIX))
         {
-            if (is_array($prefix))
+            if (\is_array($prefix))
             {
                 $cnt = Params::extract($prefix, self::P_CONTENT);
                 $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
@@ -457,7 +457,7 @@ EOco
 
         if ($suffix = Params::extract($ui, self::P_SUFFIX))
         {
-            if (is_array($suffix))
+            if (\is_array($suffix))
             {
                 $cnt = Params::extract($suffix, self::P_CONTENT);
                 $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
@@ -488,7 +488,7 @@ EOco
     {
         $fld_count = 0;
         foreach ($columns as $k=>$col)
-            if (is_array($col) or is_int($k))
+            if (\is_array($col) or \is_int($k))
                 ++$fld_count;
         switch ($fld_count)
         {
@@ -503,7 +503,7 @@ EOco
         $cols = array();
         foreach ($columns as $k=>$col)
         {
-            if (is_array($col))
+            if (\is_array($col))
             {
                 if ($width = Params::extract($col, self::P_WIDTH, $width_default))
                     $col = static::width2Attr($width, $col);
@@ -511,7 +511,7 @@ EOco
                 $cols[] = '<div'.Html::attr($col).'>'.$content.'</div>';
                 unset($columns[$k]);
             }
-            elseif (is_int($k))
+            elseif (\is_int($k))
             {
                 $attr = static::width2Attr($width_default);
                 $cols[] = '<div'.Html::attr($attr).'>'.$col.'</div>';
@@ -520,7 +520,7 @@ EOco
         }
         Params::add($columns, 'row');
 
-        return '<div'.Html::attr($columns).'>'.implode('', $cols).'</div>';
+        return '<div'.Html::attr($columns).'>'.\implode('', $cols).'</div>';
     }
 
     /** get icon html
@@ -564,7 +564,7 @@ EOco
         Params::add($params, 'true', 'aria-hidden');
         Params::add($params, 'true', 'data-keyboard');
 
-        if (is_array($close))
+        if (\is_array($close))
             Params::add($close, 'modal', 'data-dismiss');
         else
             $close = array('data-dismiss'=>'modal');
@@ -603,7 +603,7 @@ EOco
         self::registerTab();
 
         Params::add($params, 'nav');
-        if (strpos($params['class'], 'nav-pills') === false)
+        if (\strpos($params['class'], 'nav-pills') === false)
         {
             Params::add($params, 'nav-tabs');
             $toggle = 'tab';
@@ -615,7 +615,7 @@ EOco
         $panes = array();
         foreach ($items as $k=>$item)
         {
-            if (is_array($item))
+            if (\is_array($item))
             {
                 $label = Params::extract($item, self::P_LABEL);
                 $content = Params::extract($item, self::P_CONTENT);
@@ -646,9 +646,9 @@ EOco
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        return '<ul'.Html::attr($params).">$prefix".implode('', $labels)."$suffix</ul>"
+        return '<ul'.Html::attr($params).">$prefix".\implode('', $labels)."$suffix</ul>"
             . ($panes
-                ? ('<div class="tab-content">'.implode('', $panes).'</div>')
+                ? ('<div class="tab-content">'.\implode('', $panes).'</div>')
                 : ''
                 )
             ;
@@ -673,38 +673,38 @@ EOco
             return null;
 
         $ret = array ();
-        $tail = count($pages) - 1;
+        $tail = \count($pages) - 1;
 
         if ($pages[0] > 1)
         {
             $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.sprintf($link_1, 1).'">1</a>'
+                . '<a class="btn" href="'.\sprintf($link_1, 1).'">1</a>'
                 . '</div>'
                 ;
             $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.sprintf($link_1, $pages[0] - 1).'">&larr; '.($pages[0] - 1).'</a>'
+                . '<a class="btn" href="'.\sprintf($link_1, $pages[0] - 1).'">&larr; '.($pages[0] - 1).'</a>'
                 . '</div>'
                 ;
         }
 
         $ret[] = '<div class="btn-group">';
         foreach ($pages as $p)
-            $ret[] = '<a class="btn'.($p == $active_page ? ' active' : '').'" href="'.sprintf($link_1, $p).'">'.$p.'</a>';
+            $ret[] = '<a class="btn'.($p == $active_page ? ' active' : '').'" href="'.\sprintf($link_1, $p).'">'.$p.'</a>';
         $ret[] = '</div>';
 
         if ($pages[$tail] < $last_page)
         {
             $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.sprintf($link_1, $pages[$tail] + 1).'">'.($pages[$tail] + 1).' &rarr;</a>'
+                . '<a class="btn" href="'.\sprintf($link_1, $pages[$tail] + 1).'">'.($pages[$tail] + 1).' &rarr;</a>'
                 . '</div>'
                 ;
             $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.sprintf($link_1, $last_page).'">'.$last_page.'</a>'
+                . '<a class="btn" href="'.\sprintf($link_1, $last_page).'">'.$last_page.'</a>'
                 . '</div>'
                 ;
         }
 
-        return implode('', $ret);
+        return \implode('', $ret);
     }
 
     /** html-formatted bootstrap pagination
@@ -725,19 +725,19 @@ EOco
 
         $s = array('<ul>');
         if ($active_page > 1)
-            $s[] = '<li><a href="'.sprintf($link_1, $active_page - 1).'">&larr;</a></li>';
+            $s[] = '<li><a href="'.\sprintf($link_1, $active_page - 1).'">&larr;</a></li>';
         foreach ($pages as $n)
         {
             if ($n == $active_page)
                 $s[] = '<li class="active"><span>'.$n.'</span></li>';
             else
-                $s[] = '<li><a href="'.sprintf($link_1, $n).'">'.$n.'</a></li>';
+                $s[] = '<li><a href="'.\sprintf($link_1, $n).'">'.$n.'</a></li>';
         }
         if ($active_page < $n)
-            $s[] = '<li><a href="'.sprintf($link_1, $active_page + 1).'">&rarr;</a></li>';
+            $s[] = '<li><a href="'.\sprintf($link_1, $active_page + 1).'">&rarr;</a></li>';
         $s[] = '</ul>';
 
-        return implode('', $s);
+        return \implode('', $s);
     }
 
     /** returns the panel html code
@@ -768,7 +768,7 @@ EOco
         Params::add($params, 'panel');
         Params::add($params, 'panel-default');
 
-        return '<div'.Html::attr($params).'>'.$heading.sprintf($fmt, $prefix.$content.$suffix.$footer).'</div>';
+        return '<div'.Html::attr($params).'>'.$heading.\sprintf($fmt, $prefix.$content.$suffix.$footer).'</div>';
     }
 
     /** returns the popover html code
@@ -786,7 +786,7 @@ EOco
 
         if ($close = Params::extract($params, self::P_CLOSE))
         {
-            if (is_array($close))
+            if (\is_array($close))
                 Params::add($close, 'popover', 'data-dismiss');
             else
                 $close = array('data-dismiss'=>'popover');
@@ -869,9 +869,9 @@ EOco
      */
     public static function width2Attr($width, $attrs=array())
     {
-        if (is_int($width))
+        if (\is_int($width))
             Params::add($attrs, "col-sm-{$width}");
-        elseif (is_array($width))
+        elseif (\is_array($width))
             foreach ($width as $mode=>$w)
                 Params::add($attrs, "col-$mode-$w");
         elseif (isset($width))
@@ -889,7 +889,7 @@ EOco
      */
     public static function widthOffset2Attr($width, $attrs=array())
     {
-        if (is_int($width))
+        if (\is_int($width))
             Params::add($attrs, "col-sm-offset-{$width}");
         else
             Params::add($attrs, "margin-left:{$width};", 'style', '');
