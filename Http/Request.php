@@ -8,9 +8,9 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\http;
+namespace Dotwheel\Http;
 
-use dotwheel\util\Params;
+use Dotwheel\Util\Params;
 
 class Request
 {

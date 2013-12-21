@@ -8,11 +8,11 @@ repository management.
 @author stas trefilov
 */
 
-namespace dotwheel\db;
+namespace Dotwheel\Db;
 
-use dotwheel\ui\Html;
-use dotwheel\util\Misc;
-use dotwheel\util\Nls;
+use Dotwheel\Ui\Html;
+use Dotwheel\Util\Misc;
+use Dotwheel\Util\Nls;
 
 class Repo
 {

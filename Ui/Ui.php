@@ -8,7 +8,7 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
 class Ui extends BootstrapUi
 {

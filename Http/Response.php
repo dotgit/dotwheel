@@ -8,11 +8,11 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\http;
+namespace Dotwheel\Http;
 
-use dotwheel\ui\Html;
-use dotwheel\ui\HtmlPage;
-use dotwheel\util\Nls;
+use Dotwheel\Ui\Html;
+use Dotwheel\Ui\HtmlPage;
+use Dotwheel\Util\Nls;
 
 class Response
 {

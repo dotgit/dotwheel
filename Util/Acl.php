@@ -8,7 +8,7 @@ permissions management.
 @author stas trefilov
 */
 
-namespace dotwheel\util;
+namespace Dotwheel\Util;
 
 class Acl
 {

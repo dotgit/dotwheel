@@ -8,11 +8,11 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
-use dotwheel\db\Repo;
-use dotwheel\util\Misc;
-use dotwheel\util\Params;
+use Dotwheel\Db\Repo;
+use Dotwheel\Util\Misc;
+use Dotwheel\Util\Params;
 
 class HtmlForm
 {

@@ -12,7 +12,7 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\util;
+namespace Dotwheel\Util;
 
 class CacheBase
 {

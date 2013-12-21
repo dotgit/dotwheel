@@ -8,9 +8,9 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\db;
+namespace Dotwheel\Db;
 
-use dotwheel\util\Params;
+use Dotwheel\Util\Params;
 
 class DbShard extends Db
 {

@@ -8,11 +8,11 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\http;
+namespace Dotwheel\Http;
 
-use dotwheel\ui\Html;
-use dotwheel\util\Cache;
-use dotwheel\util\Nls;
+use Dotwheel\Ui\Html;
+use Dotwheel\Util\Cache;
+use Dotwheel\Util\Nls;
 
 class Http
 {

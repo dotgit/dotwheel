@@ -14,10 +14,10 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
-use dotwheel\util\Nls;
-use dotwheel\util\Params;
+use Dotwheel\Util\Nls;
+use Dotwheel\Util\Params;
 
 class Html
 {

@@ -8,7 +8,7 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\db;
+namespace Dotwheel\Db;
 
 class Db
 {

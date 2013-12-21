@@ -6,10 +6,10 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
-use dotwheel\util\Misc;
-use dotwheel\util\Params;
+use Dotwheel\Util\Misc;
+use Dotwheel\Util\Params;
 
 class BootstrapUi
 {

@@ -8,12 +8,12 @@ handles html form display, list of required fields etc.
 @author stas trefilov
 */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
-use dotwheel\db\Repo;
-use dotwheel\http\Request;
-use dotwheel\util\Nls;
-use dotwheel\util\Params;
+use Dotwheel\Db\Repo;
+use Dotwheel\Http\Request;
+use Dotwheel\Util\Nls;
+use Dotwheel\Util\Params;
 
 class HtmlTable
 {

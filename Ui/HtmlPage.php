@@ -9,7 +9,7 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\ui;
+namespace Dotwheel\Ui;
 
 class HtmlPage
 {

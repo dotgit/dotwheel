@@ -8,7 +8,7 @@
  * @author stas trefilov
  */
 
-namespace dotwheel\util;
+namespace Dotwheel\Util;
 
 class Nls
 {
@@ -190,7 +190,7 @@ class Nls
 
         // gettext configuration
         \putenv('LANGUAGE='.self::$lang);
-        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
+        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../Locale');
         \bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
         \bindtextdomain($app_domain, $app_dir);
         \bind_textdomain_codeset($app_domain, self::$charset);
