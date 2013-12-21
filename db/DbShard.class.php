@@ -10,7 +10,6 @@
 
 namespace dotwheel\db;
 
-use dotwheel\db\Db;
 use dotwheel\util\Params;
 
 class DbShard extends Db

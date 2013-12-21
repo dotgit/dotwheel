@@ -8,8 +8,6 @@
 
 namespace dotwheel\ui;
 
-use dotwheel\ui\Html;
-use dotwheel\ui\HtmlPage;
 use dotwheel\util\Misc;
 use dotwheel\util\Params;
 

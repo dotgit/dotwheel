@@ -10,8 +10,6 @@
 
 namespace dotwheel\db;
 
-use dotwheel\db\Db;
-
 class Db2
 {
     const P_TABLE       = 1;
