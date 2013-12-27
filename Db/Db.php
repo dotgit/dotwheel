@@ -248,13 +248,14 @@ class Db
         if ($stmt = \mysqli_prepare(self::$conn, $sql)
             and \call_user_func_array(
                 'mysqli_stmt_bind_param',
-                \array_merge(array($stmt, $types), \array_map(function(&$el){return $el;}, $params))
+                \array_merge(array($stmt, $types), \array_map(function (&$el) {return $el;}, $params))
             )
             and \mysqli_stmt_execute($stmt)
         )
         {
             $res = \mysqli_stmt_affected_rows($stmt);
             \mysqli_stmt_close($stmt);
+
             return $res;
         }
         else
@@ -266,6 +267,7 @@ class Db
             }
             else
                 $err = \mysqli_error(self::$conn);
+
             \error_log('['.__METHOD__."] $err; SQL: $sql; TYPES: $types; PARAMS: ".\json_encode($params));
             return false;
         }
@@ -348,12 +350,9 @@ class Db
     public static function escapeIntCsv($values)
     {
         if (\is_array($values))
-        {
             return ($res = \array_filter($values))
                 ? \implode(',', \array_map('intval', $res))
-                : 'NULL'
-                ;
-        }
+                : 'NULL';
         elseif (isset($values))
             return (int)$values;
         else
