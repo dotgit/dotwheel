@@ -40,6 +40,8 @@ class Html
 
     const T_ARRAY   = 1;
 
+
+
     /** Html attributes */
 
     /** returns html tag attributes
@@ -92,9 +94,14 @@ class Html
             foreach ($colgroup as &$col)
             {
                 if ($align = Params::extract($col, 'align'))
-                    HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k)."{text-align:$align;}"
-                        . "table#$id th:first-child".\str_repeat(' + th', $k)."{text-align:$align;}"
-                        )));
+                    HtmlPage::add(array(
+                        HtmlPage::STYLE=>array(
+                            __METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k).
+                                "{text-align:$align;}".
+                                "table#$id th:first-child".\str_repeat(' + th', $k).
+                                "{text-align:$align;}"
+                        )
+                    ));
                 ++$k;
             }
             $colgroup = self::colgroup($colgroup);
@@ -117,13 +124,15 @@ class Html
      */
     public static function thead($params)
     {
-        return '<thead>'
-            . (($prefix = Params::extract($params, self::P_PREFIX))
-                ? self::tr(array(self::P_VALUES=>array($prefix), self::P_TD_ATTR=>array('colspan'=>\count($params[self::P_VALUES]))))
+        return '<thead>'.
+            (($prefix = Params::extract($params, self::P_PREFIX))
+                ? self::tr(array(
+                    self::P_VALUES=>array($prefix),
+                    self::P_TD_ATTR=>array('colspan'=>\count($params[self::P_VALUES]))
+                ))
                 : ''
-                )
-            . self::tr($params + array(self::P_TAG=>'th'))
-            ;
+            ).
+            self::tr($params + array(self::P_TAG=>'th'));
     }
 
     /** returns table columns description implemented with COLGROUP construct
@@ -132,7 +141,9 @@ class Html
      */
     public static function colgroup($cols)
     {
-        return '<colgroup><col'.\implode('><col', \array_map(function($at){return Html::attr($at);}, $cols))."></colgroup>\n";
+        return '<colgroup><col'.
+            \implode('><col', \array_map(function ($at) {return Html::attr($at);}, $cols)).
+            "></colgroup>\n";
     }
 
     /** returns table row with a set of TD or TH cells
@@ -151,7 +162,9 @@ class Html
 
         if (isset($params[self::P_TD_ATTR]))
             foreach ($params[self::P_VALUES] as $k=>$v)
-                $res .= "<$tag".(isset($params[self::P_TD_ATTR][$k]) ? self::attr($params[self::P_TD_ATTR][$k]) : '').">$v</$tag>";
+                $res .= "<$tag".
+                    (isset($params[self::P_TD_ATTR][$k]) ? self::attr($params[self::P_TD_ATTR][$k]) : '').
+                    ">$v</$tag>";
         else
             foreach ($params[self::P_VALUES] as $v)
                 $res .= "<$tag>$v</$tag>";
@@ -236,10 +249,13 @@ class Html
     {
         $datetime = Params::extract($params, self::P_DATETIME);
         if (! empty($params['value']))
-            $params['value'] = (empty($params['type']) or $params['type']=='date' or $params['type']=='datetime' or $params['type']=='datetime-local')
+            $params['value'] = (empty($params['type'])
+                or $params['type']=='date'
+                or $params['type']=='datetime'
+                or $params['type']=='datetime-local'
+            )
                 ? self::asDateRfc($params['value'], $datetime)
-                : self::asDateNls($params['value'], $datetime)
-                ;
+                : self::asDateNls($params['value'], $datetime);
 
         return self::input($params + array('type'=>'date', 'maxlength'=>20));
     }
@@ -264,8 +280,7 @@ class Html
         if (($blank = Params::extract($params, self::P_BLANK)) !== null)
             $items[] = \strlen($blank)
                 ? ('<option value="">'.self::encode($blank)."</option>")
-                : "<option></option>"
-                ;
+                : "<option></option>";
 
         switch (Params::extract($params, self::P_TYPE))
         {
@@ -275,8 +290,7 @@ class Html
                 list($k, $v) = $arr;
                 $items[] = ($k == $value && ! empty($k))
                     ? "<option value=\"$k\" selected=\"on\">$v</option>"
-                    : "<option value=\"$k\">$v</option>"
-                    ;
+                    : "<option value=\"$k\">$v</option>";
             }
             break;
 
@@ -285,8 +299,7 @@ class Html
             {
                 $items[] = ($k == $value && ! empty($k))
                     ? "<option value=\"$k\" selected=\"on\">$v</option>"
-                    : "<option value=\"$k\">$v</option>"
-                    ;
+                    : "<option value=\"$k\">$v</option>";
             }
         }
         $attr = self::attr($params);
@@ -331,11 +344,12 @@ class Html
         $items = array();
         foreach (Params::extract($params, self::P_ITEMS) as $k=>$v)
         {
-            $items[] = self::inputCheckbox(array('name'=>"{$name}[$k]"
-                , 'checked'=>isset($value[$k]) ? 'on' : null
-                , 'value'=>$k
-                , self::P_LABEL=>$v
-                ) + $params);
+            $items[] = self::inputCheckbox(array(
+                'name'=>"{$name}[$k]",
+                'checked'=>isset($value[$k]) ? 'on' : null,
+                'value'=>$k,
+                self::P_LABEL=>$v
+            ) + $params);
         }
 
         return $item_prefix.\implode($delim, $items).$item_suffix;
@@ -376,10 +390,14 @@ class Html
             foreach (Params::extract($params, self::P_ITEMS, array()) as $line)
             {
                 list($k, $v) = $line;
-                $item = "<label$label_attr><input"
-                    . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
-                    . ">$v</label>"
-                    ;
+                $item = "<label$label_attr><input".
+                    self::attr(array(
+                        'type'=>'radio',
+                        'name'=>$name,
+                        'value'=>$k,
+                        'checked'=>($k == $value and ! empty($k)) ? 'on' : null
+                    ) + $params).
+                    ">$v</label>";
                 $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
             }
             break;
@@ -387,10 +405,14 @@ class Html
         default:
             foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
             {
-                $item = "<label$label_attr><input"
-                    . self::attr(array('type'=>'radio', 'name'=>$name, 'value'=>$k, 'checked'=>($k == $value and ! empty($k)) ? 'on' : null) + $params)
-                    . ">$v</label>"
-                    ;
+                $item = "<label$label_attr><input".
+                    self::attr(array(
+                        'type'=>'radio',
+                        'name'=>$name,
+                        'value'=>$k,
+                        'checked'=>($k == $value and ! empty($k)) ? 'on' : null
+                    ) + $params).
+                    ">$v</label>";
                 $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
             }
         }
@@ -409,7 +431,12 @@ class Html
      */
     public static function inputCheckbox($params)
     {
-        $attr = \array_diff_key($params, array(self::P_WRAP_FMT=>true, self::P_LABEL=>true, self::P_LABEL_ATTR=>true, self::P_DELIM=>true));
+        $attr = \array_diff_key($params, array(
+            self::P_WRAP_FMT=>true,
+            self::P_LABEL=>true,
+            self::P_LABEL_ATTR=>true,
+            self::P_DELIM=>true
+        ));
         $fmt = isset($params[self::P_WRAP_FMT]) ? $params[self::P_WRAP_FMT] : '%s';
         $label = isset($params[self::P_LABEL]) ? $params[self::P_LABEL] : null;
         $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr($params[self::P_LABEL_ATTR]) : null;
@@ -455,10 +482,10 @@ class Html
         if (! $format)
             return \nl2br(\htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset));
         else
-            return \nl2br(\preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u')
-                , array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1')
-                , \htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset)
-                ));
+            return \nl2br(\preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u'),
+                array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1'),
+                \htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset)
+            ));
     }
 
     /** html formatted email address
@@ -468,13 +495,13 @@ class Html
      */
     public static function asEmail($email, $width=0)
     {
-        return '<a href="mailto:'.\htmlspecialchars($email, ENT_COMPAT, Nls::$charset).'">'
-            . \htmlspecialchars(($width > 0 and \strlen($email) > $width) ? \substr_replace($email, '...', $width) : $email
-                , ENT_NOQUOTES
-                , Nls::$charset
-                )
-            . '</a>'
-            ;
+        return '<a href="mailto:'.\htmlspecialchars($email, ENT_COMPAT, Nls::$charset).'">'.
+            \htmlspecialchars(
+                ($width > 0 and \strlen($email) > $width) ? \substr_replace($email, '...', $width) : $email,
+                ENT_NOQUOTES,
+                Nls::$charset
+            ).
+            '</a>';
     }
 
     /** html formatted url address
@@ -485,13 +512,13 @@ class Html
     public static function asUrl($url, $width=0)
     {
         $href = \strpos($url, ':') && \preg_match('/^\w+:\/\//', $url) ? $url : "http://$url";
-        return "<a href=\"$href\" target=\"_blank\">"
-            . \htmlspecialchars(($width > 0 and \strlen($url) > $width) ? \substr_replace($url, '...', $width) : $url
-                , ENT_NOQUOTES
-                , Nls::$charset
-                )
-            . '</a>'
-            ;
+        return "<a href=\"$href\" target=\"_blank\">".
+            \htmlspecialchars(
+                ($width > 0 and \strlen($url) > $width) ? \substr_replace($url, '...', $width) : $url,
+                ENT_NOQUOTES,
+                Nls::$charset
+            ).
+            '</a>';
     }
 
     /** html formatted telephone number (whitespace replaced with &amp;nbsp;)
@@ -513,8 +540,7 @@ class Html
             $sep = Nls::$formats[Nls::P_THOUSANDS_CHAR];
         return $sep === ' '
             ? \str_replace(' ', '&nbsp;', \number_format($i, 0, '', ' '))
-            : \number_format($i, 0, '', $sep)
-            ;
+            : \number_format($i, 0, '', $sep);
     }
 
     /** numeric value with decimal places displayed only if they exist. before conversion
@@ -544,12 +570,16 @@ class Html
             // 2 or 0 decimal places
             $dec = $show_cents ? 2 : 0;
 
-        $value = \number_format($cts/100, $dec, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]);
+        $value = \number_format(
+            $cts/100,
+            $dec,
+            Nls::$formats[Nls::P_MON_DECIMAL_CHAR],
+            Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]
+        );
 
         return Nls::$formats[Nls::P_MON_THOUSANDS_CHAR] === ' '
             ? \str_replace(' ', '&nbsp;', $value)
-            : $value
-            ;
+            : $value;
     }
 
     /** date representation as YYYY-MM-DD
@@ -620,14 +650,11 @@ class Html
      */
     public static function asSet($value, $items, $delim=null)
     {
-        return ($set = \array_flip(explode(',', $value)))
-            ? \implode((isset($delim)
-                    ? $delim
-                    : Nls::$formats[Nls::P_LIST_DELIM_HTML]
-                    ).' '
-                , \array_intersect_key($items, $set)
-                )
-            : ''
-            ;
+        return ($set = \array_flip(\explode(',', $value)))
+            ? \implode(
+                (isset($delim) ? $delim : Nls::$formats[Nls::P_LIST_DELIM_HTML]).' ',
+                \array_intersect_key($items, $set)
+            )
+            : '';
     }
 }

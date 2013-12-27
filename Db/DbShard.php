@@ -73,8 +73,7 @@ class DbShard extends Db
         if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ)
             $access_mode = isset(self::$connections[$shard_name][self::MODE_WRITE])
                 ? self::MODE_WRITE
-                : self::MODE_READ
-                ;
+                : self::MODE_READ;
 
         if (empty(self::$connections[$shard_name][$access_mode]))
         {
@@ -82,13 +81,13 @@ class DbShard extends Db
             self::$connections[$shard_name][$access_mode] = array(self::ENUM_HOST=>$host);
             self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($host == self::$current_host)
                 ? parent::$conn
-                : self::connect(Params::extract($host, self::CNX_HOST, 'localhost')
-                    , Params::extract($host, self::CNX_USERNAME, 'root')
-                    , Params::extract($host, self::CNX_PASSWORD, null)
-                    , Params::extract($host, self::CNX_DATABASE, null)
-                    , Params::extract($host, self::CNX_CHARSET, 'UTF8')
-                    )
-                ;
+                : self::connect(
+                    Params::extract($host, self::CNX_HOST, 'localhost'),
+                    Params::extract($host, self::CNX_USERNAME, 'root'),
+                    Params::extract($host, self::CNX_PASSWORD, null),
+                    Params::extract($host, self::CNX_DATABASE, null),
+                    Params::extract($host, self::CNX_CHARSET, 'UTF8')
+                );
         }
 
         self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];

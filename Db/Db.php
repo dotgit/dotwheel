@@ -31,13 +31,14 @@ class Db
         if (self::$conn = \mysqli_init()
             and \mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
             and \mysqli_real_connect(self::$conn, $host, $username, $password, $database)
-            )
+        )
         {
             return self::$conn;
         }
         else
         {
-            \error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".\mysqli_connect_error());
+            \error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".
+                \mysqli_connect_error());
             return false;
         }
     }
@@ -245,9 +246,12 @@ class Db
     public static function dmlBind($sql, $types, $params)
     {
         if ($stmt = \mysqli_prepare(self::$conn, $sql)
-            and \call_user_func_array('mysqli_stmt_bind_param', \array_merge(array($stmt, $types), \array_map(function(&$el){return $el;}, $params)))
-            and \mysqli_stmt_execute($stmt)
+            and \call_user_func_array(
+                'mysqli_stmt_bind_param',
+                \array_merge(array($stmt, $types), \array_map(function(&$el){return $el;}, $params))
             )
+            and \mysqli_stmt_execute($stmt)
+        )
         {
             $res = \mysqli_stmt_affected_rows($stmt);
             \mysqli_stmt_close($stmt);
@@ -255,7 +259,7 @@ class Db
         }
         else
         {
-            if($stmt)
+            if ($stmt)
             {
                 $err = \mysqli_stmt_error($stmt);
                 \mysqli_stmt_close($stmt);
@@ -300,7 +304,7 @@ class Db
     public static function blobEncode($blob)
     {
         if (isset($blob) and ! \is_scalar($blob))
-            $blob = ' j:'.\json_encode($blob, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
+            $blob = ' j:'.\json_encode($blob, \JSON_NUMERIC_CHECK | \JSON_UNESCAPED_SLASHES);
         if (\strlen($blob) > 127)
             $blob = ' z:'.\gzdeflate($blob);
 

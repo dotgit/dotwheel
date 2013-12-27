@@ -22,21 +22,23 @@ class Crypt
     public static function getSalt($cost=9)
     {
         return CRYPT_BLOWFISH == 1
-            ? \sprintf('$2a$%02u$%s$'
-                , $cost
+            ? \sprintf(
+                '$2a$%02u$%s$',
+                $cost,
 // faster, small memory footprint
-                , \substr(\str_shuffle(self::SALT_ALPHABET)
-                    , 0
-                    , self::SALT_LEN_BLOWFISH
-                    )
-// stronger, large memory footprint
-//              , \substr(str_shuffle(\str_repeat(self::SALT_ALPHABET, 64))
-//                  , \rand(0, (64<<6) - self::SALT_LEN_BLOWFISH)
-//                  , self::SALT_LEN_BLOWFISH
-//                  )
+                \substr(
+                    \str_shuffle(self::SALT_ALPHABET),
+                    0,
+                    self::SALT_LEN_BLOWFISH
                 )
-            : null
-            ;
+// stronger, large memory footprint
+//              \substr(
+//                  str_shuffle(\str_repeat(self::SALT_ALPHABET, 64)),
+//                  \rand(0, (64<<6) - self::SALT_LEN_BLOWFISH),
+//                  self::SALT_LEN_BLOWFISH
+//              )
+            )
+            : null;
     }
 
     /** encode the password by using the crypt algorithm (bcrypt or another available)
@@ -72,11 +74,10 @@ $t2 = microtime(true);
 $hash = Crypt::passEncode('qwerty', $salt);
 $t3 = microtime(true);
 $hash2 = Crypt::passEncode('qwerty', $hash);
-echo $cost.PHP_EOL
-    . $salt.' '.($t2-$t1).PHP_EOL
-    . $hash.' '.($t3-$t2).PHP_EOL
-    . $hash2.PHP_EOL
-    . Crypt::passCompare('qwerty', $hash).PHP_EOL
-    ;
+echo $cost.PHP_EOL.
+    $salt.' '.($t2-$t1).PHP_EOL.
+    $hash.' '.($t3-$t2).PHP_EOL.
+    $hash2.PHP_EOL.
+    Crypt::passCompare('qwerty', $hash).PHP_EOL;
 
 */

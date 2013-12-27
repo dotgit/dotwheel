@@ -50,20 +50,21 @@ class Misc
      */
     public static function formatPreview($text)
     {
-        return \preg_replace(array('#&#', '#<#', '#>#'
-                , '#/([^/\r\n]*)/#m', '#\*([^*\\r\\n]*)\*#m'
-                , '#^#m', '#$#m'
-                , '#^<p>---(.*)---</p>$#m'
-                , '#^<p>-(.*)</p>$#m'
-                )
-            , array('&amp;', '&lt;', '&gt;'
-                , '<i>$1</i>', '<b>$1</b>'
-                , '<p>', '</p>'
-                , '<h5>$1</h5>'
-                , '<li>$1</li>'
-                )
-            , $text
-            );
+        return \preg_replace(
+            array('#&#', '#<#', '#>#',
+                '#/([^/\r\n]*)/#m', '#\*([^*\\r\\n]*)\*#m',
+                '#^#m', '#$#m',
+                '#^<p>---(.*)---</p>$#m',
+                '#^<p>-(.*)</p>$#m'
+            ),
+            array('&amp;', '&lt;', '&gt;',
+                '<i>$1</i>', '<b>$1</b>',
+                '<p>', '</p>',
+                '<h5>$1</h5>',
+                '<li>$1</li>'
+            ),
+            $text
+        );
     }
 
     /** return the formatted tel number or the original string
@@ -135,6 +136,7 @@ class Misc
         {
             $res = \array_diff_key($values, \array_flip($empty));
             $res['N'] = $empty;
+
             return $res;
         }
         else
@@ -187,11 +189,13 @@ class Misc
      */
     public static function trimWord($str, $len=100, $suffix='...')
     {
-        return \mb_substr($str
-            , 0
-            , $len - \mb_strlen(\mb_strrchr(\mb_substr($str, 0, $len, Nls::$charset), ' ', false, Nls::$charset), Nls::$charset)
-            , Nls::$charset
-            ).$suffix
-            ;
+        return \mb_substr($str,
+            0,
+            $len - \mb_strlen(
+                \mb_strrchr(\mb_substr($str, 0, $len, Nls::$charset), ' ', false, Nls::$charset),
+                Nls::$charset
+            ),
+            Nls::$charset
+        ).$suffix;
     }
 }

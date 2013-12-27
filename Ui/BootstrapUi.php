@@ -131,7 +131,11 @@ class BootstrapUi
     {
         $body = Params::extract($params, self::P_CONTENT);
         Params::add($params, 'clearfix');
-        $icon = self::icon(array(self::P_LABEL=>Ui::ICN_WARNING.' '.Ui::ICN_2X.' pull-left', 'style'=>'margin:0.25em 0.5em 0 0;'));
+        $icon = self::icon(array(
+            self::P_LABEL=>self::ICN_WARNING.' '.self::ICN_2X.' pull-left',
+            'style'=>'margin:0.25em 0.5em 0 0;'
+        ));
+
         return "<div".Html::attr($params).">$icon$body</div>";
     }
 
@@ -180,7 +184,12 @@ class BootstrapUi
             return self::asFormGroup($control);
         }
         elseif (isset($control))
-            return '<div class="row"><div'.Html::attr(self::width2Attr(self::WIDTH_3_4, self::widthOffset2Attr(self::WIDTH_1_4))).'>'.$control.'</div></div>';
+            return '<div class="row"><div'.Html::attr(self::width2Attr(
+                    self::WIDTH_3_4,
+                    self::widthOffset2Attr(self::WIDTH_1_4)
+                )).'>'.
+                $control.
+                '</div></div>';
         else
             return null;
     }
@@ -332,12 +341,10 @@ class BootstrapUi
         $id_target = Params::extract($params, self::P_TARGET);
         $prefix = ($label_attr = Params::extract($params, self::P_LABEL_ATTR, array()))
             ? ('<i'.Html::attr($label_attr).'></i> ')
-            : ''
-            ;
+            : '';
         $prefix .= ($label = Params::extract($params, self::P_LABEL))
             ? "$label "
-            : ''
-            ;
+            : '';
 
         HtmlPage::add(array(HtmlPage::DOM_READY=><<<EOco
 $('#$id_target')
@@ -345,7 +352,7 @@ $('#$id_target')
 .on('hide',function(){\$('#$id').addClass('dropdown').removeClass('dropup').button('toggle');})
 ;
 EOco
-            ));
+        ));
 
         Params::add($params, $id, 'id');
         Params::add($params, 'collapse', 'data-toggle');
@@ -385,14 +392,15 @@ EOco
         Params::add($params, 'panel-collapse');
         Params::add($params, 'collapse');
 
-        return self::panel(array(self::P_LABEL=>'<a'.Html::attr($label_attr).'><div>'.$label.'</div></a>'
-            , self::P_CONTENT=>$content
-            , self::P_CONTENT_ATTR=>$content_attr
-            , self::P_PREFIX=>$addon_prefix
-            , self::P_SUFFIX=>$addon_suffix
-            , self::P_FOOTER=>$footer
-            , self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
-            ));
+        return self::panel(array(
+            self::P_LABEL=>'<a'.Html::attr($label_attr).'><div>'.$label.'</div></a>',
+            self::P_CONTENT=>$content,
+            self::P_CONTENT_ATTR=>$content_attr,
+            self::P_PREFIX=>$addon_prefix,
+            self::P_SUFFIX=>$addon_suffix,
+            self::P_FOOTER=>$footer,
+            self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
+        ));
     }
 
     /** generate dropdown list
@@ -404,31 +412,36 @@ EOco
     {
         Params::add($params, 'dropdown-menu');
         Params::add($params, 'menu', 'role');
-        return '<ul'.Html::attr($params).'>'
-            . \implode('', \array_map(function($item){if (isset($item))
-                {
-                    if (\is_array($item))
-                    {
-                        $label = Params::extract($item, self::P_LABEL);
-                        Params::add($item, 'presentatoion', 'role');
-                        $li_attr = Html::attr($item);
-                    }
-                    else
-                    {
-                        $label = $item;
-                        $li_attr = ' role="presentation"';
-                    }
-                }
-                else
-                {
-                    $label = '';
-                    $li_attr = ' role="presentation" class="divider"';
-                }
-                return "<li$li_attr>$label</li>";
-                }, $items
-                ))
-            . '</ul>'
-            ;
+
+        return '<ul'.Html::attr($params).'>'.
+            \implode(
+                '',
+                \array_map(function ($item) {
+                        if (isset($item))
+                        {
+                            if (\is_array($item))
+                            {
+                                $label = Params::extract($item, self::P_LABEL);
+                                Params::add($item, 'presentatoion', 'role');
+                                $li_attr = Html::attr($item);
+                            }
+                            else
+                            {
+                                $label = $item;
+                                $li_attr = ' role="presentation"';
+                            }
+                        }
+                        else
+                        {
+                            $label = '';
+                            $li_attr = ' role="presentation" class="divider"';
+                        }
+                        return "<li$li_attr>$label</li>";
+                    },
+                    $items
+                )
+            ).
+            '</ul>';
     }
 
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
@@ -573,16 +586,15 @@ EOco
         if (isset($footer))
             $footer = "<div class=\"modal-footer\">$footer</div>";
 
-        return '<div'.Html::attr($params).'>'
-            . '<div class="modal-dialog">'
-            . '<div class="modal-content">'
-            . $header
-            . $body
-            . $footer
-            . '</div>'
-            . '</div>'
-            . '</div>'
-            ;
+        return '<div'.Html::attr($params).'>'.
+            '<div class="modal-dialog">'.
+            '<div class="modal-content">'.
+                $header.
+                $body.
+                $footer.
+            '</div>'.
+            '</div>'.
+            '</div>';
     }
 
     /** html-formatted bootstrap tabs
@@ -644,12 +656,11 @@ EOco
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        return '<ul'.Html::attr($params).">$prefix".\implode('', $labels)."$suffix</ul>"
-            . ($panes
+        return '<ul'.Html::attr($params).">$prefix".\implode('', $labels)."$suffix</ul>".
+            ($panes
                 ? ('<div class="tab-content">'.\implode('', $panes).'</div>')
                 : ''
-                )
-            ;
+            );
     }
 
     /** html-formatted pagination based on butons
@@ -675,14 +686,12 @@ EOco
 
         if ($pages[0] > 1)
         {
-            $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.\sprintf($link_1, 1).'">1</a>'
-                . '</div>'
-                ;
-            $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.\sprintf($link_1, $pages[0] - 1).'">&larr; '.($pages[0] - 1).'</a>'
-                . '</div>'
-                ;
+            $ret[] = '<div class="btn-group">'.
+                '<a class="btn" href="'.\sprintf($link_1, 1).'">1</a>'.
+                '</div>';
+            $ret[] = '<div class="btn-group">'.
+                '<a class="btn" href="'.\sprintf($link_1, $pages[0] - 1).'">&larr; '.($pages[0] - 1).'</a>'.
+                '</div>';
         }
 
         $ret[] = '<div class="btn-group">';
@@ -692,14 +701,12 @@ EOco
 
         if ($pages[$tail] < $last_page)
         {
-            $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.\sprintf($link_1, $pages[$tail] + 1).'">'.($pages[$tail] + 1).' &rarr;</a>'
-                . '</div>'
-                ;
-            $ret[] = '<div class="btn-group">'
-                . '<a class="btn" href="'.\sprintf($link_1, $last_page).'">'.$last_page.'</a>'
-                . '</div>'
-                ;
+            $ret[] = '<div class="btn-group">'.
+                '<a class="btn" href="'.\sprintf($link_1, $pages[$tail] + 1).'">'.($pages[$tail] + 1).' &rarr;</a>'.
+                '</div>';
+            $ret[] = '<div class="btn-group">'.
+                '<a class="btn" href="'.\sprintf($link_1, $last_page).'">'.$last_page.'</a>'.
+                '</div>';
         }
 
         return \implode('', $ret);
@@ -766,7 +773,10 @@ EOco
         Params::add($params, 'panel');
         Params::add($params, 'panel-default');
 
-        return '<div'.Html::attr($params).'>'.$heading.\sprintf($fmt, $prefix.$content.$suffix.$footer).'</div>';
+        return '<div'.Html::attr($params).'>'.
+            $heading.
+            \sprintf($fmt, $prefix.$content.$suffix.$footer).
+            '</div>';
     }
 
     /** returns the popover html code
@@ -794,14 +804,22 @@ EOco
         $title = Params::extract($params, self::P_LABEL);
         $id = Params::extract($params, self::P_TARGET);
 
-        $options = array('title'=>$title
-            , 'content'=>Params::extract($params, self::P_CONTENT)
-            , 'placement'=>Params::extract($params, self::P_ALIGN, 'bottom')
-            , 'html'=>true
-            , 'container'=>'body'
-            );
+        $options = array(
+            'title'=>$title,
+            'content'=>Params::extract($params, self::P_CONTENT),
+            'placement'=>Params::extract($params, self::P_ALIGN, 'bottom'),
+            'html'=>true,
+            'container'=>'body'
+        );
 
-        HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=>"$('#$id').popover(".json_encode($options, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).');')));
+        HtmlPage::add(array(
+            HtmlPage::DOM_READY=>array(
+                __METHOD__."-$id"=>"$('#$id').popover(".json_encode(
+                    $options,
+                    \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
+                ).');'
+            )
+        ));
 
         return $params;
     }

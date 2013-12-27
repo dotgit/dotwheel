@@ -37,9 +37,10 @@ class Response
     public static function addError($msg, $html=false)
     {
         if (\is_array($msg))
-            static::$errors = \array_merge(static::$errors
-                , $html ? $msg : \array_map('dotwheel\ui\Html::encode', $msg)
-                );
+            static::$errors = \array_merge(
+                static::$errors,
+                $html ? $msg : \array_map('dotwheel\ui\Html::encode', $msg)
+            );
         else
             static::$errors[] = $html ? $msg : Html::encode($msg);
     }
@@ -69,22 +70,23 @@ class Response
     /** error message on html page */
     public static function outputHtmlError($msg=null)
     {
-        static::outputHtml('<section><h1>'.Html::encode($msg).'</h1>'
-            . (static::$errors
+        static::outputHtml('<section><h1>'.Html::encode($msg).'</h1>'.
+            (static::$errors
                 ? ('<ul><li>'.\implode('</li><li>', static::$errors).'</li></ul>')
                 : ''
-                )
-            . '</section>'
-            );
+            ).
+            '</section>'
+        );
     }
 
     /** error message on json page */
     public static function outputJsonError($msg=null)
     {
-        static::outputJson(array('title'=>$msg
-            , 'origin'=>static::$name
-            , 'errors'=>static::$errors
-            ));
+        static::outputJson(array(
+            'title'=>$msg,
+            'origin'=>static::$name,
+            'errors'=>static::$errors
+        ));
     }
 
     /** error message on asis page */
@@ -162,12 +164,11 @@ class Response
         if (isset(static::$description))
             HtmlPage::add(array(HtmlPage::META_DESCRIPTION=>static::$description));
 
-        echo "<!DOCTYPE html>\n"
-            . HtmlPage::getHead()
-            . '<body>'
-            . $html
-            . HtmlPage::getTail()
-            ;
+        echo "<!DOCTYPE html>\n".
+            HtmlPage::getHead().
+            '<body>'.
+            $html.
+            HtmlPage::getTail();
     }
 
     /** output a redirect heading for the user browser
@@ -189,8 +190,7 @@ class Response
         \header('Content-Type: application/json;charset='.Nls::$charset);
         echo ($result === true)
             ? \json_encode(Http::getRedirect(Request::$next, static::$url_params, static::$url_hash))
-            : \json_encode($result, JSON_UNESCAPED_UNICODE)
-            ;
+            : \json_encode($result, \JSON_UNESCAPED_UNICODE);
     }
 
     /** output message as is

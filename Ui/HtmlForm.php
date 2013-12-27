@@ -142,8 +142,7 @@ class HtmlForm
 
                                 $content = $fedit
                                     ? self::htmlFieldEdit($f + array(self::FIELD_NAME=>$fld, self::FIELD_VALUE=>$value))
-                                    : self::htmlFieldView($f + array(self::FIELD_NAME=>$fld, self::FIELD_VALUE=>$value))
-                                    ;
+                                    : self::htmlFieldView($f + array(self::FIELD_NAME=>$fld, self::FIELD_VALUE=>$value));
                                 $width = Params::extract($f, self::FIELD_WIDTH);
 
                                 if (Params::extract($f, self::FIELD_WITH_NEXT))
@@ -153,8 +152,7 @@ class HtmlForm
                                     else
                                         $with_next_buffer = isset($width)
                                             ? array(Ui::P_WIDTH=>$width, Ui::P_CONTENT=>$content)
-                                            : array(Ui::P_CONTENT=>$content)
-                                            ;
+                                            : array(Ui::P_CONTENT=>$content);
                                 }
                                 elseif ($with_next_buffer)
                                 {
@@ -165,8 +163,7 @@ class HtmlForm
                                 else
                                     $columns[] = isset($width)
                                         ? array(Ui::P_WIDTH=>$width, Ui::P_CONTENT=>$content, 'class'=>'control-group')
-                                        : array(Ui::P_CONTENT=>$content, 'class'=>'control-group')
-                                        ;
+                                        : array(Ui::P_CONTENT=>$content, 'class'=>'control-group');
                                 if ($fedit and Repo::getParam($fld, Repo::P_CLASS) == Repo::C_FILE)
                                     $upload = true;
                                 unset($row[$fld]);
@@ -195,11 +192,12 @@ class HtmlForm
 
                     $rows[] = Ui::gridRow($columns + $rargs);
                 }
-                $sets[] = \sprintf("<fieldset%s>%s%s</fieldset>\n"
-                    , Html::attr($set)
-                    , $legend
-                    , \implode("\n", $rows)
-                    );
+                $sets[] = \sprintf(
+                    "<fieldset%s>%s%s</fieldset>\n",
+                    Html::attr($set),
+                    $legend,
+                    \implode("\n", $rows)
+                );
             }
             elseif ($set)
                 $sets[] = $set;
@@ -242,21 +240,22 @@ class HtmlForm
     {
         $field = isset($params[self::FIELD_NAME]) ? $params[self::FIELD_NAME] : null;
         $label = isset($params[self::FIELD_LABEL]) ? $params[self::FIELD_LABEL] : Repo::getLabel($field);
-        $label_str = ! empty($label)
-            ? "<label>$label</label>"
-            : ''
-            ;
+        $label_str = ! empty($label) ? "<label>$label</label>" : '';
         if ($comment = Params::extract($params, self::FIELD_COMMENT))
             $comment = \sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
         $fmt = Params::extract($params, self::FIELD_FMT);
         $content = (isset($params[self::FIELD_CONTENT])
             ? $params[self::FIELD_CONTENT]
-            : Repo::asHtmlStatic($field
-                , isset($params[self::FIELD_VALUE]) ? $params[self::FIELD_VALUE] : null
-                , isset($params[self::FIELD_REPOSITORY]) ? ($params[self::FIELD_REPOSITORY] + Repo::get($field)) : Repo::get($field)
-                )
-            ) . $comment
-            ;
+            : Repo::asHtmlStatic(
+                $field,
+                isset($params[self::FIELD_VALUE])
+                    ? $params[self::FIELD_VALUE]
+                    : null,
+                isset($params[self::FIELD_REPOSITORY])
+                    ? ($params[self::FIELD_REPOSITORY] + Repo::get($field))
+                    : Repo::get($field)
+            )
+        ).$comment;
 
         return $fmt ? \sprintf($fmt, "$label_str$content") : "$label_str$content";
     }
@@ -293,20 +292,20 @@ class HtmlForm
         if (! empty($params[self::FIELD_REQUIRED]))
             Params::add($params[self::FIELD_INPUT], 'required', 'required');
         $label = isset($params[self::FIELD_LABEL]) ? $params[self::FIELD_LABEL] : Repo::getLabel($field);
-        $label_str = ! empty($label)
-            ? ("<label".Html::attr($label_attr).">$label</label>")
-            : ''
-            ;
+        $label_str = ! empty($label) ? ("<label".Html::attr($label_attr).">$label</label>") : '';
         if ($comment = Params::extract($params, self::FIELD_COMMENT))
             $comment = \sprintf(Ui::FORM_COMMENT_BLOCK_FMT, $comment);
         $fmt = Params::extract($params, self::FIELD_FMT);
-        $content = Repo::asHtmlInput($field
-                , isset($params[self::FIELD_VALUE]) ? $params[self::FIELD_VALUE] : null
-                , $params[self::FIELD_INPUT]
-                , isset($params[self::FIELD_REPOSITORY]) ? $params[self::FIELD_REPOSITORY] + Repo::get($field) : Repo::get($field)
-                )
-            . $comment
-            ;
+        $content = Repo::asHtmlInput(
+            $field,
+            isset($params[self::FIELD_VALUE])
+                ? $params[self::FIELD_VALUE]
+                : null,
+            $params[self::FIELD_INPUT],
+            isset($params[self::FIELD_REPOSITORY])
+                ? $params[self::FIELD_REPOSITORY] + Repo::get($field)
+                : Repo::get($field)
+        ).$comment;
 
         return $fmt ? \sprintf($fmt, "$label_str$content") : "$label_str$content";
     }

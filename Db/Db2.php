@@ -59,18 +59,17 @@ class Db2
         }
         $on_dupl = isset($params[self::P_DUPLICATES])
             ? (' on duplicate key update '.\implode(',', \array_intersect_key($dupl, $params[self::P_DUPLICATES])))
-            : ''
-            ;
+            : '';
 
         return $ins
-            ? Db::dml(\sprintf("insert into %s (%s) values (%s)%s"
-                , $params[self::P_TABLE]
-                , \implode(',', \array_keys($ins))
-                , \implode(',', \array_values($ins))
-                , $on_dupl
-                ))
-            : 0
-            ;
+            ? Db::dml(\sprintf(
+                "insert into %s (%s) values (%s)%s",
+                $params[self::P_TABLE],
+                \implode(',', \array_keys($ins)),
+                \implode(',', \array_values($ins)),
+                $on_dupl
+            ))
+            : 0;
     }
 
     /** constructs and executes a DML command to update a row in the specified table.
@@ -99,15 +98,15 @@ class Db2
         }
 
         return $upd
-            ? Db::dml(\sprintf('update %s set %s where %s'
-                , $params[self::P_TABLE]
-                , \implode(', ', $upd)
-                , isset($params[self::P_WHERE])
+            ? Db::dml(\sprintf(
+                'update %s set %s where %s',
+                $params[self::P_TABLE],
+                \implode(', ', $upd),
+                isset($params[self::P_WHERE])
                     ? $params[self::P_WHERE]
                     : 'NULL'
-                ))
-            : 0
-            ;
+            ))
+            : 0;
     }
 
     /** dml operation to exchange the position of two lines
@@ -124,11 +123,11 @@ class Db2
     public static function changePos($params)
     {
         // get ids of all the items (a small number for a given application)
-        foreach ($all = Db::fetchArray("select {$params['id_field']}, {$params['pos_field']}"
-            . " from {$params['table']}"
-            . " where {$params['main_id_field']} = ".(int)$params['main_id_value']
-            . " order by {$params['pos_field']}"
-            ) as $i=>$row)
+        foreach ($all = Db::fetchArray("select {$params['id_field']}, {$params['pos_field']}".
+            " from {$params['table']}".
+            " where {$params['main_id_field']} = ".(int)$params['main_id_value'].
+            " order by {$params['pos_field']}"
+        ) as $i=>$row)
         {
             if ($row[$params['id_field']] == $params['id_value'])
                 $current = $i;
@@ -153,16 +152,14 @@ class Db2
         }
 
         // dml to change *_pos values
-        return Db::dml(\sprintf('update %s'
-            . ' set %s = if (%s = %u, %u, %u)'
-            . ' where %s = %u'
-                . ' and %s in(%u, %u)'
-            , $params['table']
-            , $params['pos_field'], $params['id_field']
-            , $params['id_value'], $another[$params['pos_field']], $all[$current][$params['pos_field']]
-            , $params['main_id_field'], $params['main_id_value']
-            , $params['id_field'], $another[$params['id_field']], $all[$current][$params['id_field']]
-            ));
+        return Db::dml(\sprintf(
+            'update %s set %s = if (%s = %u, %u, %u) where %s = %u and %s in(%u, %u)',
+            $params['table'],
+            $params['pos_field'], $params['id_field'],
+            $params['id_value'], $another[$params['pos_field']], $all[$current][$params['pos_field']],
+            $params['main_id_field'], $params['main_id_value'],
+            $params['id_field'], $another[$params['id_field']], $all[$current][$params['id_field']]
+        ));
     }
 
     /** tries to lock a <i>$token</i>
@@ -214,7 +211,7 @@ class Db2
             return false;
         else
         {
-            \sort($ids, SORT_NUMERIC);
+            \sort($ids, \SORT_NUMERIC);
             foreach ($ids as $i=>$id)
                 if ($id > $i + 1)
                     return $i + 1;

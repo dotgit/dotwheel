@@ -88,20 +88,24 @@ class Request
 
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
-            self::$output = (! empty($_REQUEST[self::CGI_OUTPUT]) and $_REQUEST[self::CGI_OUTPUT] == 'a') ? self::OUT_ASIS : self::OUT_JSON;
+            self::$output = (! empty($_REQUEST[self::CGI_OUTPUT]) and $_REQUEST[self::CGI_OUTPUT] == 'a')
+                ? self::OUT_ASIS
+                : self::OUT_JSON;
         elseif (! empty($_REQUEST[self::CGI_OUTPUT]))
-            self::$output = $_REQUEST[self::CGI_OUTPUT] == 'a' ? self::OUT_ASIS : ($_REQUEST[self::CGI_OUTPUT] == 'c' ? self::OUT_CMD : self::OUT_JSON);
+            self::$output = $_REQUEST[self::CGI_OUTPUT] == 'a'
+                ? self::OUT_ASIS
+                : ($_REQUEST[self::CGI_OUTPUT] == 'c' ? self::OUT_CMD : self::OUT_JSON);
         elseif (isset($_SERVER['REQUEST_METHOD']))
-            self::$output = $_SERVER['REQUEST_METHOD'] == 'POST' ? self::OUT_CMD : self::OUT_HTML;
+            self::$output = $_SERVER['REQUEST_METHOD'] == 'POST'
+                ? self::OUT_CMD
+                : self::OUT_HTML;
         else
             self::$output = self::OUT_CLI;
 
         // identify $root, $root_url and $module
         if (isset($_SERVER['SERVER_NAME']))
         {
-            if (self::$output != self::OUT_JSON
-                or empty($_SERVER['HTTP_REFERER'])
-                )
+            if (self::$output != self::OUT_JSON or empty($_SERVER['HTTP_REFERER']))
             {
                 // for direct requests use SCRIPT_NAME
                 $path = $_SERVER['SCRIPT_NAME'];
@@ -109,7 +113,8 @@ class Request
             else
             {
                 // for json requests use HTTP_REFERER
-                $path = \substr($_SERVER['HTTP_REFERER'], \strpos($_SERVER['HTTP_REFERER'], '/', 8));    // first slash after https://...
+                // first slash after https://...
+                $path = \substr($_SERVER['HTTP_REFERER'], \strpos($_SERVER['HTTP_REFERER'], '/', 8));
                 if ($p = \strpos($path, '?'))
                     $path = \substr($path, 0, $p);
             }
@@ -125,10 +130,9 @@ class Request
             }
             if (DIRECTORY_SEPARATOR == '\\')
                 $dir = \strtr($dir, '\\', '/');
-            self::$root_url = ($_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http')
-                . "://{$_SERVER['HTTP_HOST']}$dir"
-                . (\substr($dir, -1) == '/' ? '' : '/')
-                ;
+            self::$root_url = ($_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http').
+                "://{$_SERVER['HTTP_HOST']}$dir".
+                (\substr($dir, -1) == '/' ? '' : '/');
             if ($modules)
                 self::$module = \implode('/', \array_reverse($modules));
         }
@@ -140,7 +144,7 @@ class Request
         }
         elseif ($suffix = \strrchr(self::$module, '/')
             and $suffix === '/cmd'
-            )
+        )
         {
             self::$module = \substr(self::$module, 0, -4);
             self::$controller = 'cmd/'.self::$controller;
@@ -148,9 +152,12 @@ class Request
 
         // identify $next
         self::$next = (! empty($_REQUEST[self::CGI_NEXT]) && \is_scalar($_REQUEST[self::CGI_NEXT]))
-            ? \ltrim(\substr($_REQUEST[self::CGI_NEXT], 0, \strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)), '/')
-            : ''
-            ;
+            ? \ltrim(\substr(
+                $_REQUEST[self::CGI_NEXT],
+                0,
+                \strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)
+            ), '/')
+            : '';
 
         // identify $details
         if (! empty($_REQUEST[self::CGI_FILTERS]) and \is_array($_REQUEST[self::CGI_FILTERS]))
@@ -189,12 +196,9 @@ class Request
      */
     public static function getDb()
     {
-        return (empty($_SESSION[self::$cookie_db])
-            or empty(self::$databases[(string)$_SESSION[self::$cookie_db]])
-            )
+        return (empty($_SESSION[self::$cookie_db]) or empty(self::$databases[(string)$_SESSION[self::$cookie_db]]))
             ? self::$db_default
-            : $_SESSION[self::$cookie_db]
-            ;
+            : $_SESSION[self::$cookie_db];
     }
 
     /** returns array with CGI request headers
@@ -216,9 +220,13 @@ class Request
         if (empty(self::$details))
             return array(null, $sort_default, false, null);
 
-        $filters = isset(self::$details[self::CGI_FILTERS][$element_id]) ? self::$details[self::CGI_FILTERS][$element_id] : null;
+        $filters = isset(self::$details[self::CGI_FILTERS][$element_id])
+            ? self::$details[self::CGI_FILTERS][$element_id]
+            : null;
 
-        $sort_fld = isset(self::$details[self::CGI_SORT][$element_id]) ? self::$details[self::CGI_SORT][$element_id] : null;
+        $sort_fld = isset(self::$details[self::CGI_SORT][$element_id])
+            ? self::$details[self::CGI_SORT][$element_id]
+            : null;
         if (isset($sort_cols[$sort_fld]))
             $sort_rev = false;
         elseif (isset($sort_cols[\substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)]))
@@ -232,7 +240,9 @@ class Request
             $sort_rev = false;
         }
 
-        $page = isset(self::$details[self::CGI_PAGE][$element_id]) ? self::$details[self::CGI_PAGE][$element_id] : null;
+        $page = isset(self::$details[self::CGI_PAGE][$element_id])
+            ? self::$details[self::CGI_PAGE][$element_id]
+            : null;
 
         return array($filters, $sort_fld, $sort_rev, $page);
     }

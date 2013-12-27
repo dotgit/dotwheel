@@ -173,10 +173,10 @@ class Paginator
         // left slots (logarithmic)
         if ($l)
         {
-            for ($d = (1 + $active_page - 1) >> 1, $i = 1
-                ; $i <= $l and $d > $ret[$i - 1] and $d < $ret[$i]
-                ; ++$i
-                )
+            for ($d = (1 + $active_page - 1) >> 1, $i = 1;
+                $i <= $l and $d > $ret[$i - 1] and $d < $ret[$i];
+                ++$i
+            )
             {
                 $ret[$i] = $d;
                 $d = ($d + $active_page) >> 1;
@@ -185,10 +185,10 @@ class Paginator
         // right slots (logarithmic)
         if ($r)
         {
-            for ($d = ($active_page + 1 + $last_page) >> 1, $i = $slots - 2, $j = $slots - $r - 2
-                ; $i > $j and $d < $ret[$i + 1] and $d > $ret[$i]
-                ; --$i
-                )
+            for ($d = ($active_page + 1 + $last_page) >> 1, $i = $slots - 2, $j = $slots - $r - 2;
+                $i > $j and $d < $ret[$i + 1] and $d > $ret[$i];
+                --$i
+            )
             {
                 $ret[$i] = $d;
                 $d = ($d + $active_page) >> 1;

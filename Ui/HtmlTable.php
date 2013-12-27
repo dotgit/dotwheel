@@ -160,8 +160,7 @@ class HtmlTable
 
             $colgroup[$field] = ($w = Params::extract($f, self::F_WIDTH))
                 ? array('width'=>$w)
-                : array()
-                ;
+                : array();
             $repo[$field] = Repo::get($field, isset($f[self::F_REPO]) ? $f[self::F_REPO] : array());
 
             if (isset($f[self::F_HEADER]))
@@ -169,7 +168,10 @@ class HtmlTable
                 if ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE))
                     $headers[$field] = Repo::getLabel($field, $h, $repo[$field]);
                 elseif ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
-                    $headers[$field] = Html::asAbbr(Html::encode (Repo::getLabel($field, Repo::P_LABEL_SHORT, $repo[$field])), Repo::getLabel($field, $abbr === true ? Repo::P_LABEL_LONG : $abbr, $repo[$field]));
+                    $headers[$field] = Html::asAbbr(
+                        Html::encode(Repo::getLabel($field, Repo::P_LABEL_SHORT, $repo[$field])),
+                        Repo::getLabel($field, $abbr === true ? Repo::P_LABEL_LONG : $abbr, $repo[$field])
+                    );
                 else
                     $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
                 if ($f[self::F_HEADER])
@@ -182,9 +184,12 @@ class HtmlTable
             {
                 $checkboxes[$field] = $f[self::F_CHECKBOX];
                 $headers[$field] = Html::inputCheckbox(array('id'=>"{$table_id}_chk"));
-                HtmlPage::add(array(HtmlPage::DOM_READY=>array("{$table_id}_chk"
-                    =>"$('#{$table_id}_chk').change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);});"
-                    )));
+                HtmlPage::add(array(HtmlPage::DOM_READY=>array("{$table_id}_chk"=><<<EOm
+$('#{$table_id}_chk')
+.change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);})
+;
+EOm
+                )));
                 if (! isset($f[self::F_ALIGN]))
                     $f[self::F_ALIGN] = 'center';
             }
@@ -194,8 +199,10 @@ class HtmlTable
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 and isset($f[self::F_SORT][self::F_SORT_GROUP])
                 and $sort[self::S_FIELD] == $field
-                )
-                $sort_group_key = $f[self::F_SORT][self::F_SORT_GROUP] === true ? $field : $f[self::F_SORT][self::F_SORT_GROUP];
+            )
+                $sort_group_key = $f[self::F_SORT][self::F_SORT_GROUP] === true
+                    ? $field
+                    : $f[self::F_SORT][self::F_SORT_GROUP];
 
             if (isset($f[self::F_ALIGN]))
                 $colgroup[$field]['align'] = $f[self::F_ALIGN];
@@ -206,7 +213,7 @@ class HtmlTable
             if (isset($f[self::F_URL])
                 and isset($f[self::F_URL][self::F_URL_FIELD])
                 and isset($f[self::F_URL][self::F_URL_FMT])
-                )
+            )
             {
                 $urls_field[$field] = $f[self::F_URL][self::F_URL_FIELD];
                 $urls_fmt[$field] = $f[self::F_URL][self::F_URL_FMT];
@@ -223,7 +230,9 @@ class HtmlTable
                     $totals_fn[$field] = self::F_TOTAL_TEXT;
                 else
                     $totals_fn[$field] = $f[self::F_TOTAL];
-                self::$totals[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT ? Html::encode($f[self::F_TOTAL]) : 0;
+                self::$totals[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT
+                    ? Html::encode($f[self::F_TOTAL])
+                    : 0;
                 $totals_cnt[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT ? null : 0;
             }
 
@@ -231,19 +240,26 @@ class HtmlTable
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 )
             {
-                $headers[$field] = \sprintf('<a href="%s"%s>%s</a>'
-                    , (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '')
-                        . Html::urlArgs('?', \array_merge_recursive($sort_params, array(Request::CGI_SORT=>array($table_id=>$field
-                            . (($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE])) ? Request::SORT_REV_SUFFIX : '')
-                            ))))
-                    , isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : ''
-                    , $headers[$field]
-                    );
+                $headers[$field] = \sprintf(
+                    '<a href="%s"%s>%s</a>',
+                    (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '').
+                        Html::urlArgs('?', \array_merge_recursive($sort_params, array(
+                            Request::CGI_SORT=>array(
+                                $table_id=>$field.
+                                    (($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE]))
+                                        ? Request::SORT_REV_SUFFIX
+                                        : ''
+                                    )
+                            )
+                        ))),
+                    isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : '',
+                    $headers[$field]
+                );
                 if (isset($sort[self::S_FIELD])
                     and $sort[self::S_FIELD] == $field
                     and isset($sort[self::S_ICON])
-                    )
-                    $headers[$field] .= '&nbsp;'.Ui::icon($sort[self::S_ICON]);
+                )
+                    $headers[$field] .= '&nbsp;'.$sort[self::S_ICON];
             }
 
             if (isset($f[self::F_HIDDEN]))
@@ -267,10 +283,9 @@ class HtmlTable
         // start table
         //
 
-        echo Html::tableStart($params + array(Html::P_COLGROUP=>$colgroup))
-            , Html::thead(array(Html::P_VALUES=>$headers, Html::P_TD_ATTR=>$headers_td, Html::P_PREFIX=>$prefix))
-            , '<tbody>'
-            ;
+        echo Html::tableStart($params + array(Html::P_COLGROUP=>$colgroup)),
+            Html::thead(array(Html::P_VALUES=>$headers, Html::P_TD_ATTR=>$headers_td, Html::P_PREFIX=>$prefix)),
+            '<tbody>';
 
         // cycle through the rows
         //
@@ -297,7 +312,10 @@ class HtmlTable
 
                 // whether checkbox...
                 if (isset($checkboxes[$field]))
-                    $values[$field] = Html::inputCheckbox(array('name'=>"{$field}[{$row[$field]}]", 'value'=>$row[$field]));
+                    $values[$field] = Html::inputCheckbox(array(
+                        'name'=>"{$field}[{$row[$field]}]",
+                        'value'=>$row[$field]
+                    ));
                 // ...as is column
                 elseif (isset($asis[$field]))
                     $values[$field] = $row[$field];
@@ -306,13 +324,18 @@ class HtmlTable
                 {
                     $v = Repo::asHtmlStatic($field, $row[$field], $r);
                     if (isset($urls_field[$field]))
-                        $v = \sprintf('<a href="%s"%s>%s</a>'
-                            , \sprintf($urls_fmt[$field], $row[$urls_field[$field]])
-                            , isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : ''
-                            , $v
-                            );
+                        $v = \sprintf(
+                            '<a href="%s"%s>%s</a>',
+                            \sprintf($urls_fmt[$field], $row[$urls_field[$field]]),
+                            isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : '',
+                            $v
+                        );
                     $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
-                    if ($totals and isset($row[$field]) and isset($totals_fn[$field]) and $totals_fn[$field] !== self::F_TOTAL_TEXT)
+                    if ($totals
+                        and isset($row[$field])
+                        and isset($totals_fn[$field])
+                        and $totals_fn[$field] !== self::F_TOTAL_TEXT
+                    )
                     {
                         self::$totals[$field] += $row[$field];
                         ++$totals_cnt[$field];
@@ -339,15 +362,16 @@ class HtmlTable
                         self::$totals[$field] = $totals_cnt[$field];
                     elseif ($totals_fn[$field] == self::F_TOTAL_AVG)
                         self::$totals[$field] /= $totals_cnt[$field];
-                    $t[$field] = Repo::asHtmlStatic($field
-                        , self::$totals[$field]
-                        , $totals_fn[$field] === self::F_TOTAL_TEXT
+                    $t[$field] = Repo::asHtmlStatic(
+                        $field,
+                        self::$totals[$field],
+                        $totals_fn[$field] === self::F_TOTAL_TEXT
                             ? array(Repo::P_CLASS=>Repo::C_TEXT)
                             : (Repo::isArithmetical($r)
                                 ? $r
                                 : array(Repo::P_CLASS=>Repo::C_INT)
-                                )
-                        );
+                            )
+                    );
                 }
                 else
                     $t[$field] = '';
@@ -359,7 +383,10 @@ class HtmlTable
         //
 
         if (isset($suffix))
-            $tfoot .= Html::tr(array(Html::P_VALUES=>array($suffix), Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"')));
+            $tfoot .= Html::tr(array(
+                Html::P_VALUES=>array($suffix),
+                Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"')
+            ));
 
         if ($tfoot)
             echo '<tfoot>', $tfoot;
@@ -399,14 +426,18 @@ class HtmlTable
                 if ($page)
                 {
                     $parts[] = \sprintf($str_link_3, '', $url0, '&laquo;');
-                    $parts[] = \sprintf($str_link_3, '', $page > 1 ? ($url.($page-1)) : $url0, '&larr; '.\dgettext(Nls::FW_DOMAIN, 'Prev'));
+                    $parts[] = \sprintf(
+                        $str_link_3,
+                        '',
+                        $page > 1 ? ($url.($page-1)) : $url0,
+                        '&larr; '.\dgettext(Nls::FW_DOMAIN, 'Prev')
+                    );
                 }
                 // numbered pages
                 for ($i = $page_first; $i < $page_next; ++$i)
                     $parts[] = $i == $page
                         ? \sprintf($str_act_1, $i+1)
-                        : \sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i+1)
-                        ;
+                        : \sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i+1);
                 // next/last page
                 if ($page < $pages-1)
                 {
@@ -414,10 +445,10 @@ class HtmlTable
                     $parts[] = \sprintf($str_link_3, '', $url.($pages-1), '&raquo;');
                 }
 
-                return ' <div class="'.Ui::PGN_CLASS.'"><ul>'.\implode('', $parts)."</ul></div>";
+                return '<ul>'.\implode('', $parts)."</ul>";
             }
             else
-                return ' <span class="'.Ui::PGN_CLASS."\">[$total]</span>";
+                return "[$total]";
         }
         else
             return '';

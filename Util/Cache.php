@@ -22,6 +22,7 @@ class CacheBase
     static protected $prefix;
 
 
+
     public static function init($params)
     {
         self::$prefix = $params[self::P_PREFIX].':';
@@ -85,6 +86,7 @@ class CacheLocal extends CacheBase
     public static function store($name, $value, $ttl=0)
     {
         static::$store[$name] = $value;
+
         return true;
     }
 
@@ -102,6 +104,7 @@ class CacheLocal extends CacheBase
         }
         else
             unset(static::$store[$name]);
+
         return true;
     }
 }
@@ -113,10 +116,7 @@ class CacheProcess extends CacheBase
 {
     public static function store($name, $value, $ttl=null)
     {
-        return \apc_add(self::$prefix.$name
-            , $value
-            , isset($ttl) ? $ttl : 86400 // 24 hours
-            );
+        return \apc_add(self::$prefix.$name, $value, isset($ttl) ? $ttl : 86400);   // 24 hours
     }
 
     public static function storeMulti($values, $ttl=null)
@@ -124,10 +124,7 @@ class CacheProcess extends CacheBase
         $t = isset($ttl) ? $ttl : 86400;    // 24 hours
 
         foreach ($values as $name=>$value)
-            $last_res = \apc_add(self::$prefix.$name
-                , $value
-                , $t
-                );
+            $last_res = \apc_add(self::$prefix.$name, $value, $t);
 
         return $last_res;
     }
@@ -160,6 +157,7 @@ class CacheProcess extends CacheBase
         {
             foreach ($name as $key)
                 \apc_delete(self::$prefix.$key);
+
             return true;
         }
         else
@@ -192,9 +190,10 @@ class CacheMemcache extends CacheBase
         self::$conn = new \Memcached(__METHOD__.$params[self::P_PREFIX]);
 
         $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
-        self::$conn->setOptions($options + array(\Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.'
-            , \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
-            ));
+        self::$conn->setOptions($options + array(
+            \Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
+            \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
+        ));
         if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
             self::$conn->addServers($params[self::P_SERVERS]);
 
@@ -203,17 +202,12 @@ class CacheMemcache extends CacheBase
 
     public static function store($name, $value, $ttl=null)
     {
-        return self::$conn->set($name
-            , $value
-            , isset($ttl) ? $ttl : 86400 // 24 hours
-            );
+        return self::$conn->set($name, $value, isset($ttl) ? $ttl : 86400); // 24 hours
     }
 
     public static function storeMulti($values, $ttl=null)
     {
-        return self::$conn->setMulti($values
-            , isset($ttl) ? $ttl : 86400 // 24 hours
-            );
+        return self::$conn->setMulti($values, isset($ttl) ? $ttl : 86400);  // 24 hours
     }
 
     /** gets the stored value or <i>null</i> if not found. may use the read-through
@@ -229,12 +223,14 @@ class CacheMemcache extends CacheBase
     public static function fetch($name, $callback=null)
     {
         $value = self::$conn->get($name, $callback);
+
         return $value === false ? null : $value;
     }
 
     public static function fetchMulti($names)
     {
         $values = self::$conn->getMulti($names);
+
         return $values === false ? array() : $values;
     }
 

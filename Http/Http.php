@@ -40,27 +40,31 @@ class Http
     {
         $data_url = \http_build_query($data);
         $data_len = \strlen($data_url);
-        $headers += array('Connection'=>'close'
-            , 'Content-Length'=>$data_len
-            , 'Content-Type'=>'application/x-www-form-urlencoded; charset="'.Nls::$charset.'"'
-            );
-        \array_walk($headers, function(&$v, $k){$v = "$k: $v";});
+        $headers += array(
+            'Connection'=>'close',
+            'Content-Length'=>$data_len,
+            'Content-Type'=>'application/x-www-form-urlencoded; charset="'.Nls::$charset.'"'
+        );
+        \array_walk($headers, function (&$v, $k) {$v = "$k: $v";});
 
-        $fgc = \file_get_contents($url
-            , false
-            , stream_context_create(array('http'=>array('method'=>'POST'
-                , 'header'=>\implode("\r\n", $headers)
-                , 'content'=>$data_url
-                , 'follow_location'=>false
-                )))
-            );
+        $fgc = \file_get_contents(
+            $url,
+            false,
+            \stream_context_create(array('http'=>array(
+                'method'=>'POST',
+                'header'=>\implode("\r\n", $headers),
+                'content'=>$data_url,
+                'follow_location'=>false
+            )))
+        );
 
         if ($fgc === false)
             \error_log(\print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
 
-        return array('content'=>$fgc ?: null
-            , 'headers'=>isset($http_response_header) ? $http_response_header : null
-            );
+        return array(
+            'content'=>$fgc ?: null,
+            'headers'=>isset($http_response_header) ? $http_response_header : null
+        );
     }
 
     /** make an http POST request with file upload and returns the response body and headers
@@ -88,7 +92,7 @@ class Http
                 if (isset($value['headers']))
                 {
                     $h = $value['headers'];
-                    \array_walk($h, function(&$v, $k){$v = "$k: $v\r\n";});
+                    \array_walk($h, function (&$v, $k) {$v = "$k: $v\r\n";});
                 }
                 else
                     $h = array();
@@ -102,34 +106,37 @@ class Http
                 $content = $value;
             }
 
-            $parts[] = "--$boundary\r\n"
-                . "Content-Disposition: form-data; name=\"$name\"$filename\r\n".\implode('', $h)."\r\n"
-                . $content
-                ;
+            $parts[] = "--$boundary\r\n".
+                "Content-Disposition: form-data; name=\"$name\"$filename\r\n".\implode('', $h)."\r\n".
+                $content;
         }
         $data_url = \implode("\r\n", $parts)."\r\n--$boundary--";
         $data_len = \strlen($data_url);
-        $headers += array('Connection'=>'close'
-            , 'Content-Length'=>$data_len
-            , 'Content-Type'=>"multipart/form-data; boundary=$boundary"
-            );
-        \array_walk($headers, function(&$v, $k){$v = "$k: $v";});
+        $headers += array(
+            'Connection'=>'close',
+            'Content-Length'=>$data_len,
+            'Content-Type'=>"multipart/form-data; boundary=$boundary"
+        );
+        \array_walk($headers, function (&$v, $k) {$v = "$k: $v";});
 
-        $fgc = \file_get_contents($url
-            , false
-            , \stream_context_create(array('http'=>array('method'=>'POST'
-                , 'header'=>\implode("\r\n", $headers)
-                , 'content'=>$data_url
-                , 'follow_location'=>false
-                )))
-            );
+        $fgc = \file_get_contents(
+            $url,
+            false,
+            \stream_context_create(array('http'=>array(
+                'method'=>'POST',
+                'header'=>\implode("\r\n", $headers),
+                'content'=>$data_url,
+                'follow_location'=>false
+            )))
+        );
 
         if ($fgc === false)
             \error_log(\print_r($data_url, true), 3, '/tmp/http_post_upload_errors.txt');
 
-        return array('content'=>$fgc ?: null
-            , 'headers'=>isset($http_response_header) ? $http_response_header : null
-            );
+        return array(
+            'content'=>$fgc ?: null,
+            'headers'=>isset($http_response_header) ? $http_response_header : null
+        );
     }
 
     /**
@@ -152,12 +159,12 @@ class Http
         if ($url_short = Cache::fetch("bit.ly:$url"))
             return $url_short;
 
-        if ($url_short = @\file_get_contents('http://api.bit.ly/v3/shorten'
-            . "?login=$login"
-            . "&apiKey=$key"
-            . "&uri=$url"
-            . '&format=txt'
-            ))
+        if ($url_short = @\file_get_contents('http://api.bit.ly/v3/shorten'.
+            "?login=$login".
+            "&apiKey=$key".
+            "&uri=$url".
+            '&format=txt'
+        ))
         {
             $u = \urlencode($url_short);
             Cache::store("bit.ly:$url", $u);
