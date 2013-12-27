@@ -11,7 +11,6 @@
 namespace Dotwheel\Http;
 
 use Dotwheel\Ui\Html;
-use Dotwheel\Util\Cache;
 use Dotwheel\Util\Nls;
 
 class Http
@@ -156,9 +155,6 @@ class Http
      */
     public static function shortenUrl($url, $login, $key)
     {
-        if ($url_short = Cache::fetch("bit.ly:$url"))
-            return $url_short;
-
         if ($url_short = @\file_get_contents('http://api.bit.ly/v3/shorten'.
             "?login=$login".
             "&apiKey=$key".
@@ -167,7 +163,7 @@ class Http
         ))
         {
             $u = \urlencode($url_short);
-            Cache::store("bit.ly:$url", $u);
+
             return $u;
         }
         else
