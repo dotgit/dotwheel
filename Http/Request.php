@@ -128,7 +128,7 @@ class Request
                 $modules[] = \basename($dir);
                 $dir = \dirname($dir);
             }
-            if (DIRECTORY_SEPARATOR == '\\')
+            if (\DIRECTORY_SEPARATOR == '\\')
                 $dir = \strtr($dir, '\\', '/');
             self::$root_url = ($_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http').
                 "://{$_SERVER['HTTP_HOST']}$dir".
@@ -206,7 +206,7 @@ class Request
      */
     public static function getHttpHeaders()
     {
-        return \array_change_key_case(\apache_request_headers(), CASE_LOWER);
+        return \array_change_key_case(\apache_request_headers(), \CASE_LOWER);
     }
 
     /** check whether $sort_param exists as a key in $sort_cols and return the name and

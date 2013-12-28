@@ -308,7 +308,7 @@ class Repo
                             $val = false;
                         else
                         {
-                            $value = str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
+                            $value = \str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
                             $m = array();
                             if (\preg_match('/^(.*),(\d{1,2})$/', $value, $m))
                                 $val = \str_replace(',', '', $m[1]) . $m[2] . (isset($m[2][1]) ? '' : '0');
@@ -590,7 +590,7 @@ class Repo
         if (isset(self::$store[$name]))
             $repo += self::$store[$name];
 
-        if (!\is_array($input))
+        if (! \is_array($input))
             $input = (array)$input;
 
         // if class not provided return value as is

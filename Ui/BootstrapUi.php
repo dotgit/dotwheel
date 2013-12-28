@@ -145,7 +145,7 @@ class BootstrapUi
      */
     public static function asComment($comment)
     {
-        if(\is_array($comment))
+        if (\is_array($comment))
         {
             $c = Params::extract($comment, self::P_CONTENT);
             Params::add($comment, 'help-block');
@@ -540,7 +540,7 @@ EOco
      */
     public static function icon($icon)
     {
-        if (is_array($icon))
+        if (\is_array($icon))
         {
             $label = Params::extract($icon, self::P_LABEL);
             Params::add($icon, self::ICN_BASE);

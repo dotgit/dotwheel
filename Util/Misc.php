@@ -166,7 +166,7 @@ class Misc
     public static function sessionSetTtl($ttl)
     {
         \session_set_cookie_params($ttl);
-        if (\session_status() == PHP_SESSION_NONE)
+        if (\session_status() == \PHP_SESSION_NONE)
             \session_start();
         else
             \session_regenerate_id(true);

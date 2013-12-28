@@ -68,7 +68,7 @@ class HtmlPage
                         $items
                     ));
                 else
-                    self::$bin_dom_ready[] = trim($items);
+                    self::$bin_dom_ready[] = \trim($items);
                 break;
             case self::SCRIPT:
                 if (\is_array($items))

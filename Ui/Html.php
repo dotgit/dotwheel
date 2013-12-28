@@ -52,7 +52,7 @@ class Html
     {
         $ret = array();
         foreach ($params as $attr=>$value)
-            if (isset($value) and !\is_int($attr))
+            if (isset($value) and ! \is_int($attr))
                 $ret[] = " $attr=\"".self::encodeAttr($value).'"';
 
         return $ret ? \implode('', $ret) : '';
@@ -460,7 +460,7 @@ class Html
      */
     public static function encode($str)
     {
-        return htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset);
+        return \htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset);
     }
 
     /** translates special chars in the string to html entities.
@@ -469,7 +469,7 @@ class Html
      */
     public static function encodeAttr($str)
     {
-        return \htmlspecialchars($str, ENT_COMPAT, Nls::$charset);
+        return \htmlspecialchars($str, \ENT_COMPAT, Nls::$charset);
     }
 
     /** translates special chars in the string to html entities, then converts newlines to &lt;br /&gt;.
@@ -480,11 +480,11 @@ class Html
     public static function encodeNl($str, $format=false)
     {
         if (! $format)
-            return \nl2br(\htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset));
+            return \nl2br(\htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset));
         else
             return \nl2br(\preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u'),
                 array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1'),
-                \htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset)
+                \htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset)
             ));
     }
 
@@ -495,10 +495,10 @@ class Html
      */
     public static function asEmail($email, $width=0)
     {
-        return '<a href="mailto:'.\htmlspecialchars($email, ENT_COMPAT, Nls::$charset).'">'.
+        return '<a href="mailto:'.\htmlspecialchars($email, \ENT_COMPAT, Nls::$charset).'">'.
             \htmlspecialchars(
                 ($width > 0 and \strlen($email) > $width) ? \substr_replace($email, '...', $width) : $email,
-                ENT_NOQUOTES,
+                \ENT_NOQUOTES,
                 Nls::$charset
             ).
             '</a>';
@@ -515,7 +515,7 @@ class Html
         return "<a href=\"$href\" target=\"_blank\">".
             \htmlspecialchars(
                 ($width > 0 and \strlen($url) > $width) ? \substr_replace($url, '...', $width) : $url,
-                ENT_NOQUOTES,
+                \ENT_NOQUOTES,
                 Nls::$charset
             ).
             '</a>';
@@ -527,7 +527,7 @@ class Html
      */
     public static function asTel($tel)
     {
-        return \str_replace(array(' ', "\t"), '&nbsp;', \htmlspecialchars($tel, ENT_NOQUOTES, Nls::$charset));
+        return \str_replace(array(' ', "\t"), '&nbsp;', \htmlspecialchars($tel, \ENT_NOQUOTES, Nls::$charset));
     }
 
     /** integer value using specified thousands separator or Nls format if empty
@@ -617,7 +617,7 @@ class Html
      */
     public static function asAbbr($short, $long)
     {
-        return '<abbr title="'.\htmlspecialchars($long, ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
+        return '<abbr title="'.\htmlspecialchars($long, \ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
     }
 
     /** html representation of a list: 'On'

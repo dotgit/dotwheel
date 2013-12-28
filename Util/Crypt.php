@@ -21,7 +21,7 @@ class Crypt
      */
     public static function getSalt($cost=9)
     {
-        return CRYPT_BLOWFISH == 1
+        return \CRYPT_BLOWFISH == 1
             ? \sprintf(
                 '$2a$%02u$%s$',
                 $cost,
@@ -33,7 +33,7 @@ class Crypt
                 )
 // stronger, large memory footprint
 //              \substr(
-//                  str_shuffle(\str_repeat(self::SALT_ALPHABET, 64)),
+//                  \str_shuffle(\str_repeat(self::SALT_ALPHABET, 64)),
 //                  \rand(0, (64<<6) - self::SALT_LEN_BLOWFISH),
 //                  self::SALT_LEN_BLOWFISH
 //              )

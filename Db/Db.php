@@ -29,7 +29,7 @@ class Db
     public static function connect($host=null, $username=null, $password=null, $database=null, $charset='UTF8')
     {
         if (self::$conn = \mysqli_init()
-            and \mysqli_options(self::$conn, MYSQLI_SET_CHARSET_NAME, $charset)
+            and \mysqli_options(self::$conn, \MYSQLI_SET_CHARSET_NAME, $charset)
             and \mysqli_real_connect(self::$conn, $host, $username, $password, $database)
         )
         {
@@ -107,7 +107,7 @@ class Db
         if ($_ = \mysqli_query(self::$conn, $sql))
         {
             $hash = array();
-            if ($rows = \mysqli_fetch_all($_, MYSQLI_ASSOC))
+            if ($rows = \mysqli_fetch_all($_, \MYSQLI_ASSOC))
                 foreach ($rows as $row)
                     $hash[$row[$key]] = $row;
             \mysqli_free_result($_);
@@ -135,7 +135,7 @@ class Db
     {
         if ($_ = \mysqli_query(self::$conn, $sql))
         {
-            $lst = \mysqli_fetch_all($_, MYSQLI_ASSOC);
+            $lst = \mysqli_fetch_all($_, \MYSQLI_ASSOC);
             \mysqli_free_result($_);
 
             return isset($lst) ? $lst : array();

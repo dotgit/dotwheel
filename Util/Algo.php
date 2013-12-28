@@ -25,7 +25,7 @@ class Algo
         foreach (\array_reverse(\str_split($num_str)) as $i=>$c)
             $str .= ($i % 2 ? $c * 2 : $c );
 
-        return \array_sum(str_split($str)) % 10 == 0;
+        return \array_sum(\str_split($str)) % 10 == 0;
     }
 
     /** tests the string has a valid mod97 checksum. used for IBAN and VAT checks.
