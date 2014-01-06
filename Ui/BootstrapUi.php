@@ -51,8 +51,8 @@ class BootstrapUi
     const P_WIDTH           = 1;
     const P_CONTENT         = 2;
     const P_CONTENT_ATTR    = 3;
-    const P_LABEL           = 4;
-    const P_LABEL_ATTR      = 5;
+    const P_HEADER          = 4;
+    const P_HEADER_ATTR     = 5;
     const P_FOOTER          = 6;
     const P_FORM_TYPE       = 7;
     const P_TARGET          = 8;
@@ -98,7 +98,7 @@ class BootstrapUi
 
 
     /** returns a div formatted as alert block
-     * @param array $params {P_LABEL:'alert body', P_LABEL_ATTR:{label tag attributes}
+     * @param array $params {P_HEADER:'header', P_HEADER_ATTR:{header tag attributes}
      *                      , P_CLOSE:true // show close btn?
      *                      , P_CONTENT:'alert body'
      *                      , div tag arguments
@@ -108,10 +108,10 @@ class BootstrapUi
     public static function alert($params)
     {
         $body = Params::extract($params, self::P_CONTENT);
-        if ($label = Params::extract($params, self::P_LABEL))
+        if ($header = Params::extract($params, self::P_HEADER))
         {
-            $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
-            $body = '<h4'.Html::attr($label_attr).'>'.$label.'</h4>'.$body;
+            $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+            $body = '<h4'.Html::attr($header_attr).'>'.$header.'</h4>'.$body;
         }
         if ($close = Params::extract($params, self::P_CLOSE))
         {
@@ -132,7 +132,7 @@ class BootstrapUi
         $body = Params::extract($params, self::P_CONTENT);
         Params::add($params, 'clearfix');
         $icon = self::icon(array(
-            self::P_LABEL=>self::ICN_WARNING.' '.self::ICN_2X.' pull-left',
+            self::P_HEADER=>self::ICN_WARNING.' '.self::ICN_2X.' pull-left',
             'style'=>'margin:0.25em 0.5em 0 0;'
         ));
 
@@ -156,7 +156,7 @@ class BootstrapUi
     }
 
     /** formats the control to be displayed as horizontal form row
-     * @param array|string $control {P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
+     * @param array|string $control {P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
      *                              , d.t.a.
      *                              }
@@ -167,11 +167,11 @@ class BootstrapUi
     {
         if (\is_array($control))
         {
-            $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
-            if ($w = Params::extract($l_attr, self::P_WIDTH, self::WIDTH_1_4))
-                $l_attr = static::width2Attr($w, $l_attr);
-            Params::add($l_attr, 'control-label');
-            $control[self::P_LABEL_ATTR] = $l_attr;
+            $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
+            if ($w = Params::extract($h_attr, self::P_WIDTH, self::WIDTH_1_4))
+                $h_attr = static::width2Attr($w, $h_attr);
+            Params::add($h_attr, 'control-label');
+            $control[self::P_HEADER_ATTR] = $h_attr;
 
             $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
             if ($w = Params::extract($content_attr, self::P_WIDTH, self::WIDTH_3_4))
@@ -198,8 +198,8 @@ class BootstrapUi
      * @param array|string $control {P_CONTENT:'form group content'
      *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
      *                              , P_TARGET:'label tag for attribute target'
-     *                              , P_LABEL:'label content'
-     *                              , P_LABEL_ATTR:{P_WIDTH:2, label tag attributes}
+     *                              , P_HEADER:'label content'
+     *                              , P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , d.t.a.
      *                              }
      *                              | 'content to format as form group'
@@ -209,20 +209,20 @@ class BootstrapUi
     {
         if (\is_array($control))
         {
-            $l = Params::extract($control, self::P_LABEL);
-            $l_attr = Params::extract($control, self::P_LABEL_ATTR, array());
-            if ($w = Params::extract($l_attr, self::P_WIDTH))
-                $l_attr = static::width2Attr($w, $l_attr);
+            $h = Params::extract($control, self::P_HEADER);
+            $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
+            if ($w = Params::extract($h_attr, self::P_WIDTH))
+                $h_attr = static::width2Attr($w, $h_attr);
 
             if ($t = Params::extract($control, self::P_TARGET))
-                Params::add($l_attr, $t, 'for');
+                Params::add($h_attr, $t, 'for');
 
-            if ($l_attr)
-                $label = '<label'.Html::attr($l_attr).">$l</label>";
-            elseif (isset($l))
-                $label = "<label>$l</label>";
+            if ($h_attr)
+                $label = '<label'.Html::attr($h_attr).">$h</label>";
+            elseif (isset($h))
+                $label = "<label>$h</label>";
             else
-                $l = null;
+                $h = null;
 
             $content = Params::extract($control, self::P_CONTENT);
             $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
@@ -243,7 +243,7 @@ class BootstrapUi
 
     /** get button element
      * @param array $params {{P_TARGET:'pane id'
-     *                          , P_LABEL:'tab label'
+     *                          , P_HEADER:'tab label'
      *                          , P_CONTENT:'pane content'
      *                          , P_ACTIVE:bool
      *                          }
@@ -261,14 +261,14 @@ class BootstrapUi
             if (\is_array($item))
             {
                 $target = Params::extract($item, self::P_TARGET);
-                $label = Params::extract($item, self::P_LABEL);
+                $header = Params::extract($item, self::P_HEADER);
                 if (Params::extract($item, self::P_ACTIVE))
                 {
                     Params::add($item, 'active');
-                    $items[] = '<li'.Html::attr($item).">$label</li>\n";
+                    $items[] = '<li'.Html::attr($item).">$header</li>\n";
                 }
                 else
-                    $items[] = '<li'.Html::attr($item)."><a href=\"$target\">$label</a></li>\n";
+                    $items[] = '<li'.Html::attr($item)."><a href=\"$target\">$header</a></li>\n";
                 unset($params[$k]);
             }
             else
@@ -280,16 +280,16 @@ class BootstrapUi
     }
 
     /** get button element
-     * @param array $params {P_LABEL:button value, button tag attributes}
+     * @param array $params {P_HEADER:button value, button tag attributes}
      * @return string
      */
     public static function button($params)
     {
-        $label = Params::extract($params, self::P_LABEL);
+        $header = Params::extract($params, self::P_HEADER);
         $params += array('type'=>'button');
         Params::add($params, 'btn');
 
-        return '<button'.Html::attr($params).">$label</button>";
+        return '<button'.Html::attr($params).">$header</button>";
     }
 
     /** get close icon for alert modal
@@ -324,8 +324,8 @@ class BootstrapUi
      * to control caret display
      * @staticvar int $cnt  to generate missing id
      * @param array $params {P_TARGET:'target id'
-     *                      , P_LABEL:'button text'
-     *                      , P_LABEL_ATTR:{class:ICN_FILTER}
+     *                      , P_HEADER:'button text'
+     *                      , P_HEADER_ATTR:{class:ICN_FILTER}
      *                      , button div attributes
      *                      }
      * @return string
@@ -339,11 +339,11 @@ class BootstrapUi
 
         $id = Params::extract($params, 'id', 'clps_btn_'.++$cnt);
         $id_target = Params::extract($params, self::P_TARGET);
-        $prefix = ($label_attr = Params::extract($params, self::P_LABEL_ATTR, array()))
-            ? ('<i'.Html::attr($label_attr).'></i> ')
+        $prefix = ($header_attr = Params::extract($params, self::P_HEADER_ATTR, array()))
+            ? ('<i'.Html::attr($header_attr).'></i> ')
             : '';
-        $prefix .= ($label = Params::extract($params, self::P_LABEL))
-            ? "$label "
+        $prefix .= ($header = Params::extract($params, self::P_HEADER))
+            ? "$header "
             : '';
 
         HtmlPage::add(array(HtmlPage::DOM_READY=><<<EOco
@@ -359,12 +359,12 @@ EOco
         Params::add($params, "#$id_target", 'data-target');
         Params::add($params, 'dropdown');
 
-        return self::button(array(self::P_LABEL=>"$prefix<span class=\"caret\"></span>") + $params);
+        return self::button(array(self::P_HEADER=>"$prefix<span class=\"caret\"></span>") + $params);
     }
 
     /** returns a collapsible group
-     * @param array $params {P_LABEL:'group label'
-     *                      , P_LABEL_ATTR:{additional label div attributes}
+     * @param array $params {P_HEADER:'group label'
+     *                      , P_HEADER_ATTR:{additional label div attributes}
      *                      , P_CONTENT:'collapsible content'
      *                      , P_CONTENT_ATTR:{additional content div attributes}
      *                      , P_FOOTER:'panel footer'
@@ -377,12 +377,12 @@ EOco
     {
         $id = isset($params['id']) ? $params['id'] : null;
 
-        $label_attr = Params::extract($params, self::P_LABEL_ATTR, array());
-        Params::add($label_attr, 'collapse', 'data-toggle');
+        $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+        Params::add($header_attr, 'collapse', 'data-toggle');
         if (isset($id))
-            Params::add($label_attr, "#$id", 'href');
+            Params::add($header_attr, "#$id", 'href');
 
-        $label = Params::extract($params, self::P_LABEL);
+        $header = Params::extract($params, self::P_HEADER);
         $content = Params::extract($params, self::P_CONTENT);
         $content_attr = Params::extract($params, self::P_CONTENT_ATTR);
         $addon_prefix = Params::extract($params, self::P_PREFIX);
@@ -393,7 +393,7 @@ EOco
         Params::add($params, 'collapse');
 
         return self::panel(array(
-            self::P_LABEL=>'<a'.Html::attr($label_attr).'><div>'.$label.'</div></a>',
+            self::P_HEADER=>'<a'.Html::attr($header_attr).'><div>'.$header.'</div></a>',
             self::P_CONTENT=>$content,
             self::P_CONTENT_ATTR=>$content_attr,
             self::P_PREFIX=>$addon_prefix,
@@ -421,7 +421,7 @@ EOco
                         {
                             if (\is_array($item))
                             {
-                                $label = Params::extract($item, self::P_LABEL);
+                                $label = Params::extract($item, self::P_HEADER);
                                 Params::add($item, 'presentatoion', 'role');
                                 $li_attr = Html::attr($item);
                             }
@@ -535,14 +535,14 @@ EOco
     }
 
     /** get icon html
-     * @param string|array $icon    icon code|{P_LABEL:'icon code', i tag attributes}
+     * @param string|array $icon    icon code|{P_HEADER:'icon code', i tag attributes}
      * @return string
      */
     public static function icon($icon)
     {
         if (\is_array($icon))
         {
-            $label = Params::extract($icon, self::P_LABEL);
+            $label = Params::extract($icon, self::P_HEADER);
             Params::add($icon, self::ICN_BASE);
             Params::add($icon, $label);
 
@@ -553,7 +553,7 @@ EOco
     }
 
     /** returns a modal dialog window with specified header, body and buttons
-     * @param array $params {P_LABEL:'dialog title'
+     * @param array $params {P_HEADER:'dialog title'
      *                      , P_CONTENT:'dialog body'
      *                      , P_FOOTER:'dialog buttons row'
      *                      , P_CLOSE:close button tag attributes
@@ -566,7 +566,7 @@ EOco
         self::registerModal();
 
         $close = Params::extract($params, self::P_CLOSE);
-        $header = Params::extract($params, self::P_LABEL);
+        $header = Params::extract($params, self::P_HEADER);
         $body = Params::extract($params, self::P_CONTENT);
         $footer = Params::extract($params, self::P_FOOTER);
 
@@ -599,7 +599,7 @@ EOco
 
     /** html-formatted bootstrap tabs
      * @param array $items  {{P_TARGET:'pane id'
-     *                          , P_LABEL:'tab label'
+     *                          , P_HEADER:'tab label'
      *                          , P_CONTENT:'pane content'
      *                          , P_ACTIVE:bool
      *                          }
@@ -627,7 +627,7 @@ EOco
         {
             if (\is_array($item))
             {
-                $label = Params::extract($item, self::P_LABEL);
+                $header = Params::extract($item, self::P_HEADER);
                 $content = Params::extract($item, self::P_CONTENT);
                 if (isset($content))
                 {
@@ -638,7 +638,7 @@ EOco
                         Params::add($item, 'active');
                         Params::add($pane, 'active');
                     }
-                    $labels[] = '<li'.Html::attr($item)."><a href=\"#$id\" data-toggle=\"$toggle\">$label</a></li>";
+                    $labels[] = '<li'.Html::attr($item)."><a href=\"#$id\" data-toggle=\"$toggle\">$header</a></li>";
                     $panes[] = '<div'.Html::attr($pane).">$content</div>";
                     unset($items[$k]);
                 }
@@ -647,7 +647,7 @@ EOco
                     $target = Params::extract($item, self::P_TARGET);
                     if (Params::extract($item, self::P_ACTIVE))
                         Params::add($item, 'active');
-                    $labels[] = '<li'.Html::attr($item)."><a href=\"$target\">$label</a></li>";
+                    $labels[] = '<li'.Html::attr($item)."><a href=\"$target\">$header</a></li>";
                 }
             }
             else
@@ -664,10 +664,10 @@ EOco
     }
 
     /** html-formatted pagination based on butons
-     * @param array $params {PG_ACTIVE:current page number
-     *                      , PG_LAST: last page number
-     *                      , PG_LIST: array of pages to display
-     *                      , PG_LINK_1: sprintf-formatted url with one parameter for page number
+     * @param array $params {PGN_ACTIVE:current page number
+     *                      , PGN_LAST: last page number
+     *                      , PGN_LIST: array of pages to display
+     *                      , PGN_LINK_1: sprintf-formatted url with one parameter for page number
      *                      }
      * @return string buttons representing pages
      */
@@ -713,9 +713,9 @@ EOco
     }
 
     /** html-formatted bootstrap pagination
-     * @param array $params {PG_ACTIVE:current page number
-     *                      , PG_LIST: array of pages to display
-     *                      , PG_LINK_1: sprintf-formatted url with one parameter for page number
+     * @param array $params {PGN_ACTIVE:current page number
+     *                      , PGN_LIST: array of pages to display
+     *                      , PGN_LINK_1: sprintf-formatted url with one parameter for page number
      *                      }
      * @return string bootstrap pagination using unordered list
      */
@@ -746,7 +746,7 @@ EOco
     }
 
     /** returns the panel html code
-     * @param array $params {P_LABEL:'panel heading'
+     * @param array $params {P_HEADER:'panel heading'
      *                      , P_FOOTER:'panel footer'
      *                      , P_PREFIX:'panel content prefix'
      *                      , P_SUFFIX:'panel content suffix'
@@ -759,7 +759,7 @@ EOco
      */
     public static function panel($params)
     {
-        if ($heading = Params::extract($params, self::P_LABEL))
+        if ($heading = Params::extract($params, self::P_HEADER))
             $heading = "<div class=\"panel-heading\">$heading</div>";
         if ($footer = Params::extract($params, self::P_FOOTER))
             $footer = "<div class=\"panel-footer\">$footer</div>";
@@ -780,7 +780,7 @@ EOco
     }
 
     /** returns the popover html code
-     * @param array $params {P_LABEL:'popover heading'
+     * @param array $params {P_HEADER:'popover heading'
      *                      , P_CONTENT:'popover content'
      *                      , P_ALIGN:'popover placement'
      *                      , P_TARGET:'opener element id'
@@ -801,7 +801,7 @@ EOco
             $close = self::close($close);
         }
 
-        $title = Params::extract($params, self::P_LABEL);
+        $title = Params::extract($params, self::P_HEADER);
         $id = Params::extract($params, self::P_TARGET);
 
         $options = array(

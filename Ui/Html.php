@@ -35,8 +35,8 @@ class Html
     const P_PREFIX          = 12;
     const P_SUFFIX          = 13;
     const P_WRAP_FMT        = 14;
-    const P_LABEL           = 15;
-    const P_LABEL_ATTR      = 16;
+    const P_HEADER          = 15;
+    const P_HEADER_ATTR     = 16;
 
     const T_ARRAY   = 1;
 
@@ -313,10 +313,10 @@ class Html
      *                      , value:'a,i'|{a:'a',i:'i'}
      *                      , P_ITEMS:{a:'Active',i:'Inactive'}
      *                      , P_DELIM:'&lt;br&gt;'
-     *                      , P_FMT:'%s'
      *                      , P_PREFIX:''
      *                      , P_SUFFIX:''
-     *                      , P_LABEL_ATTR:{}
+     *                      , P_FMT:'%s'
+     *                      , P_HEADER_ATTR:{}
      *                      }
      * @return string
      */
@@ -348,7 +348,7 @@ class Html
                 'name'=>"{$name}[$k]",
                 'checked'=>isset($value[$k]) ? 'on' : null,
                 'value'=>$k,
-                self::P_LABEL=>$v
+                self::P_HEADER=>$v
             ) + $params);
         }
 
@@ -365,7 +365,7 @@ class Html
      *                      , P_FMT:'%s'
      *                      , P_PREFIX:''
      *                      , P_SUFFIX:''
-     *                      , P_LABEL_ATTR:{'class':'checkbox'}
+     *                      , P_HEADER_ATTR:{'class':'checkbox'}
      *                      }
      * @return string
      */
@@ -380,7 +380,7 @@ class Html
         $delim = Params::extract($params, self::P_DELIM, '<br>');
         $fmt = Params::extract($params, self::P_WRAP_FMT);
         $value = Params::extract($params, 'value');
-        if ($label_attr = Params::extract($params, self::P_LABEL_ATTR))
+        if ($label_attr = Params::extract($params, self::P_HEADER_ATTR))
             $label_attr = Html::attr($label_attr);
 
         $items = array();
@@ -421,8 +421,8 @@ class Html
     }
 
     /** returns html checkbox element
-     * @param array $params {P_LABEL:'string'
-     *                      , P_LABEL_ATTR:{label tag attributes}
+     * @param array $params {P_HEADER:'string'
+     *                      , P_HEADER_ATTR:{label tag attributes}
      *                      , P_DELIM:' '
      *                      , P_WRAP_FMT:'%s'
      *                      , input tag attributes
@@ -433,19 +433,19 @@ class Html
     {
         $attr = \array_diff_key($params, array(
             self::P_WRAP_FMT=>true,
-            self::P_LABEL=>true,
-            self::P_LABEL_ATTR=>true,
+            self::P_HEADER=>true,
+            self::P_HEADER_ATTR=>true,
             self::P_DELIM=>true
         ));
         $fmt = isset($params[self::P_WRAP_FMT]) ? $params[self::P_WRAP_FMT] : '%s';
-        $label = isset($params[self::P_LABEL]) ? $params[self::P_LABEL] : null;
-        $label_attr = isset($params[self::P_LABEL_ATTR]) ? Html::attr($params[self::P_LABEL_ATTR]) : null;
+        $header = isset($params[self::P_HEADER]) ? $params[self::P_HEADER] : null;
+        $header_attr = isset($params[self::P_HEADER_ATTR]) ? Html::attr($params[self::P_HEADER_ATTR]) : null;
         $delim = isset($params[self::P_DELIM]) ? $params[self::P_DELIM] : ' ';
         $checkbox = self::input(array('type'=>'checkbox') + $attr);
-        if (isset($label))
-            $checkbox = "<label$label_attr>$checkbox$delim$label</label>";
-        elseif (isset($label_attr))
-            $checkbox = "<div$label_attr>$checkbox</div>";
+        if (isset($header))
+            $checkbox = "<label$header_attr>$checkbox$delim$header</label>";
+        elseif (isset($header_attr))
+            $checkbox = "<div$header_attr>$checkbox</div>";
 
         return \sprintf($fmt, $checkbox);
     }

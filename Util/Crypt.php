@@ -15,9 +15,11 @@ class Crypt
     const SALT_ALPHABET = '0123456789.ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz';
     const SALT_LEN_BLOWFISH = 22;
 
+
+
     /** generate salt string used by crypt function. use Blowfish salt by default
      * @param int $cost base 2 log value specifying the num of iterations
-     * @return string Blowfish-formatted salt string ($2a$xx$yyyyyyyyyyyyyyyyyyyy$) or null
+     * @return string Blowfish-formatted salt string ($2a$xx$yyyyyyyyyyyyyyyyyyyyyy$) or null
      */
     public static function getSalt($cost=9)
     {
@@ -32,6 +34,8 @@ class Crypt
                     self::SALT_LEN_BLOWFISH
                 )
 // stronger, large memory footprint
+// 64 is a length of SALT_ALPHABET
+// 64<<6 == 64*64
 //              \substr(
 //                  \str_shuffle(\str_repeat(self::SALT_ALPHABET, 64)),
 //                  \rand(0, (64<<6) - self::SALT_LEN_BLOWFISH),
