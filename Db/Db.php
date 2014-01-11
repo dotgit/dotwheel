@@ -45,7 +45,7 @@ class Db
 
     /** executes a sql statement and fetches only one record in associative mode
      * @param string $sql   SQL sentence
-     * @return array|bool hash with the row information or <i>false</i> on error
+     * @return array|null|bool hash with the row information, <i>null</i> if not found or <i>false</i> on error
      * + error_log
      */
     public static function fetchRow($sql)
@@ -65,7 +65,7 @@ class Db
         return self::fetchRow($sql);
     }
 
-    /**    executes a sql statement and fetches all records into a hash array. each
+    /** executes a sql statement and fetches all records into a hash array. each
      * record must consist of just two columns -- key(first) and value(second)
      * @param string $sql   SQL sentence (returning at least two columns)
      * @return array|bool hash with the rows or <i>false</i> on error + error_log

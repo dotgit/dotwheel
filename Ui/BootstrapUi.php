@@ -497,6 +497,7 @@ EOco
      */
     public static function gridRow($columns)
     {
+        // phase 1: count columns in the row to get the number of columns
         $fld_count = 0;
         foreach ($columns as $k=>$col)
             if (\is_array($col) or \is_int($k))
@@ -511,6 +512,8 @@ EOco
             default: $width_default = self::WIDTH_1_12;
         }
 
+        // phase 2: build row of columns
+        $attr = array();
         $cols = array();
         foreach ($columns as $k=>$col)
         {
@@ -520,18 +523,18 @@ EOco
                     $col = static::width2Attr($width, $col);
                 $content = Params::extract($col, self::P_CONTENT);
                 $cols[] = '<div'.Html::attr($col).'>'.$content.'</div>';
-                unset($columns[$k]);
             }
             elseif (\is_int($k))
             {
-                $attr = static::width2Attr($width_default);
-                $cols[] = '<div'.Html::attr($attr).'>'.$col.'</div>';
-                unset($columns[$k]);
+                $a = static::width2Attr($width_default);
+                $cols[] = '<div'.Html::attr($a).'>'.$col.'</div>';
             }
+            else
+                $attr[$k] = $col;
         }
-        Params::add($columns, 'row');
+        Params::add($attr, 'row');
 
-        return '<div'.Html::attr($columns).'>'.\implode('', $cols).'</div>';
+        return '<div'.Html::attr($attr).'>'.\implode('', $cols).'</div>';
     }
 
     /** get icon html
@@ -880,6 +883,8 @@ EOco
 
     /** inject width specification into attributes array
      * @param int|string $width width specification (nbr of grid units or css value)
+     *      | {'sm':WIDTH_1, 'lg':WIDTH_1_2}
+     *      | '100%'
      * @param array $attrs      attributes array
      * @return array
      */
