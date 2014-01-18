@@ -160,12 +160,14 @@ class Http
     }
 
     /**
-     * @return string the ip address of the client (followed by that of proxy if used)
+     * @return string the ip address of the client (followed by the list of proxies if available)
+     *  in the form '12.34.56.78' or '12.34.56.78 XFF 34.56.78.90, 56.78.90.12'
+     * @link http://en.wikipedia.org/wiki/X-Forwarded-For
      */
     public static function remoteAddr()
     {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-            return "{$_SERVER['REMOTE_ADDR']} {$_SERVER['HTTP_X_FORWARDED_FOR']}";
+            return "{$_SERVER['REMOTE_ADDR']} XFF {$_SERVER['HTTP_X_FORWARDED_FOR']}";
         else
             return $_SERVER['REMOTE_ADDR'];
     }
