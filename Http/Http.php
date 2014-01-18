@@ -38,13 +38,13 @@ class Http
      * @param string $url       url of the requested script
      * @param array $data       hash array of request variables
      * @param array $headers    hash array of http headers in the form:
-     *  {Connection: 'close'
-     *  , Host: 'www.example.com'
+     *  {'Connection':'close'
+     *  , 'Host':'www.example.com'
      *  , ...
      *  }
      * @return array            hash array in the form:
      *  {P_HEADERS: ['HTTP/1.1 200 OK', 'Connection: close', ...]
-     *  , P_CONTENT: '<html></html>'
+     *  , P_CONTENT: 'html file content'
      *  }
      */
     public static function post($url, $data, $headers=array())
@@ -71,7 +71,7 @@ class Http
         );
 
         if ($fgc === false)
-            \error_log($url.' // '.\print_r($data_url, true), 3, self::ERROR_LOG_FILE);
+            \error_log($url.' // '.\json_encode($data_url), 3, self::ERROR_LOG_FILE);
 
         return array(
             self::P_CONTENT=>$fgc ?: null,
@@ -89,13 +89,13 @@ class Http
      *      }
      *  }
      * @param array $headers    hash array of http headers in the form:
-     *  {Connection: 'close'
-     *  , Host: 'www.example.com'
+     *  {'Connection':'close'
+     *  , 'Host':'www.example.com'
      *  , ...
      *  }
-     * @return array            hash array in the form:
+     * @return array hash array in the form:
      *  {P_HEADERS: ['HTTP/1.1 200 OK', 'Connection: close', ...]
-     *  , P_CONTENT: '<html></html>'
+     *  , P_CONTENT: 'html file content'
      *  }
      */
     public static function postUpload($url, $data, $headers=array())
@@ -151,7 +151,7 @@ class Http
         );
 
         if ($fgc === false)
-            \error_log($url.' // '.\print_r($data_url, true), 3, self::ERROR_LOG_FILE);
+            \error_log($url.' // '.\json_encode($data_url), 3, self::ERROR_LOG_FILE);
 
         return array(
             self::P_CONTENT=>$fgc ?: null,
@@ -160,19 +160,19 @@ class Http
     }
 
     /**
-     * @return string   the ip address of the client (together with that of proxy if used)
+     * @return string the ip address of the client (followed by that of proxy if used)
      */
     public static function remoteAddr()
     {
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-            return "{$_SERVER['REMOTE_ADDR']} / {$_SERVER['HTTP_X_FORWARDED_FOR']}";
+            return "{$_SERVER['REMOTE_ADDR']} {$_SERVER['HTTP_X_FORWARDED_FOR']}";
         else
             return $_SERVER['REMOTE_ADDR'];
     }
 
-    /** prepare a shortened url by using bit.ly online API
+    /** prepares a shortened url by using bit.ly online API
      * @param string $url   urlencoded address
-     * @return string       the shortened url
+     * @return string the shortened url
      */
     public static function shortenUrl($url, $login, $key)
     {
