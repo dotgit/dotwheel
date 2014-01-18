@@ -107,24 +107,29 @@ class BootstrapUi
      */
     public static function alert($params)
     {
-        $body = Params::extract($params, self::P_CONTENT);
-        if ($header = Params::extract($params, self::P_HEADER))
+        if (is_array($params))
         {
-            $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
-            $body = '<h4'.Html::attr($header_attr).'>'.$header.'</h4>'.$body;
-        }
-        if ($close = Params::extract($params, self::P_CLOSE))
-        {
-            if (\is_array($close))
-                Params::add($close, 'alert', 'data-dismiss');
-            else
-                $close = array('data-dismiss'=>'alert');
-            $body = self::close($close) . $body;
-            Params::add($params, 'alert-dismissable');
-        }
-        Params::add($params, 'alert');
+            $body = Params::extract($params, self::P_CONTENT);
+            if ($header = Params::extract($params, self::P_HEADER))
+            {
+                $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+                $body = '<h4'.Html::attr($header_attr).'>'.$header.'</h4>'.$body;
+            }
+            if ($close = Params::extract($params, self::P_CLOSE))
+            {
+                if (\is_array($close))
+                    Params::add($close, 'alert', 'data-dismiss');
+                else
+                    $close = array('data-dismiss'=>'alert');
+                $body = self::close($close) . $body;
+                Params::add($params, 'alert-dismissable');
+            }
+            Params::add($params, 'alert');
 
-        return '<div'.Html::attr($params).">$body</div>";
+            return '<div'.Html::attr($params).">$body</div>";
+        }
+        else
+            return "<div class=\"alert\">$params</div>";
     }
 
     public static function alertWithIcon($params)
@@ -151,8 +156,10 @@ class BootstrapUi
             Params::add($comment, 'help-block');
             return "<div".Html::attr($comment).">$c</div>";
         }
+        elseif (isset($comment))
+            return "<div class=\"help-block\">$comment</div>";
         else
-            return isset($comment) ? "<div class=\"help-block\">$comment</div>" : null;
+            return null;
     }
 
     /** formats the control to be displayed as horizontal form row
@@ -163,7 +170,21 @@ class BootstrapUi
      *                              | 'content to format as form group'
      * @return string
      */
-    public static function asFormGroupLine($control)
+    public static function asFormGroupHorizontalRow($control)
+    {
+        if (\is_array($control))
+        {
+            Params::add($control, 'row');
+
+            return self::asFormGroupHorizontal($control);
+        }
+        elseif (isset($control))
+            return '<div class="row">'.self::asFormGroupHorizontal($control).'</div>';
+        else
+            return null;
+    }
+
+    public static function asFormGroupHorizontal($control)
     {
         if (\is_array($control))
         {
@@ -179,17 +200,15 @@ class BootstrapUi
             if ($content_attr)
                 $control[self::P_CONTENT_ATTR] = $content_attr;
 
-            Params::add($control, 'row');
-
             return self::asFormGroup($control);
         }
         elseif (isset($control))
-            return '<div class="row"><div'.Html::attr(self::width2Attr(
+            return '<div'.Html::attr(self::width2Attr(
                     self::WIDTH_3_4,
                     self::widthOffset2Attr(self::WIDTH_1_4)
                 )).'>'.
                 $control.
-                '</div></div>';
+                '</div>';
         else
             return null;
     }

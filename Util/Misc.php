@@ -12,6 +12,33 @@ namespace Dotwheel\Util;
 
 class Misc
 {
+    /**
+     * @param string $date_begin    date that need to be incremented
+     * @param int $n                number of months to add
+     * @param string $date_base     initial date to trim to (only days part is used)
+     * @assert('2013-01-01', 1) == '2013-02-01'
+     * @assert('2013-01-31', 1) == '2013-02-28'
+     * @assert('2013-02-28', 1) == '2013-03-28'
+     * @assert('2013-02-28', 1, '2013-01-31') == '2013-03-31'
+     * @assert('2013-02-28', 1, '2013-01-29') == '2013-03-29'
+     * @assert('2013-02-28', 2, '2013-01-29') == '2013-04-29'
+     */
+    public static function addMonths($date_begin, $n=1, $date_base=null)
+    {
+        $n = (int)$n;
+        if (empty($date_base))
+            $date_base = $date_begin;
+
+        $date_next = \date('Y-m-d', \strtotime("$date_begin +$n month"));
+
+        if (\substr($date_next, 8, 2) != \substr($date_begin, 8, 2))
+            return \date('Y-m-d', \strtotime("$date_next last day of previous month"));
+        elseif (\substr($date_next, 8, 2) != \substr($date_base, 8, 2))
+            return \substr($date_next, 0, 8) . \min((int)\date('t', \strtotime($date_next)), (int)\substr($date_base, 8, 2));
+        else
+            return $date_next;
+    }
+
     /** converts the proposed size to from K, M or G form to bytes
      * @param string $size_str  string with size representation (128M, 2G etc.)
      * @return int              size in bytes
