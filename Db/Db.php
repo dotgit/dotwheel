@@ -285,34 +285,6 @@ class Db
         return \mysqli_insert_id(self::$conn);
     }
 
-    /** restores blob value encoded with blobEncode()
-     * @param type $blob    encoded blob value
-     * @return string original blob value
-     */
-    public static function blobDecode($blob)
-    {
-        if (\substr($blob, 0, 3) == ' z:')
-            $blob = \gzinflate(\substr($blob, 3));
-        if (\substr($blob, 0, 3) == ' j:')
-            $blob = \json_decode(\substr($blob, 3), true);
-
-        return $blob;
-    }
-
-    /** serializes the value if it is not a scalar. long values are gzdeflate-d
-     * @param type $blob    value to store
-     * @return string encoded blob value
-     */
-    public static function blobEncode($blob)
-    {
-        if (isset($blob) and ! \is_scalar($blob))
-            $blob = ' j:'.\json_encode($blob, \JSON_NUMERIC_CHECK | \JSON_UNESCAPED_SLASHES);
-        if (\strlen($blob) > 127)
-            $blob = ' z:'.\gzdeflate($blob);
-
-        return \strlen($blob) <= 65535 ? $blob : null;
-    }
-
     /** escapes the passed value following tha database rules (normally used to
      * escape numbers)
      * @param string $value number to escape
@@ -335,7 +307,12 @@ class Db
     public static function wrap($value)
     {
         if (\is_array($value))
-            return "'".\implode(',', \array_map('self::escape', $value))."'";
+        {
+            foreach ($value as &$v)
+                $v = isset($v) ? ("'".\mysqli_real_escape_string($v)."'") : 'NULL';
+
+            return \implode(',', $value);
+        }
         elseif (isset($value))
             return "'".\mysqli_real_escape_string(self::$conn, $value)."'";
         else
@@ -345,14 +322,19 @@ class Db
     /** produces a CSV string from an array of passed non-zero integers
      * @param array|int $values array of int values to concatenate (if a scalar
      * is passed then it is converted to int and returned)
-     * @return string concatenated CSV string or <i>'NULL'</i> string if the value is unset
+     * @return string concatenated CSV string or <i>'NULL'</i> string if the value is unset or empty list
      */
     public static function escapeIntCsv($values)
     {
         if (\is_array($values))
-            return ($res = \array_filter($values))
-                ? \implode(',', \array_map('intval', $res))
-                : 'NULL';
+        {
+            $vals = array();
+            foreach ($values as $v)
+                if (isset($v))
+                    $vals[] = (int)$v;
+
+            return $vals ? \implode(',', $vals) : 'NULL';
+        }
         elseif (isset($values))
             return (int)$values;
         else

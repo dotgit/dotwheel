@@ -109,6 +109,34 @@ class Db2
             : 0;
     }
 
+    /** restores blob value encoded with blobEncode()
+     * @param type $blob    encoded blob value
+     * @return string original blob value
+     */
+    public static function blobDecode($blob)
+    {
+        if (\substr($blob, 0, 3) == ' z:')
+            $blob = \gzinflate(\substr($blob, 3));
+        if (\substr($blob, 0, 3) == ' j:')
+            $blob = \json_decode(\substr($blob, 3), true);
+
+        return $blob;
+    }
+
+    /** serializes the value if it is not a scalar. long values are gzdeflate-d
+     * @param type $blob    value to store
+     * @return string encoded blob value
+     */
+    public static function blobEncode($blob)
+    {
+        if (isset($blob) and ! \is_scalar($blob))
+            $blob = ' j:'.\json_encode($blob, \JSON_NUMERIC_CHECK | \JSON_UNESCAPED_SLASHES);
+        if (\strlen($blob) > 127)
+            $blob = ' z:'.\gzdeflate($blob);
+
+        return \strlen($blob) <= 65535 ? $blob : null;
+    }
+
     /** dml operation to exchange the position of two lines
      * @param array $params {table:'application_experiences'
      *  , main_id_field:'ane_an_id'
