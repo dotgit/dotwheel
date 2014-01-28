@@ -35,8 +35,9 @@ class Nls
     const P_LIST_DELIM_HTML     = 18;
     const P_COLON               = 19;
     const P_COLON_HTML          = 20;
-    const P_GMAPS_FMT           = 21;
-    const P_DATEPICKER          = 22;
+    const P_WDAYS_SHORT         = 21;
+    const P_GMAPS_FMT           = 22;
+    const P_DATEPICKER          = 23;
 
     /** @var array $store list of available nls-settings */
     public static $store = array(
@@ -61,6 +62,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
+            self::P_WDAYS_SHORT=>array('Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.com/?q=%s',
             self::P_DATEPICKER=>array('language'=>'en')
         ),
@@ -85,6 +87,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>'&nbsp;;',
             self::P_COLON=>' :',
             self::P_COLON_HTML=>'&nbsp;:',
+            self::P_WDAYS_SHORT=>array('Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.fr/?q=%s',
             self::P_DATEPICKER=>array('language'=>'fr', 'format'=>'dd/mm/yy', 'weekStart'=>1),
         ),
@@ -109,6 +112,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
+            self::P_WDAYS_SHORT=>array('Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'),
             self::P_GMAPS_FMT=>'http://maps.google.ru/?q=%s',
             self::P_DATEPICKER=>array('language'=>'ru', 'format'=>'dd.mm.yy', 'weekStart'=>1),
         )
@@ -171,23 +175,28 @@ class Nls
         return self::LANG_DEFAULT;
     }
 
-    /** initializes application and framework locales
-     * @param string $app_domain application locale domain name
-     * @param string $app_dir gettext directory containing /locale/... hierarchy
-     * @param string $ln 2-letter language code
+    /** initializes application and framework locales. selects application text domain.
+     * translations must be placed in {$app_locale_dir}/{$ln}/en/LC_MESSAGES/ directory.
+     * English translation in ./locale/en/en/LC_MESSAGES/domain.mo,
+     * French translation in ./locale/fr/en/LC_MESSAGES/domain.mo, etc.
+     * gettext is always passed an english locale, environment variables are set to the
+     * same value and do not change between requests
+     * @param string $app_domain        application locale domain name
+     * @param string $app_locale_dir    gettext directory containing locale hierarchy
+     * @param string $lang              2-letter language code
      */
-    public static function init($app_domain, $app_dir, $ln)
+    public static function init($app_domain, $app_locale_dir, $lang)
     {
         // Nls configuration
-        if ($ln != self::$lang and isset(self::$store[$ln]))
-            self::$lang = $ln;
+        if ($lang != self::$lang and isset(self::$store[$lang]))
+            self::$lang = $lang;
         self::$formats = self::$store[self::$lang];
 
         // gettext configuration
-        \putenv('LANGUAGE='.self::$lang);
-        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale');
+        \putenv('LC_MESSAGES=en');
+        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale/'.self::$lang);
         \bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
-        \bindtextdomain($app_domain, $app_dir);
+        \bindtextdomain($app_domain, $app_locale_dir.'/'.self::$lang);
         \bind_textdomain_codeset($app_domain, self::$charset);
         \textdomain($app_domain);
 
