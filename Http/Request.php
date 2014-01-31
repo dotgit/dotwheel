@@ -155,7 +155,7 @@ class Request
             ? \ltrim(\substr(
                 $_REQUEST[self::CGI_NEXT],
                 0,
-                \strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyz_-./', 0, 256)
+                \strspn($_REQUEST[self::CGI_NEXT], 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ/_-.', 0, 256)
             ), '/')
             : '';
 

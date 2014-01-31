@@ -203,7 +203,7 @@ class Nls
         return self::$lang;
     }
 
-    /** returns the date representation in standard format 2012-12-31 23:59:59
+    /** converts date from nls representation to standard format 2012-12-31 23:59:59
      * @param string $value     the value to convert
      * @param boolean $datetime whether to include time
      * @return string|boolean date string or false on error
@@ -213,6 +213,7 @@ class Nls
         $d1 = $d2 = $d3 = $h = $m = $s = null;
         \sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
         list($year, $month, $day) = \explode('-', \sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
+
         if (empty($year))
             $year = \date('Y');
         elseif ($year < 50)
