@@ -587,11 +587,13 @@ EOco
     {
         self::registerModal();
 
+        $id = Params::extract($params, 'id');
         $close = Params::extract($params, self::P_CLOSE);
         $header = Params::extract($params, self::P_HEADER);
         $body = Params::extract($params, self::P_CONTENT);
         $footer = Params::extract($params, self::P_FOOTER);
 
+        Params::add($params, $id, 'id');
         Params::add($params, 'modal');
         Params::add($params, 'dialog', 'role');
         Params::add($params, 'true', 'aria-hidden');
@@ -607,6 +609,13 @@ EOco
             $body = "<div class=\"modal-body\">$body</div>";
         if (isset($footer))
             $footer = "<div class=\"modal-footer\">$footer</div>";
+
+        HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
+$('#$id')
+.on('shown.bs.modal',function(){\$(this).prop('prev_focus',$(document.activeElement)).find('.btn.btn-primary').get(0).focus();})
+.on('hidden.bs.modal',function(){\$(\$(this).prop('prev_focus')).focus();});
+EOsc
+        )));
 
         return '<div'.Html::attr($params).'>'.
             '<div class="modal-dialog">'.
