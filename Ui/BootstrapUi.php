@@ -13,31 +13,32 @@ use Dotwheel\Util\Params;
 
 class BootstrapUi
 {
-    const ICN_BASE = 'fa';
+    const ICN_BASE  = 'fa';
 
-    const ICN_2X = 'fa-2x';
-    const ICN_BRIEFCASE = 'fa-briefcase';
-    const ICN_CALENDAR = 'fa-calendar';
-    const ICN_CERTIFICATE = 'fa-certificate';
-    const ICN_COGS = 'fa-cogs';
-    const ICN_ENVELOPE = 'fa-envelope-o';
-    const ICN_HOME = 'fa-home';
-    const ICN_LOCK = 'fa-lock';
-    const ICN_PLUS = 'fa-plus';
-    const ICN_POWER_OFF = 'fa-power-off';
-    const ICN_SAVE = 'fa-floppy-o';
-    const ICN_SIGN_IN = 'fa-sign-in';
-    const ICN_SORT_CHAR = 'fa-sort-alpha-asc';
-    const ICN_SORT_CHAR_DESC = 'fa-sort-alpha-desc';
-    const ICN_SORT_NUM = 'fa-sort-numeric-asc';
-    const ICN_SORT_NUM_DESC   = 'fa-sort-numeric-desc';
-    const ICN_SORT_VAL = 'fa-sort-amount-asc';
-    const ICN_SORT_VAL_DESC = 'fa-sort-amount-desc';
-    const ICN_TIME = 'fa-clock-o';
-    const ICN_TRASH = 'fa-trash-o';
-    const ICN_UNLOCK = 'fa-unlock-alt';
-    const ICN_USER = 'fa-user';
-    const ICN_WARNING = 'fa-exclamation-triangle';
+    const ICN_2X                = 'fa-2x';
+    const ICN_BRIEFCASE         = 'fa-briefcase';
+    const ICN_CALENDAR          = 'fa-calendar';
+    const ICN_CERTIFICATE       = 'fa-certificate';
+    const ICN_COGS              = 'fa-cogs';
+    const ICN_ENVELOPE          = 'fa-envelope-o';
+    const ICN_FFORWARD          = 'fa-forward';
+    const ICN_HOME              = 'fa-home';
+    const ICN_LOCK              = 'fa-lock';
+    const ICN_PLUS              = 'fa-plus';
+    const ICN_POWER_OFF         = 'fa-power-off';
+    const ICN_SAVE              = 'fa-floppy-o';
+    const ICN_SIGN_IN           = 'fa-sign-in';
+    const ICN_SORT_CHAR         = 'fa-sort-alpha-asc';
+    const ICN_SORT_CHAR_DESC    = 'fa-sort-alpha-desc';
+    const ICN_SORT_NUM          = 'fa-sort-numeric-asc';
+    const ICN_SORT_NUM_DESC     = 'fa-sort-numeric-desc';
+    const ICN_SORT_VAL          = 'fa-sort-amount-asc';
+    const ICN_SORT_VAL_DESC     = 'fa-sort-amount-desc';
+    const ICN_TIME              = 'fa-clock-o';
+    const ICN_TRASH             = 'fa-trash-o';
+    const ICN_UNLOCK            = 'fa-unlock-alt';
+    const ICN_USER              = 'fa-user';
+    const ICN_WARNING           = 'fa-exclamation-triangle';
 
     const PGN_CLASS     = 'pagination pagination-centered';
     const PGN_ACTIVE    = 1;
@@ -482,7 +483,7 @@ EOco
                 $prefix = '<div'.Html::attr($prefix).">$cnt</div>";
             }
             else
-                $prefix = "<div class=\"input-group-addon\">$prefix</div>";
+            $prefix = "<div class=\"input-group-addon\">$prefix</div>";
         }
 
         if ($suffix = Params::extract($ui, self::P_SUFFIX))
@@ -495,7 +496,7 @@ EOco
                 $suffix = '<div'.Html::attr($suffix).">$cnt</div>";
             }
             else
-                $suffix = "<div class=\"input-group-addon\">$suffix</div>";
+            $suffix = "<div class=\"input-group-addon\">$suffix</div>";
         }
 
         if ($prefix or $suffix)

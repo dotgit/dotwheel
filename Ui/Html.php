@@ -236,7 +236,7 @@ class Html
     public static function inputCents($params)
     {
         if (isset($params['value']))
-            $params['value'] = \number_format($params['value']/100, 2, Nls::$formats[Nls::P_MON_DECIMAL_CHAR], '');
+            $params['value'] = \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $params['value']/100);
 
         return self::input($params + array('type'=>'text', 'maxlength'=>10));
     }
