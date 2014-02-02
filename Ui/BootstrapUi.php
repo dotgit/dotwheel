@@ -613,8 +613,14 @@ EOco
 
         HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
 $('#$id')
-.on('shown.bs.modal',function(){var \$f=\$(this).prop('prev_focus',$(document.activeElement)).find('.btn.btn-primary');if(\$f.length)\$f.get(0).focus();})
-.on('hidden.bs.modal',function(){\$(\$(this).prop('prev_focus')).focus();});
+.on('shown.bs.modal',function(){
+    var \$f=\$(this).prop('prev_focus',document.activeElement).find('.btn.btn-primary');
+    if(\$f.length)
+        \$f.first().focus();
+    else
+        $('[data-dismiss="modal"]',this).last().focus();
+})
+.on('hidden.bs.modal',function(){\$($(this).prop('prev_focus')).focus();});
 EOsc
         )));
 

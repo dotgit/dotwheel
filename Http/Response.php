@@ -32,7 +32,7 @@ class Response
     /** add error message(s) to the list
      * @param string $msg       adds one or more messages to self::$errors
      *                          (all messages stored in html)
-     * @param bool $html        whether the $msg is already html-encoded
+     * @param bool $html        whether the $msg is already html-encoded [false]
      */
     public static function addError($msg, $html=false)
     {
