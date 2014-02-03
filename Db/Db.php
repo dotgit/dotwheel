@@ -309,7 +309,7 @@ class Db
         if (\is_array($value))
         {
             foreach ($value as &$v)
-                $v = isset($v) ? ("'".\mysqli_real_escape_string($v)."'") : 'NULL';
+                $v = isset($v) ? ("'".\mysqli_real_escape_string(self::$conn, $v)."'") : 'NULL';
 
             return \implode(',', $value);
         }

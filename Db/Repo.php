@@ -314,6 +314,7 @@ class Repo
                                 $val = \str_replace(',', '', $m[1]) . $m[2] . (isset($m[2][1]) ? '' : '0');
                             else
                                 $val = \str_replace(',', '', $value).'00';
+                            $val = (int)$val;
                         }
                         break;
                     case self::C_BOOL:
