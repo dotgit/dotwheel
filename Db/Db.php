@@ -185,14 +185,15 @@ class Db
 
     /** access database using low level HANDLER statement via primary key to fetch
      * one row in associative mode
-     * @param string $table table name
-     * @param int|array $pk primary key value or array for multiple colunms key
+     * @param string $table         table name
+     * @param int|string|array $pk  primary key value or array for multiple columns key.
+     *                              keys must be properly escaped
      * @return array|bool hash with the row information or <i>false</i> on error
      * + error_log
      */
-    public static function getPrimary($table, $pk)
+    public static function handlerReadPrimary($table, $pk)
     {
-        $key = \is_array($pk) ? self::escapeIntCsv($pk) : (int)$pk;
+        $key = \is_array($pk) ? \implode(',', $pk) : $pk;
         if (\mysqli_query(self::$conn, "handler $table open"))
         {
             if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
