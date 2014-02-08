@@ -173,22 +173,26 @@ class BootstrapUi
      */
     public static function asFormGroupHorizontalRow($control)
     {
-        if (\is_array($control))
+        if (isset($control))
         {
+            if (!is_array($control))
+                $control = array(self::P_CONTENT=>$control);
+
             Params::add($control, 'row');
 
             return self::asFormGroupHorizontal($control);
         }
-        elseif (isset($control))
-            return '<div class="row">'.self::asFormGroupHorizontal($control).'</div>';
         else
             return null;
     }
 
     public static function asFormGroupHorizontal($control)
     {
-        if (\is_array($control))
+        if (isset($control))
         {
+            if (!is_array($control))
+                $control = array(self::P_CONTENT=>$control);
+
             $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
             if ($w = Params::extract($h_attr, self::P_WIDTH, self::WIDTH_1_4))
                 $h_attr = static::width2Attr($w, $h_attr);
@@ -203,13 +207,6 @@ class BootstrapUi
 
             return self::asFormGroup($control);
         }
-        elseif (isset($control))
-            return '<div'.Html::attr(self::width2Attr(
-                    self::WIDTH_3_4,
-                    self::widthOffset2Attr(self::WIDTH_1_4)
-                )).'>'.
-                $control.
-                '</div>';
         else
             return null;
     }
