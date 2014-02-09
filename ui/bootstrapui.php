@@ -108,7 +108,7 @@ class BootstrapUi
      */
     public static function alert($params)
     {
-        if (is_array($params))
+        if (\is_array($params))
         {
             $body = Params::extract($params, self::P_CONTENT);
             if ($header = Params::extract($params, self::P_HEADER))
@@ -175,7 +175,7 @@ class BootstrapUi
     {
         if (isset($control))
         {
-            if (!is_array($control))
+            if (!\is_array($control))
                 $control = array(self::P_CONTENT=>$control);
 
             Params::add($control, 'row');
@@ -190,7 +190,7 @@ class BootstrapUi
     {
         if (isset($control))
         {
-            if (!is_array($control))
+            if (!\is_array($control))
                 $control = array(self::P_CONTENT=>$control);
 
             $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
@@ -849,10 +849,7 @@ EOsc
 
         HtmlPage::add(array(
             HtmlPage::DOM_READY=>array(
-                __METHOD__."-$id"=>"$('#$id').popover(".json_encode(
-                    $options,
-                    \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE
-                ).');'
+                __METHOD__."-$id"=>"$('#$id').popover(".json_encode($options).');'
             )
         ));
 

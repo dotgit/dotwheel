@@ -130,7 +130,7 @@ class Db2
     public static function blobEncode($blob)
     {
         if (isset($blob) and ! \is_scalar($blob))
-            $blob = ' j:'.\json_encode($blob, \JSON_NUMERIC_CHECK | \JSON_UNESCAPED_SLASHES);
+            $blob = ' j:'.\json_encode($blob);
         if (\strlen($blob) > 127)
             $blob = ' z:'.\gzdeflate($blob);
 
