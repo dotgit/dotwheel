@@ -130,8 +130,7 @@ class Request
             }
             if (\DIRECTORY_SEPARATOR == '\\')
                 $dir = \strtr($dir, '\\', '/');
-            self::$root_url = ($_SERVER['SERVER_PORT'] == 443 ? 'https' : 'http').
-                "://{$_SERVER['HTTP_HOST']}$dir".
+            self::$root_url = "//{$_SERVER['HTTP_HOST']}$dir".
                 (\substr($dir, -1) == '/' ? '' : '/');
             if ($modules)
                 self::$module = \implode('/', \array_reverse($modules));
