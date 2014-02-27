@@ -29,11 +29,14 @@ class Request
     const OUT_ASIS  = 4;
     const OUT_CLI   = 5;
 
-    const INI_STATIC_URL    = 1;
-    const INI_ROOT_LEVEL    = 2;
+    const INI_ROOT          = 1;
+    const INI_ROOT_URL      = 2;
     const INI_COOKIE_DB     = 3;
     const INI_DATABASES     = 4;
     const INI_DB_DEFAULT    = 5;
+
+    /** @var string output mode for request (OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
+    public static $output;
 
     /**
      * @var string  client-oriented path to document root from current
@@ -41,22 +44,10 @@ class Request
      * '../' if the script is in the second-level subdirectory
      * (/dir/script.php), '../../' for /dir1/dir2/script.php) etc.
      */
-    public static $root = '';
+    public static $root;
 
     /** @var string url to use on redirecting. like http://localhost/ */
-    public static $root_url = '/';
-
-    /** @var string directory to hold application structure */
-    public static $app_dir = '/';
-
-    /** @var string the subdirectory of the current module, like 'dir' in /dir/index.php */
-    public static $module;
-
-    /** @var string the file name of the current script, like 'index' in /dir/index.php */
-    public static $controller;
-
-    /** @var string output mode for request (OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
-    public static $output;
+    public static $root_url;
 
     /** @var string next view to redirect on successful command execution, like '/dir/index.php' */
     public static $next;
@@ -75,17 +66,13 @@ class Request
      */
     public static $details = array();
 
-    /** @var string URL of the static ressources directory */
-    public static $static_url = '/static';
 
 
-
-    /** initialises the request variables, opens session, initialises nls */
-    public static function init($params)
+    /** set self::$output based on CGI mode and input parameters
+     * @return int current output mode
+     */
+    public static function initOutputMode()
     {
-        self::$static_url = Params::extract($params, self::INI_STATIC_URL);
-        $root_level = Params::extract($params, self::INI_ROOT_LEVEL);
-
         // identify $output
         if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
             self::$output = (! empty($_REQUEST[self::CGI_OUTPUT]) and $_REQUEST[self::CGI_OUTPUT] == 'a')
@@ -102,52 +89,18 @@ class Request
         else
             self::$output = self::OUT_CLI;
 
-        // identify $root, $root_url and $module
-        if (isset($_SERVER['SERVER_NAME']))
-        {
-            if (self::$output != self::OUT_JSON or empty($_SERVER['HTTP_REFERER']))
-            {
-                // for direct requests use SCRIPT_NAME
-                $path = $_SERVER['SCRIPT_NAME'];
-            }
-            else
-            {
-                // for json requests use HTTP_REFERER
-                // first slash after https://...
-                $path = \substr($_SERVER['HTTP_REFERER'], \strpos($_SERVER['HTTP_REFERER'], '/', 8));
-                if ($p = \strpos($path, '?'))
-                    $path = \substr($path, 0, $p);
-            }
-            $level = \substr_count($path, '/') - $root_level;
-            self::$root = \str_repeat('../', $level);
+        return self::$output;
+    }
 
-            $dir = \dirname($path);
-            $modules = array();
-            while ($level--)
-            {
-                $modules[] = \basename($dir);
-                $dir = \dirname($dir);
-            }
-            if (\DIRECTORY_SEPARATOR == '\\')
-                $dir = \strtr($dir, '\\', '/');
-            self::$root_url = "//{$_SERVER['HTTP_HOST']}$dir".
-                (\substr($dir, -1) == '/' ? '' : '/');
-            if ($modules)
-                self::$module = \implode('/', \array_reverse($modules));
-        }
-        self::$controller = \basename($_SERVER['SCRIPT_NAME'], '.php');
-        if (self::$module === 'cmd')
-        {
-            self::$module = '';
-            self::$controller = 'cmd/'.self::$controller;
-        }
-        elseif ($suffix = \strrchr(self::$module, '/')
-            and $suffix === '/cmd'
-        )
-        {
-            self::$module = \substr(self::$module, 0, -4);
-            self::$controller = 'cmd/'.self::$controller;
-        }
+    /** initialises the request variables, opens session, initialises nls */
+    public static function init($params)
+    {
+        self::$root = Params::extract($params, self::INI_ROOT);
+        self::$root_url = Params::extract($params, self::INI_ROOT_URL);
+
+        // check output mode is set
+        if (empty(self::$output))
+            self::initOutputMode();
 
         // identify $next
         self::$next = (! empty($_REQUEST[self::CGI_NEXT]) && \is_scalar($_REQUEST[self::CGI_NEXT]))
