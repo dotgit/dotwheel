@@ -31,9 +31,6 @@ class Request
 
     const INI_ROOT          = 1;
     const INI_ROOT_URL      = 2;
-    const INI_COOKIE_DB     = 3;
-    const INI_DATABASES     = 4;
-    const INI_DB_DEFAULT    = 5;
 
     /** @var string output mode for request (OUT_HTML, OUT_CMD, OUT_JSON, etc.) */
     public static $output;
