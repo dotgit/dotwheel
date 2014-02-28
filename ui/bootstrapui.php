@@ -699,6 +699,24 @@ EOsc
     }
 
     /** html-formatted pagination based on butons
+     * @param array $params {P_CONTENT: content visible inside the bar
+     *                      , P_WIDTH: width of the bar
+     *                      , div tag arguments of the bar
+     *                      }
+     * @return string buttons representing pages
+     */
+    public static function progress($params)
+    {
+        $content = Params::extract($params, self::P_CONTENT);
+        $width = Params::extract($params, self::P_WIDTH);
+        Params::add($params, 'progress-bar');
+        Params::add($params, 'progressbar', 'role');
+        $attr = Html::attr(self::width2Attr($width, $params));
+
+        return "<div class=\"progress\"><div$attr>$content</div></div>";
+    }
+
+    /** html-formatted pagination based on butons
      * @param array $params {PGN_ACTIVE:current page number
      *                      , PGN_LAST: last page number
      *                      , PGN_LIST: array of pages to display
