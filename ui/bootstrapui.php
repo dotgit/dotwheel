@@ -35,6 +35,8 @@ class BootstrapUi
     const ICN_ENVELOPE          = 'fa-envelope-o';
     const ICN_FFORWARD          = 'fa-forward';
     const ICN_HOME              = 'fa-home';
+    const ICN_INFO              = 'fa-info-circle';
+    const ICN_LIGHTBULB         = 'fa-lightbulb-o';
     const ICN_LOCK              = 'fa-lock';
     const ICN_PLUS              = 'fa-plus';
     const ICN_POWER_OFF         = 'fa-power-off';
