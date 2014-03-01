@@ -13,9 +13,21 @@ use Dotwheel\Util\Params;
 
 class BootstrapUi
 {
-    const ICN_BASE  = 'fa';
+    // font-awesome support classes
+    const ICN_BASE      = 'fa';
+    const ICN_2X        = 'fa-2x';
+    const ICN_LG        = 'fa-lg';
+    const ICN_FIXED     = 'fa-fw';
+    const ICN_STACK     = 'fa-stack';
+    const ICN_STACK_1X  = 'fa-stack-1x';
+    const ICN_STACK_2X  = 'fa-stack-2x';
+    const ICN_INVERSE   = 'fa-inverse';
+    const ICN_CIRCLE    = 'fa-circle';
+    const ICN_CIRCLE_O  = 'fa-circle-o';
+    const ICN_SQUARE    = 'fa-square';
+    const ICN_SQUARE_O  = 'fa-square-o';
 
-    const ICN_2X                = 'fa-2x';
+    // font-awesome icon classes
     const ICN_BRIEFCASE         = 'fa-briefcase';
     const ICN_CALENDAR          = 'fa-calendar';
     const ICN_CERTIFICATE       = 'fa-certificate';
@@ -570,6 +582,20 @@ EOco
         }
         else
             return '<i class="'.self::ICN_BASE." $icon\"></i>";
+    }
+
+    public static function iconStack($icons)
+    {
+        $attr = array();
+        $icns = array();
+        foreach ($icons as $k=>$icn)
+            if (\is_int($k))
+                $icns[] = self::icon($icn);
+            else
+                $attr[$k] = $icn;
+        Params::add($attr, self::ICN_STACK);
+
+        return '<span'.Html::attr($attr).'>'.implode('', $icns).'</span>';
     }
 
     /** returns a modal dialog window with specified header, body and buttons
