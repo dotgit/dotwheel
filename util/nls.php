@@ -144,7 +144,7 @@ class Nls
             return $ln;
         }
         // ...or guess language if cookie empty
-        if (empty($_COOKIE[$cookie_lang]))
+        if (empty($_COOKIE[$cookie_lang]) or empty(self::$store[$_COOKIE[$cookie_lang]]))
         {
             $ln = self::guessLang();
             \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
