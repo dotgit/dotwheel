@@ -3,12 +3,23 @@
 if (empty($argv[1])
 	or ! file_exists($argv[1])
 )
-	die('Specify as a parameter an existing .PO file to convert'.PHP_EOL);	
+	die('Specify as a parameter an existing .PO file to convert'.PHP_EOL);
 
+// where the translations will be stored
 $PLURALFORMS = null;
 $TRANSLATIONS = array();
 
-function add2translations($msgctxt, $msgid, $msgid_plural, $msgstr)
+// global variables
+$mode = null;
+
+$msgctxt = null;
+$msgid = null;
+$msgid_plural = null;
+$msgstr = null;
+
+$last_str = null;
+
+function store_translation($msgctxt, $msgid, $msgid_plural, $msgstr)
 {
 	global $TRANSLATIONS;
 
@@ -52,14 +63,37 @@ function add2translations($msgctxt, $msgid, $msgid_plural, $msgstr)
 	}
 }
 
-$mode = null;
+function dispatch_last_str($mode, $last_str)
+{
+    global $msgctxt,
+        $msgid,
+        $msgid_plural,
+        $msgstr;
 
-$msgctxt = null;
-$msgid = null;
-$msgid_plural = null;
-$msgstr = null;
-
-$last_str = null;
+    switch ($mode)
+    {
+    case 'msgctxt':
+        $msgctxt = $last_str;
+        break;
+    case 'msgid':
+        $msgid = $last_str;
+        break;
+    case 'msgid_plural':
+        $msgid_plural = $last_str;
+        break;
+    case 'msgstr':
+        $msgstr = $last_str;
+        break;
+    default:
+        if (substr($mode, 0, 6) == 'msgstr') // 'msgstr[N]'
+        {
+            if (is_array($msgstr))
+                $msgstr[] = $last_str;
+            else
+                $msgstr = array($last_str);
+        }
+    }
+}
 
 foreach (file($argv[1]) as $line)
 {
@@ -69,35 +103,13 @@ foreach (file($argv[1]) as $line)
 		$last_str .= substr($line, 1, -1);
 	else
 	{
-		switch ($mode)
-		{
-		case 'msgctxt':
-			$msgctxt = $last_str;
-			break;
-		case 'msgid':
-			$msgid = $last_str;
-			break;
-		case 'msgid_plural':
-			$msgid_plural = $last_str;
-			break;
-		case 'msgstr':
-			$msgstr = $last_str;
-			break;
-		default:
-			if (substr($mode, 0, 6) == 'msgstr') // 'msgstr[N]'
-			{
-				if (is_array($msgstr))
-					$msgstr[] = $last_str;
-				else
-					$msgstr = array($last_str);
-			}
-		}
+        dispatch_last_str($mode, $last_str);
 
 		if (strlen($line) == 0) // empty line
 		{
 			if (isset($msgid))
 			{
-				add2translations($msgctxt, $msgid, $msgid_plural, $msgstr);
+				store_translation($msgctxt, $msgid, $msgid_plural, $msgstr);
 				$mode = null;
 				$msgctxt = null;
 				$msgid = null;
@@ -109,7 +121,7 @@ foreach (file($argv[1]) as $line)
 			and preg_match('/^([^"]+)"(.*)"$/', $line, $m) // keyword " line "
 		)
 		{
-			// keywords in $m[1]: msgctxt, msgid, msgid_plural, msgstr, msgstr[N]
+			// possible keywords in $m[1]: msgctxt, msgid, msgid_plural, msgstr, msgstr[N]
 
 			$mode = rtrim($m[1]);
 			$last_str = $m[2];
@@ -118,7 +130,10 @@ foreach (file($argv[1]) as $line)
 }
 
 if (isset($msgid))
-	add2translations($msgctxt, $msgid, $msgid_plural, $msgstr);
+{
+    dispatch_last_str($mode, $last_str);
+	store_translation($msgctxt, $msgid, $msgid_plural, $msgstr);
+}
 
 if (isset($TRANSLATIONS[0]))
 {

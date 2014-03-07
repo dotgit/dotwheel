@@ -118,7 +118,7 @@ class Nls
     );
 
     /** @var string $lang current language */
-    public static $lang;
+    public static $lang = 'en';
 
     /** @var array $formats current nls parameters (set from self::$store[self::$list]) */
     public static $formats = array();
@@ -195,11 +195,6 @@ class Nls
     }
 
     /** initializes application and framework locales. selects application text domain.
-     * translations must be placed in {$app_locale_dir}/{$ln}/en/LC_MESSAGES/ directory.
-     * English translation in ./locale/en/en/LC_MESSAGES/domain.mo,
-     * French translation in ./locale/fr/en/LC_MESSAGES/domain.mo, etc.
-     * gettext is always passed an english locale, environment variables are set to the
-     * same value and do not change between requests
      * @param string $app_domain        application locale domain name
      * @param string $app_locale_dir    gettext directory containing locale hierarchy
      * @param string $lang              2-letter language code
@@ -207,18 +202,11 @@ class Nls
     public static function init($app_domain, $app_locale_dir, $lang)
     {
         // Nls configuration
-        if ($lang != self::$lang and isset(self::$store[$lang]))
+        if (isset(self::$store[$lang]))
             self::$lang = $lang;
         self::$formats = self::$store[self::$lang];
 
-        // gettext configuration
-        \putenv('LC_MESSAGES=en');
-        \bindtextdomain(self::FW_DOMAIN, __DIR__.'/../locale/'.self::$lang);
-        \bind_textdomain_codeset(self::FW_DOMAIN, self::$charset);
-        \bindtextdomain($app_domain, $app_locale_dir.'/'.self::$lang);
-        \bind_textdomain_codeset($app_domain, self::$charset);
-        \textdomain($app_domain);
-
+        Text::binddomain(self::FW_DOMAIN, __DIR__.'/../locale', self::$lang);
         Text::binddomain($app_domain, $app_locale_dir, self::$lang);
 
         return self::$lang;

@@ -13,6 +13,7 @@ namespace Dotwheel\Ui;
 use Dotwheel\Db\Repo;
 use Dotwheel\Http\Request;
 use Dotwheel\Nls\Nls;
+use Dotwheel\Nls\Text;
 use Dotwheel\Util\Params;
 
 class HtmlTable
@@ -430,7 +431,7 @@ EOm
                         $str_link_3,
                         '',
                         $page > 1 ? ($url.($page-1)) : $url0,
-                        '&larr; '.\dgettext(Nls::FW_DOMAIN, 'Prev')
+                        '&larr; '.Text::dget(Nls::FW_DOMAIN, 'Prev')
                     );
                 }
                 // numbered pages
@@ -441,7 +442,7 @@ EOm
                 // next/last page
                 if ($page < $pages-1)
                 {
-                    $parts[] = \sprintf($str_link_3, '', $url.($page+1), \dgettext(Nls::FW_DOMAIN, 'Next').' &rarr;');
+                    $parts[] = \sprintf($str_link_3, '', $url.($page+1), Text::dget(Nls::FW_DOMAIN, 'Next').' &rarr;');
                     $parts[] = \sprintf($str_link_3, '', $url.($pages-1), '&raquo;');
                 }
 

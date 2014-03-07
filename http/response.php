@@ -11,6 +11,7 @@
 namespace Dotwheel\Http;
 
 use Dotwheel\Nls\Nls;
+use Dotwheel\Nls\Text;
 use Dotwheel\Ui\Html;
 use Dotwheel\Ui\HtmlPage;
 
@@ -108,7 +109,7 @@ class Response
     /** error message on context inavailability */
     public static function outputErrorInit()
     {
-        static::outputError(\dgettext(Nls::FW_DOMAIN, 'Input verification error'));
+        static::outputError(Text::dget(Nls::FW_DOMAIN, 'Input verification error'));
     }
 
     /** executes the requested operation
@@ -127,7 +128,7 @@ class Response
     /** error message on execution fault */
     public static function outputErrorExec()
     {
-        static::outputError(\dgettext(Nls::FW_DOMAIN, 'Command execution error'));
+        static::outputError(Text::dget(Nls::FW_DOMAIN, 'Command execution error'));
     }
 
     /** select an output method based on request arguments and pass result to it

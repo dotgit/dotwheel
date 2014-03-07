@@ -11,6 +11,7 @@ repository management.
 namespace Dotwheel\Db;
 
 use Dotwheel\Nls\Nls;
+use Dotwheel\Nls\Text;
 use Dotwheel\Ui\Html;
 use Dotwheel\Util\Misc;
 
@@ -331,7 +332,7 @@ class Repo
                             {
                                 $val = false;
                                 $err = \sprintf(
-                                    \dgettext(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"),
+                                    Text::dget(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"),
                                     $label,
                                     $repo[self::P_WIDTH]
                                 );
@@ -352,7 +353,7 @@ class Repo
                                 {
                                     $val = false;
                                     $err = \sprintf(
-                                        \dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent an email address"),
+                                        Text::dget(Nls::FW_DOMAIN, "value in '%s' does not represent an email address"),
                                         $label
                                     );
                                     break;
@@ -364,7 +365,7 @@ class Repo
                                 {
                                     $val = false;
                                     $err = \sprintf(
-                                        \dgettext(Nls::FW_DOMAIN, "value in '%s' does not represent a web address"),
+                                        Text::dget(Nls::FW_DOMAIN, "value in '%s' does not represent a web address"),
                                         $label
                                     );
                                     break;
@@ -375,7 +376,7 @@ class Repo
                                 {
                                     $val = false;
                                     $err = \sprintf(
-                                        \dgettext(Nls::FW_DOMAIN, "value in '%s' does not match the required format"),
+                                        Text::dget(Nls::FW_DOMAIN, "value in '%s' does not match the required format"),
                                         $label
                                     );
                                     break;
@@ -401,7 +402,7 @@ class Repo
                             $val = false;
 
                         if ($val === false)
-                            $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' is not a valid date"), $label);
+                            $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' is not a valid date"), $label);
                         break;
                     case self::C_ENUM:
                         if (\is_scalar($value))
@@ -423,7 +424,7 @@ class Repo
                     if ($flags & self::F_POSITIVE and $val < 1)
                     {
                         $val = false;
-                        $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
+                        $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
                     }
                 }
             }
@@ -432,7 +433,7 @@ class Repo
                 if (empty($_FILES[$fld]))
                 {
                     $val = false;
-                    $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
+                    $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
                 }
                 elseif ($_FILES[$fld]['error'] == UPLOAD_ERR_NO_FILE)
                     $val = null;
@@ -443,7 +444,7 @@ class Repo
                     case UPLOAD_ERR_INI_SIZE:
                     case UPLOAD_ERR_FORM_SIZE:
                         $msg = \sprintf(
-                            \dgettext(
+                            Text::dget(
                                 Nls::FW_DOMAIN,
                                 "file too big (max allowed size %uMb) in '%s'"
                             ),
@@ -452,7 +453,7 @@ class Repo
                         );
                         break;
                     default:
-                        $msg = \sprintf(\dgettext(Nls::FW_DOMAIN, "error uploading file from '%s'"), $label);
+                        $msg = \sprintf(Text::dget(Nls::FW_DOMAIN, "error uploading file from '%s'"), $label);
                     }
                     $val = false;
                     $err = $msg." [err: {$_FILES[$fld]['error']}]";
@@ -469,7 +470,7 @@ class Repo
             if ($val === null and ! empty($repo[self::P_REQUIRED]))
             {
                 $val = false;
-                $err = \sprintf(\dgettext(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
+                $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
             }
 
             if ($val !== false)
@@ -477,7 +478,7 @@ class Repo
             else
                 self::$input_errors[] = isset($err)
                     ? $err
-                    : \sprintf(\dgettext(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label);
+                    : \sprintf(Text::dget(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label);
         }
 
         return empty(self::$input_errors);
@@ -572,7 +573,7 @@ class Repo
                                 ? $repo[self::P_ITEMS]
                                 : Html::encode($repo[self::P_ITEMS])
                         )
-                        : array(\dgettext(Nls::FW_DOMAIN, 'no'), \dgettext(Nls::FW_DOMAIN, 'yes'))
+                        : array(Text::dget(Nls::FW_DOMAIN, 'no'), Text::dget(Nls::FW_DOMAIN, 'yes'))
                 );
             case self::C_FILE:
                 return isset($value['name']) ? Html::encode($value['name']) : '';
