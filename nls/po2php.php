@@ -1,5 +1,10 @@
 <?php
 
+// script usage:
+// cd src/vendor/dotwheel/locale
+// php ../nls/po2php.php en/dotwheel.po > en/dotwheel.php
+// php ../nls/po2php.php fr/dotwheel.po > fr/dotwheel.php
+
 if (empty($argv[1])
 	or ! file_exists($argv[1])
 )
