@@ -10,9 +10,9 @@ repository management.
 
 namespace Dotwheel\Db;
 
+use Dotwheel\Nls\Nls;
 use Dotwheel\Ui\Html;
 use Dotwheel\Util\Misc;
-use Dotwheel\Util\Nls;
 
 class Repo
 {

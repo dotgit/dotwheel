@@ -10,6 +10,8 @@
 
 namespace Dotwheel\Util;
 
+use Dotwheel\Nls\Nls;
+
 class Misc
 {
     /**

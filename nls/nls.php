@@ -8,7 +8,7 @@
  * @author stas trefilov
  */
 
-namespace Dotwheel\Util;
+namespace Dotwheel\Nls;
 
 class Nls
 {
@@ -218,6 +218,8 @@ class Nls
         \bindtextdomain($app_domain, $app_locale_dir.'/'.self::$lang);
         \bind_textdomain_codeset($app_domain, self::$charset);
         \textdomain($app_domain);
+
+        Text::binddomain($app_domain, $app_locale_dir, self::$lang);
 
         return self::$lang;
     }

@@ -16,7 +16,7 @@
 
 namespace Dotwheel\Ui;
 
-use Dotwheel\Util\Nls;
+use Dotwheel\Nls\Nls;
 use Dotwheel\Util\Params;
 
 class Html

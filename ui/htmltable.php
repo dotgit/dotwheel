@@ -12,7 +12,7 @@ namespace Dotwheel\Ui;
 
 use Dotwheel\Db\Repo;
 use Dotwheel\Http\Request;
-use Dotwheel\Util\Nls;
+use Dotwheel\Nls\Nls;
 use Dotwheel\Util\Params;
 
 class HtmlTable

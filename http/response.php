@@ -10,9 +10,9 @@
 
 namespace Dotwheel\Http;
 
+use Dotwheel\Nls\Nls;
 use Dotwheel\Ui\Html;
 use Dotwheel\Ui\HtmlPage;
-use Dotwheel\Util\Nls;
 
 class Response
 {

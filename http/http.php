@@ -10,8 +10,8 @@
 
 namespace Dotwheel\Http;
 
+use Dotwheel\Nls\Nls;
 use Dotwheel\Ui\Html;
-use Dotwheel\Util\Nls;
 
 class Http
 {
