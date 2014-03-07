@@ -12,7 +12,6 @@ namespace Dotwheel\Util;
 
 class Nls
 {
-    const LANG_DEFAULT = 'fr';
     const FW_DOMAIN = 'dotwheel';
 
     const P_NAME                = 1;
@@ -119,7 +118,7 @@ class Nls
     );
 
     /** @var string $lang current language */
-    public static $lang = self::LANG_DEFAULT;
+    public static $lang;
 
     /** @var array $formats current nls parameters (set from self::$store[self::$list]) */
     public static $formats = array();
@@ -131,9 +130,14 @@ class Nls
 
     /** gets the user preferred language code and stores it in a cookie
      * @param string $cookie_lang language cookie variable name
+     * @param array $languages list of languages that the application understands, ex: ['en', 'fr']
+     * @param string $default_lang default language if cannot guess from user agent
      */
-    public static function getLang($cookie_lang)
+    public static function getLang($cookie_lang, $languages=array(), $default_lang='en')
     {
+        if (empty($languages))
+            $languages = \array_keys(self::$store);
+
         // set language from GET...
         if (isset($_GET[$cookie_lang]) and isset(self::$store[$_GET[$cookie_lang]]))
         {
@@ -146,7 +150,7 @@ class Nls
         // ...or guess language if cookie empty
         if (empty($_COOKIE[$cookie_lang]) or empty(self::$store[$_COOKIE[$cookie_lang]]))
         {
-            $ln = self::guessLang();
+            $ln = self::guessLang($languages, $default_lang);
             \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
 
             return $ln;
@@ -157,22 +161,37 @@ class Nls
     }
 
     /** determines language code from Accept-Language http header (if matches
-     * available languages) or self::LANG_DEFAULT otherwise
+     * available languages) or set as $default_lang otherwise.
+     * <pre>Accept-Language: fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4,ru;q=0.2</pre>
+     * convert from <code>en-US</code> to <code>en_US</code> form and
+     * process comma-separated language groups from left to right. in each
+     * group only take part before semicolon. if the part does not match, try
+     * to reduce it to first two letters and check again. if does not match
+     * move to the next group. if no more groups, return
+     * <code>$default_lang</code>.
+     * @param array $languages list of languages that the application understands, ex: ['en', 'fr']
+     * @param string $default_lang default language if cannot guess from user agent
      * @return string
      */
-    public static function guessLang()
+    public static function guessLang($languages, $default_lang='en')
     {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
         {
-            foreach (\explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lng)
+            // convert from en-US to en_US form and break on groups by , symbol
+            foreach (\explode(',', \strtr($_SERVER['HTTP_ACCEPT_LANGUAGE'], '-', '_')) as $group)
             {
-                $ln = \substr(\ltrim($lng), 0, 2);
-                if (isset(self::$store[$ln]))
+                // in each group only take part before ; symbol (if present)
+                list($lang) = \explode(';', \ltrim($group));
+                if (\array_search($lang, $languages) !== false)
+                    return $lang;
+                // if lang does not match as a whole, try to match the first 2 letters of lang
+                $ln = \substr($lang, 0, 2);
+                if (\array_search($ln, $languages) !== false)
                     return $ln;
             }
         }
 
-        return self::LANG_DEFAULT;
+        return $default_lang;
     }
 
     /** initializes application and framework locales. selects application text domain.
