@@ -16,6 +16,8 @@ class CacheMemcache extends CacheBase
 {
     const P_SERVERS = 2;
     const P_OPTIONS = 3;
+    const P_LOGIN   = 4;
+    const P_PASS    = 5;
 
     public static $conn;
 
@@ -36,10 +38,11 @@ class CacheMemcache extends CacheBase
         $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
         self::$conn->setOptions($options + array(
             \Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
-            \Memcached::OPT_LIBKETAMA_COMPATIBLE=>true
         ));
         if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
             self::$conn->addServers($params[self::P_SERVERS]);
+        if (isset($params[self::P_LOGIN]))
+            self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
 
         return parent::init($params[self::P_PREFIX]);
     }
