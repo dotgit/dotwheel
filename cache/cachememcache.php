@@ -39,10 +39,10 @@ class CacheMemcache extends CacheBase
         self::$conn->setOptions($options + array(
             \Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
         ));
-        if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
-            self::$conn->addServers($params[self::P_SERVERS]);
         if (isset($params[self::P_LOGIN]))
             self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
+        if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
+            self::$conn->addServers($params[self::P_SERVERS]);
 
         return parent::init($params[self::P_PREFIX]);
     }
