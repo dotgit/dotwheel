@@ -129,8 +129,8 @@ class Nls
 
 
     /** gets the user preferred language code and stores it in a cookie
-     * @param string $cookie_lang language cookie variable name
-     * @param array $languages list of languages that the application understands, ex: ['en', 'fr']
+     * @param string $cookie_lang   cookie variable name to store user language
+     * @param array $languages      list of languages that the application understands, ex: ['en', 'fr']
      * @param string $default_lang default language if cannot guess from user agent
      */
     public static function getLang($cookie_lang, $languages=array(), $default_lang='en')
@@ -143,7 +143,7 @@ class Nls
         {
             $ln = $_GET[$cookie_lang];
             if (empty($_COOKIE[$cookie_lang]) or $_COOKIE[$cookie_lang] != $ln)
-                \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
+                self::setLang($cookie_lang, $ln);
 
             return $ln;
         }
@@ -151,13 +151,22 @@ class Nls
         if (empty($_COOKIE[$cookie_lang]) or empty(self::$store[$_COOKIE[$cookie_lang]]))
         {
             $ln = self::guessLang($languages, $default_lang);
-            \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
+            self::setLang($cookie_lang, $ln);
 
             return $ln;
         }
         // ...or return value from cookie
         else
             return $_COOKIE[$cookie_lang];
+    }
+
+    /** store cookie with user language
+     * @param string $cookie_lang   cookie variable name to store user language
+     * @param string $ln            language 2-letter code
+     */
+    public static function setLang($cookie_lang, $ln)
+    {
+        \setcookie($cookie_lang, $ln, $_SERVER['REQUEST_TIME'] + 60*60*24*30, '/');
     }
 
     /** determines language code from Accept-Language http header (if matches
