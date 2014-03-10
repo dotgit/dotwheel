@@ -145,8 +145,8 @@ class Repo
 
     /** returns a specified html-escaped label if set (otherwise the P_LABEL)
      * @param string $name  field name
-     * @param array $repo   {field repository attributes}
      * @param int $param    which label to return
+     * @param array $repo   {field repository attributes}
      * @return string|null
      */
     public static function getLabel($name, $param=null, $repo=array())
