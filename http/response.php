@@ -17,6 +17,10 @@ use Dotwheel\Ui\HtmlPage;
 
 class Response
 {
+    const JSON_TITLE    = 'title';
+    const JSON_ORIGIN   = 'origin';
+    const JSON_ERRORS   = 'errors';
+
     /** @var string request name (used as page title etc.) */
     public static $name = '';
     /** @var string request page description */
@@ -84,9 +88,9 @@ class Response
     public static function outputJsonError($msg=null)
     {
         static::outputJson(array(
-            'title'=>$msg,
-            'origin'=>static::$name,
-            'errors'=>static::$errors
+            self::JSON_TITLE=>$msg,
+            self::JSON_ORIGIN=>static::$name,
+            self::JSON_ERRORS=>static::$errors,
         ));
     }
 
