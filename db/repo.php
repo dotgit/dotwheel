@@ -319,7 +319,7 @@ class Repo
                         }
                         break;
                     case self::C_BOOL:
-                        $val = $value ? 1 : null;
+                        $val = $value ? 1 : 0;
                         break;
                     case self::C_TEXT:
                         if (\is_scalar($value))
@@ -463,6 +463,8 @@ class Repo
                 else
                     $val = $_FILES[$fld];
             }
+            elseif (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_BOOL)
+                $val = 0;
             else
                 $val = null;
 
