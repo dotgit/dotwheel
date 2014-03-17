@@ -29,7 +29,8 @@ class Repo
     const P_ITEM_DELIM          = 36;   // for specifying items delimiter in enums and sets
     const P_COMMENT             = 41;   // for checkboxes in forms
     const P_ALIAS               = 51;
-    const P_VALIDATE_CALLBACK   = 61;   // for input validation via user callback
+    const P_VALIDATE_CALLBACK   = 61;   // for input validation via user callback (callback function receives value
+                                        // to validate, returns true if ok, error message otherwise)
     const P_VALIDATE_REGEXP     = 62;   // for input validation via regexp
     const P_REQUIRED            = 71;   // for specifying required fields
     const P_WHERE_CALLBACK      = 81;
@@ -340,13 +341,18 @@ class Repo
                             else
                             {
                                 $val = $value;
+
                                 if (isset($repo[self::P_VALIDATE_CALLBACK])
-                                    and ($val = \call_user_func_array(
+                                    and ($err = \call_user_func_array(
                                         $repo[self::P_VALIDATE_CALLBACK],
                                         array($val)
-                                    )) === false
+                                    )) !== true
                                 )
+                                {
+                                    $val = false;
                                     break;
+                                }
+
                                 if ($flags & self::F_EMAIL
                                     and ! \filter_var($val, \FILTER_VALIDATE_EMAIL)
                                 )
@@ -370,6 +376,7 @@ class Repo
                                     );
                                     break;
                                 }
+
                                 if (isset($repo[self::P_VALIDATE_REGEXP])
                                     and ! \preg_match($repo[self::P_VALIDATE_REGEXP], $val)
                                 )
@@ -381,13 +388,17 @@ class Repo
                                     );
                                     break;
                                 }
+
                                 if ($flags & self::F_UPPERCASE)
                                     $val = \mb_strtoupper($val, Nls::$charset);
+
                                 if ($flags & self::F_UCFIRST)
                                     $val = \mb_strtoupper(\mb_substr($val, 0, 1, Nls::$charset), Nls::$charset).
                                         \mb_substr($val, 1, \strlen($val), Nls::$charset);
+
                                 if ($flags & self::F_LOWERCASE)
                                     $val = \mb_strtolower($val, Nls::$charset);
+
                                 if ($flags & self::F_TEL)
                                     $val = Misc::formatTel($val);
                             }
