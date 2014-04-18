@@ -292,38 +292,16 @@ class Db
      * @return string escaped value or <i>'NULL'</i> string if the value
      * is not set
      */
-    public static function escape($value)
+    public static function escapeInt($value)
     {
-        return isset($value) ? \mysqli_real_escape_string(self::$conn, $value) : 'NULL';
-    }
-
-    /** escapes the passed value following tha database rules and wraps it in apostrophes
-     * (normally used to escape strings)
-     * @param string|array $value   string to escape (if an array is passed then
-     * all values are escaped, concatenated with a comma and then wrapped in apostrophes,
-     * like in <i>'a,b,c'</i>)
-     * @return string wrapped value or <i>'NULL'</i> string if the value
-     * is not set
-     */
-    public static function wrap($value)
-    {
-        if (\is_array($value))
-        {
-            foreach ($value as &$v)
-                $v = isset($v) ? ("'".\mysqli_real_escape_string(self::$conn, $v)."'") : 'NULL';
-
-            return \implode(',', $value);
-        }
-        elseif (isset($value))
-            return "'".\mysqli_real_escape_string(self::$conn, $value)."'";
-        else
-            return 'NULL';
+        return isset($value) ? (int)$value : 'NULL';
     }
 
     /** produces a CSV string from an array of passed non-zero integers
      * @param array|int $values array of int values to concatenate (if a scalar
      * is passed then it is converted to int and returned)
-     * @return string concatenated CSV string or <i>'NULL'</i> string if the value is unset or empty list
+     * @return string concatenated CSV string or <i>'NULL'</i> string if the value
+     * is unset or empty list
      */
     public static function escapeIntCsv($values)
     {
@@ -331,13 +309,50 @@ class Db
         {
             $vals = array();
             foreach ($values as $v)
-                if (isset($v))
+                if ((int)$v)
                     $vals[] = (int)$v;
 
             return $vals ? \implode(',', $vals) : 'NULL';
         }
         elseif (isset($values))
             return (int)$values;
+        else
+            return 'NULL';
+    }
+
+    /** escapes the passed value following tha database rules and wraps it in apostrophes
+     * (normally used to escape strings)
+     * @param string $value string to escape
+     * @return string wrapped value or <i>'NULL'</i> string if the value is unset
+     */
+    public static function wrapChar($value)
+    {
+        if (isset($value))
+            return "'".\mysqli_real_escape_string(self::$conn, $value)."'";
+        else
+            return 'NULL';
+    }
+
+    /** composes an escaped string set from an items array and wraps it in apostrophes
+     * (normally used to escape sets)
+     * @param array $values  array of strings to escape
+     * @return string wrapped value <i>"'a,b,c'"</i> or <i>'NULL'</i> if value unset
+     */
+    public static function wrapCharCsv($values)
+    {
+        if (\is_array($values))
+        {
+            $vals = array();
+            foreach ($values as $v)
+                if (isset($v))
+                    $vals[] = $v;
+
+            return $vals
+                ? ("'".\mysqli_real_escape_string(self::$conn, \implode(',', $vals))."'")
+                : 'NULL';
+        }
+        elseif (isset($values))
+            return "'".\mysqli_real_escape_string(self::$conn, $values)."'";
         else
             return 'NULL';
     }

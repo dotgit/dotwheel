@@ -756,16 +756,12 @@ class Repo
                 return self::asSqlInt($name, (int)$value*100, $Rep);
             case self::C_BOOL:
                 return self::asSqlBool($name, (bool)$value, $Rep);
-            case self::C_TEXT:
-                return self::asSqlText($name, $value, $Rep);
             case self::C_DATE:
                 return self::asSqlDate($name, $value, $Rep);
-            case self::C_ENUM:
-                return self::as_sql_enum($name, $value, $Rep);
             case self::C_SET:
-                return self::as_sql_set($name, $value, $Rep);
-            case self::C_FILE:
-                return self::as_sql_file($name, $value, $Rep);
+                return self::asSqlSet($name, $value, $Rep);
+            default:
+                return self::asSqlText($name, $value, $Rep);
             }
         }
     }
@@ -779,7 +775,7 @@ class Repo
     public static function asSqlInt($name, $value, $repo=array())
     {
         if (isset($value))
-            return "$name = ".Db::escape($value);
+            return "$name = ".Db::escapeInt($value);
         else
             return "$name is null";
     }
@@ -807,9 +803,29 @@ class Repo
     public static function asSqlText($name, $value, $repo=array())
     {
         if (isset($value))
-            return "$name = ".Db::wrap($value);
+            return "$name = ".Db::wrapChar($value);
         else
             return "$name is null";
+    }
+
+    /** returns sql condition for the set field where all values from <code>$value</code>
+     * are present in a field
+     * @param string $name  field name
+     * @param array $value  field values
+     * @param array $repo   {field repository attributes}
+     * @return string
+     */
+    public static function asSqlSet($name, $value, $repo=array())
+    {
+        $cond = array();
+
+        if (\is_array($value))
+            foreach ($value as $v)
+                $cond[] = 'find_in_set('.Db::wrapChar($v).",$name)";
+        else
+            $cond[] = 'find_in_set('.Db::wrapChar($value).",$name)";
+
+        return '('.\implode(' and ', $cond).')';
     }
 
     /** returns sql condition for the date field value
@@ -835,18 +851,18 @@ class Repo
         {
             if ($datetime and \substr($d2, -8) == '00:00:00')
                 $d2 = \substr_replace($d2, '23:59:59', -8);
-            return "$name between ".Db::wrap($d1).' and '.Db::wrap($d2);
+            return "$name between ".Db::wrapChar($d1).' and '.Db::wrapChar($d2);
         }
         elseif (\preg_match('/^<\s*(\S+)$/', $value, $matches)
             and $d = Nls::asDate($matches[1], $datetime)
         )
-            return "$name < ".Db::wrap($d);
+            return "$name < ".Db::wrapChar($d);
         elseif (\preg_match('/^>\s*(\S+)$/', $value, $matches)
             and $d = Nls::asDate($matches[1], $datetime)
         )
-            return "$name > ".Db::wrap($d);
+            return "$name > ".Db::wrapChar($d);
         elseif ($d = Nls::asDate($matches[1], $datetime))
-            return "$name = ".Db::wrap($d);
+            return "$name = ".Db::wrapChar($d);
         else
             return null;
     }

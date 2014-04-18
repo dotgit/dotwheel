@@ -48,8 +48,8 @@ class Db2
             {
                 switch ($wrap)
                 {
-                    case self::FMT_ALPHA: $ins[$name] = Db::wrap($params[self::P_VALUES][$name]); break;
-                    case self::FMT_NUM: $ins[$name] = Db::escape($params[self::P_VALUES][$name]); break;
+                    case self::FMT_ALPHA: $ins[$name] = Db::wrapChar($params[self::P_VALUES][$name]); break;
+                    case self::FMT_NUM: $ins[$name] = Db::escapeInt($params[self::P_VALUES][$name]); break;
                     default: $ins[$name] = $params[self::P_VALUES][$name];
                 }
             }
@@ -91,8 +91,8 @@ class Db2
         {
             switch ($wrap)
             {
-                case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrap($params[self::P_VALUES][$name]); break;
-                case self::FMT_NUM: $upd[] = "$name = ".Db::escape($params[self::P_VALUES][$name]); break;
+                case self::FMT_ALPHA: $upd[] = "$name = ".Db::wrapChar($params[self::P_VALUES][$name]); break;
+                case self::FMT_NUM: $upd[] = "$name = ".Db::escapeInt($params[self::P_VALUES][$name]); break;
                 default: $upd[] = "$name = ".$params[self::P_VALUES][$name];
             }
         }
