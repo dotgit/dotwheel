@@ -751,17 +751,17 @@ class Repo
             {
             case self::C_ID:
             case self::C_INT:
-                return self::asSqlInt($name, (int)$value, $Rep);
+                return self::asSqlInt($name, (int)$value);
             case self::C_CENTS:
-                return self::asSqlInt($name, (int)$value*100, $Rep);
+                return self::asSqlInt($name, (int)$value*100);
             case self::C_BOOL:
-                return self::asSqlBool($name, (bool)$value, $Rep);
+                return self::asSqlBool($name, (bool)$value);
             case self::C_DATE:
                 return self::asSqlDate($name, $value, $Rep);
             case self::C_SET:
-                return self::asSqlSet($name, $value, $Rep);
+                return self::asSqlSet($name, $value);
             default:
-                return self::asSqlText($name, $value, $Rep);
+                return self::asSqlText($name, $value);
             }
         }
     }
@@ -783,10 +783,9 @@ class Repo
     /** returns sql condition for the boolean field value
      * @param string $name  field name
      * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
      * @return string
      */
-    public static function asSqlBool($name, $value, $repo=array())
+    public static function asSqlBool($name, $value)
     {
         if (! empty($value))
             return $name;
@@ -797,10 +796,9 @@ class Repo
     /** returns sql condition for the text field value
      * @param string $name  field name
      * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
      * @return string
      */
-    public static function asSqlText($name, $value, $repo=array())
+    public static function asSqlText($name, $value)
     {
         if (isset($value))
             return "$name = ".Db::wrapChar($value);
@@ -808,14 +806,14 @@ class Repo
             return "$name is null";
     }
 
-    /** returns sql condition for the set field where all values from <code>$value</code>
-     * are present in a field
+    /** returns sql condition for the set field where all (or some) values from
+     * <code>$value</code> are present in a field
      * @param string $name  field name
      * @param array $value  field values
-     * @param array $repo   {field repository attributes}
+     * @param bool $all     whether all values must be present or only some [false]
      * @return string
      */
-    public static function asSqlSet($name, $value, $repo=array())
+    public static function asSqlSet($name, $value, $all=false)
     {
         $cond = array();
 
@@ -825,7 +823,7 @@ class Repo
         else
             $cond[] = 'find_in_set('.Db::wrapChar($value).",$name)";
 
-        return '('.\implode(' and ', $cond).')';
+        return '('.\implode($all ? ' and ' : ' or ', $cond).')';
     }
 
     /** returns sql condition for the date field value
