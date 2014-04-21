@@ -33,6 +33,7 @@ class BootstrapUi
     const ICN_CERTIFICATE       = 'fa-certificate';
     const ICN_COGS              = 'fa-cogs';
     const ICN_ENVELOPE          = 'fa-envelope-o';
+    const ICN_ERASER            = 'fa-eraser';
     const ICN_FFORWARD          = 'fa-forward';
     const ICN_HOME              = 'fa-home';
     const ICN_INFO              = 'fa-info-circle';
