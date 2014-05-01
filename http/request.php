@@ -20,6 +20,10 @@ class Request
     const CGI_SORT      = 's';
     const CGI_PAGE      = 'p';
 
+    const CO_CMD    = 'c';
+    const CO_JSON   = 'j';
+    const CO_ASIS   = 'a';
+
     const SORT_REV_SUFFIX           = '-';
     const SORT_REV_SUFFIX_LENGTH    = 1;
 
@@ -65,20 +69,26 @@ class Request
 
 
 
-    /** set self::$output based on CGI mode and input parameters
+    /** sets request $output variable based on CGI mode and input parameters
      * @return int current output mode
      */
     public static function initOutputMode()
     {
         // identify $output
-        if (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
-            self::$output = (! empty($_REQUEST[self::CGI_OUTPUT]) and $_REQUEST[self::CGI_OUTPUT] == 'a')
-                ? self::OUT_ASIS
-                : self::OUT_JSON;
-        elseif (! empty($_REQUEST[self::CGI_OUTPUT]))
-            self::$output = $_REQUEST[self::CGI_OUTPUT] == 'a'
-                ? self::OUT_ASIS
-                : ($_REQUEST[self::CGI_OUTPUT] == 'c' ? self::OUT_CMD : self::OUT_JSON);
+        if (isset($_REQUEST[self::CGI_OUTPUT]))
+        {
+            switch ($_REQUEST[self::CGI_OUTPUT])
+            {
+                case self::CO_CMD: self::$output = self::OUT_CMD; break;
+                case self::CO_JSON: self::$output = self::OUT_JSON; break;
+                case self::CO_ASIS: self::$output = self::OUT_ASIS; break;
+                default: self::$output = self::OUT_HTML;
+            }
+        }
+        elseif (isset($_SERVER['HTTP_X_REQUESTED_WITH']))
+            self::$output = $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+                ? self::OUT_JSON
+                : self::OUT_ASIS;
         elseif (isset($_SERVER['REQUEST_METHOD']))
             self::$output = $_SERVER['REQUEST_METHOD'] == 'POST'
                 ? self::OUT_CMD
@@ -89,7 +99,7 @@ class Request
         return self::$output;
     }
 
-    /** initialises the request variables, opens session, initialises nls */
+    /** initializes the request variables: $root, $root_url, $next, $details */
     public static function init($params)
     {
         self::$root = Params::extract($params, self::INI_ROOT);
