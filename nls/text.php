@@ -5,8 +5,20 @@
  *
  * this class is intended to eliminate the dependency on gettext library since
  * unstable in web environments.
- * the existing .PO catalogue is transformed in a .PHP structure that is stored
- * by opcode cache. class methods replace main gettext functions
+ * the existing .PO catalogue is transformed by a po2php tool to a .PHP file
+ * that may be stored by opcode cache. two variables are defined in the file:
+ * $PLURALFORMS and $TRANSLATIONS.
+ * $PLURALFORMS is a 'plural' attribute of Plural-Forms header from .PO file
+ * with 'n' replaced by '$n' to facilitate evaluation.
+ * $TRANSLATIONS is a hash array of the form crc32=>TranslatedString, where
+ * crc32 is a CRC32 hash of the source string from .PO file and
+ * TranslatedString is a corresponding translated string.
+ * when class methods are called with source message as parameter it is first
+ * translated into CRC32 form and then looked up in $TRANSLATIONS array.
+ * domains, plural forms and contexts are maintained via corresponding d*, n*
+ * and p* methods.
+ *
+ * class methods replace main gettext functions.
  *
  * [type: framework]
  *
@@ -17,10 +29,8 @@ namespace Dotwheel\Nls;
 
 class Text
 {
-    public static $pluralForms;
-
+    public static $pluralForms = 0;
     public static $domainTranslations = array();
-
     public static $domain = 'messages'; // default gettext domain
 
 
@@ -55,8 +65,10 @@ class Text
     {
         include ("$dir/$lang/$domain.php");
 
-        self::$pluralForms = $PLURALFORMS;
-        self::$domainTranslations[$domain] = $TRANSLATIONS;
+        if (isset($PLURALFORMS))
+            self::$pluralForms = $PLURALFORMS;
+        if (isset($TRANSLATIONS))
+            self::$domainTranslations[$domain] = $TRANSLATIONS;
         self::$domain = $domain;
     }
 
