@@ -94,22 +94,26 @@ class BootstrapUi
     const A_LEFT    = 'left';
 
     // for P_WIDTH
-    const W_XSMALL      = 'xs';
-    const W_SMALL       = 'sm';
-    const W_MIDDLE      = 'md';
-    const W_LARGE       = 'lg';
-    const WIDTH_1       = 12;
-    const WIDTH_11_12   = 11;
-    const WIDTH_5_6     = 10;
-    const WIDTH_3_4     = 9;
-    const WIDTH_2_3     = 8;
-    const WIDTH_7_12    = 7;
-    const WIDTH_1_2     = 6;
-    const WIDTH_5_12    = 5;
-    const WIDTH_1_3     = 4;
-    const WIDTH_1_4     = 3;
-    const WIDTH_1_6     = 2;
-    const WIDTH_1_12    = 1;
+    const W_XSMALL          = 'xs';
+    const W_SMALL           = 'sm';
+    const W_MIDDLE          = 'md';
+    const W_LARGE           = 'lg';
+    const W_XSMALL_OFFSET   = 'xs-offset';
+    const W_SMALL_OFFSET    = 'sm-offset';
+    const W_MIDDLE_OFFSET   = 'md-offset';
+    const W_LARGE_OFFSET    = 'lg-offset';
+    const WIDTH_1           = 12;
+    const WIDTH_11_12       = 11;
+    const WIDTH_5_6         = 10;
+    const WIDTH_3_4         = 9;
+    const WIDTH_2_3         = 8;
+    const WIDTH_7_12        = 7;
+    const WIDTH_1_2         = 6;
+    const WIDTH_5_12        = 5;
+    const WIDTH_1_3         = 4;
+    const WIDTH_1_4         = 3;
+    const WIDTH_1_6         = 2;
+    const WIDTH_1_12        = 1;
 
 
 
@@ -977,21 +981,6 @@ EOsc
             Params::add($attrs, "width:{$width};", 'style', '');
         else
             return null;
-
-        return $attrs;
-    }
-
-    /** inject offset specification into attributes array
-     * @param int|string $width width specification (nbr of grid units or css value)
-     * @param array $attrs      attributes array
-     * @return array
-     */
-    public static function widthOffset2Attr($width, $attrs=array())
-    {
-        if (\is_int($width))
-            Params::add($attrs, "col-sm-offset-{$width}");
-        else
-            Params::add($attrs, "margin-left:{$width};", 'style', '');
 
         return $attrs;
     }
