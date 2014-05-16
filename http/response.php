@@ -44,7 +44,7 @@ class Response
         if (\is_array($msg))
             static::$errors = \array_merge(
                 static::$errors,
-                $html ? $msg : \array_map('Dotwheel\Ui\Html::encode', $msg)
+                $html ? $msg : \array_map(function ($item) {return Html::encode($item);}, $msg)
             );
         else
             static::$errors[] = $html ? $msg : Html::encode($msg);

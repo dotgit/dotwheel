@@ -550,13 +550,13 @@ class Repo
                                 $value
                                 , $asis
                                     ? $repo[self::P_ITEMS]
-                                    : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS])
+                                    : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS])
                                 , $repo[self::P_FLAGS] & self::F_ARRAY
                             )
                         )
                         : Html::asEnum(
                             $value,
-                            \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS])
+                            \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS])
                         )
                     )
                     : '';
@@ -565,7 +565,7 @@ class Repo
                     $value,
                     (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                         ? $repo[self::P_ITEMS]
-                        : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS])
+                        : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS])
                 );
             case self::C_ID:
             case self::C_INT:
@@ -660,7 +660,7 @@ class Repo
                         'value'=>$value,
                         Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
                             ? $repo[self::P_ITEMS]
-                            : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS]),
+                            : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
                         Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::T_ARRAY
                             : null,
@@ -673,7 +673,7 @@ class Repo
                         'value'=>$value,
                         Html::P_ITEMS=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
                             ? $repo[self::P_ITEMS]
-                            : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS]),
+                            : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
                         Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                             ? Html::T_ARRAY
                             : null,
@@ -687,7 +687,7 @@ class Repo
                     'value'=>$value,
                     Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                         ? $repo[self::P_ITEMS]
-                        : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS]),
+                        : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
                     Html::P_TYPE=>isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ARRAY
                         ? Html::T_ARRAY
                         : null,
@@ -701,7 +701,7 @@ class Repo
                 'value'=>$value,
                 Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                     ? $repo[self::P_ITEMS]
-                    : \array_map('Dotwheel\Ui\Html::encode', $repo[self::P_ITEMS]),
+                    : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
                 Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
                     ? Html::T_ARRAY
                     : null,

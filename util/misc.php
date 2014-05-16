@@ -14,10 +14,11 @@ use Dotwheel\Nls\Nls;
 
 class Misc
 {
-    /**
+    /** add $n months to the $date_begin considering not skipping short months
      * @param string $date_begin    date that need to be incremented
      * @param int $n                number of months to add
      * @param string $date_base     initial date to trim to (only days part is used)
+     * @return string               incremented date in YYYY-MM-DD format
      * @assert('2013-01-01', 1) == '2013-02-01'
      * @assert('2013-01-31', 1) == '2013-02-28'
      * @assert('2013-02-28', 1) == '2013-03-28'
@@ -36,7 +37,8 @@ class Misc
         if (\substr($date_next, 8, 2) != \substr($date_begin, 8, 2))
             return \date('Y-m-d', \strtotime("$date_next last day of previous month"));
         elseif (\substr($date_next, 8, 2) != \substr($date_base, 8, 2))
-            return \substr($date_next, 0, 8) . \min((int)\date('t', \strtotime($date_next)), (int)\substr($date_base, 8, 2));
+            return \substr($date_next, 0, 8).
+                \min((int)\date('t', \strtotime($date_next)), (int)\substr($date_base, 8, 2));
         else
             return $date_next;
     }
