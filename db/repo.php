@@ -623,7 +623,12 @@ class Repo
             if (isset($repo[self::P_FLAGS]))
             {
                 if ($repo[self::P_FLAGS] & self::F_TEXTAREA)
-                    return Html::inputTextarea($input + array('name'=>$name, 'value'=>$value));
+                    return Html::inputTextarea($input + array(
+                        'name'=>$name,
+                        'value'=>$value,
+                        'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
+                    ));
+
                 if ($repo[self::P_FLAGS] & self::F_PASSWORD)
                     $type = 'password';
                 elseif ($repo[self::P_FLAGS] & self::F_EMAIL)

@@ -214,8 +214,6 @@ class Response
      */
     public static function run()
     {
-        static::$url_params += Request::$details;
-
         if (($context = static::init()) !== false)
         {
             if (($result = static::exec($context)) !== false)
