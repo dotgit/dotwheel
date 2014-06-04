@@ -151,11 +151,15 @@ class Db2
     public static function changePos($params)
     {
         // get ids of all the items (a small number for a given application)
-        foreach ($all = Db::fetchArray("select {$params['id_field']}, {$params['pos_field']}".
-            " from {$params['table']}".
-            " where {$params['main_id_field']} = ".(int)$params['main_id_value'].
-            " order by {$params['pos_field']}"
-        ) as $i=>$row)
+        foreach ($all = Db::fetchArray(\sprintf(
+            'select %s, %s from %s where %s = %u order by %s',
+            $params['id_field'],
+            $params['pos_field'],
+            $params['table'],
+            $params['main_id_field'],
+            $params['main_id_value'],
+            $params['pos_field']
+        )) as $i=>$row)
         {
             if ($row[$params['id_field']] == $params['id_value'])
                 $current = $i;
@@ -183,10 +187,16 @@ class Db2
         return Db::dml(\sprintf(
             'update %s set %s = if (%s = %u, %u, %u) where %s = %u and %s in(%u, %u)',
             $params['table'],
-            $params['pos_field'], $params['id_field'],
-            $params['id_value'], $another[$params['pos_field']], $all[$current][$params['pos_field']],
-            $params['main_id_field'], $params['main_id_value'],
-            $params['id_field'], $another[$params['id_field']], $all[$current][$params['id_field']]
+            $params['pos_field'],
+            $params['id_field'],
+            $params['id_value'],
+            $another[$params['pos_field']],
+            $all[$current][$params['pos_field']],
+            $params['main_id_field'],
+            $params['main_id_value'],
+            $params['id_field'],
+            $another[$params['id_field']],
+            $all[$current][$params['id_field']]
         ));
     }
 
