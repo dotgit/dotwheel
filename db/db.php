@@ -193,7 +193,7 @@ class Db
      */
     public static function handlerReadPrimary($table, $pk)
     {
-        $key = \is_array($pk) ? \implode(',', $pk) : $pk;
+        $key = \implode(',', (array)$pk);
         if (\mysqli_query(self::$conn, "handler $table open"))
         {
             if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
@@ -208,6 +208,45 @@ class Db
                 \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
                 return false;
             }
+        }
+        else
+        {
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+            return false;
+        }
+    }
+
+    /** access database using low level HANDLER statement via primary keys to fetch
+     * many rows in associative mode
+     * @param string $table table name
+     * @param array $pks    array of primary key values (integer values), like [pk1, pk2]. keys must be properly escaped
+     * @return array|bool hash with the row information,like {pk1:{record 1}, pk2:{record 2}} or <i>false</i> on error
+     * + error_log
+     */
+    public static function handlerReadMultiPrimaryInt($table, $pks)
+    {
+        if (! \is_array($pks))
+        {
+            \error_log('['.__METHOD__."] array of PKs needed; TABLE: $table; KEY: $pks");
+            return false;
+        }
+
+        if (\mysqli_query(self::$conn, "handler $table open"))
+        {
+            $rows = array();
+            foreach ($pks as $pk)
+            {
+                $key = (int)$pk;
+                if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
+                    $rows[$key] = \mysqli_fetch_assoc($_);
+                else
+                {
+                    \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+                    return false;
+                }
+            }
+            \mysqli_query(self::$conn, "handler $table close");
+            return $rows;
         }
         else
         {
