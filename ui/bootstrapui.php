@@ -28,10 +28,14 @@ class BootstrapUi
     const ICN_SQUARE_O  = 'fa-square-o';
 
     // font-awesome icon classes
+    const ICN_BAN               = 'fa-ban';
     const ICN_BRIEFCASE         = 'fa-briefcase';
     const ICN_CALENDAR          = 'fa-calendar';
     const ICN_CERTIFICATE       = 'fa-certificate';
+    const ICN_CHECK_OFF         = 'fa-square';
+    const ICN_CHECK_ON          = 'fa-check-square';
     const ICN_COGS              = 'fa-cogs';
+    const ICN_EDIT              = 'fa-pencil-square-o';
     const ICN_ENVELOPE          = 'fa-envelope-o';
     const ICN_ERASER            = 'fa-eraser';
     const ICN_FFORWARD          = 'fa-forward';
@@ -41,6 +45,8 @@ class BootstrapUi
     const ICN_LOCK              = 'fa-lock';
     const ICN_PLUS              = 'fa-plus';
     const ICN_POWER_OFF         = 'fa-power-off';
+    const ICN_RADIO_OFF         = 'fa-circle-o';
+    const ICN_RADIO_ON          = 'fa-circle';
     const ICN_SAVE              = 'fa-floppy-o';
     const ICN_SIGN_IN           = 'fa-sign-in';
     const ICN_SORT_CHAR         = 'fa-sort-alpha-asc';
@@ -648,6 +654,7 @@ EOco
      * @param array $params {P_HEADER:'dialog title'
      *                      , P_CONTENT:'dialog body'
      *                      , P_FOOTER:'dialog buttons row'
+     *                      , P_WRAP_FMT:'%s' // wrap the form around the header / content / footer
      *                      , P_CLOSE:close button tag attributes
      *                      , container div attributes
      *                      }
@@ -662,6 +669,7 @@ EOco
         $header = Params::extract($params, self::P_HEADER);
         $body = Params::extract($params, self::P_CONTENT);
         $footer = Params::extract($params, self::P_FOOTER);
+        $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
 
         Params::add($params, $id, 'id');
         Params::add($params, 'modal');
@@ -693,12 +701,14 @@ $('#$id')
 EOsc
         )));
 
-        return '<div'.Html::attr($params).'>'.
+        return
+            '<div'.Html::attr($params).'>'.
             '<div class="modal-dialog">'.
             '<div class="modal-content">'.
-                $header.
-                $body.
-                $footer.
+            \sprintf(
+                $wrap_fmt,
+                "$header$body$footer"
+            ).
             '</div>'.
             '</div>'.
             '</div>';
