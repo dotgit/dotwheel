@@ -29,6 +29,7 @@ class BootstrapUi
 
     // font-awesome icon classes
     const ICN_BAN               = 'fa-ban';
+    const ICN_DASHBOARD         = 'fa-th';
     const ICN_BRIEFCASE         = 'fa-briefcase';
     const ICN_CALENDAR          = 'fa-calendar';
     const ICN_CERTIFICATE       = 'fa-certificate';
@@ -494,34 +495,34 @@ EOco
         Params::add($params, 'dropdown-menu');
         Params::add($params, 'menu', 'role');
 
+        $li = array();
+        foreach ($items as $item)
+        {
+            if (isset($item))
+            {
+                if (\is_array($item))
+                {
+                    $label = Params::extract($item, self::P_HEADER);
+                    Params::add($item, 'presentatoion', 'role');
+                    $li_attr = Html::attr($item);
+                }
+                else
+                {
+                    $label = $item;
+                    $li_attr = ' role="presentation"';
+                }
+            }
+            else
+            {
+                $label = '';
+                $li_attr = ' role="presentation" class="divider"';
+            }
+
+            $li[] = "<li$li_attr>$label</li>";
+        }
+
         return '<ul'.Html::attr($params).'>'.
-            \implode(
-                '',
-                \array_map(function ($item) {
-                        if (isset($item))
-                        {
-                            if (\is_array($item))
-                            {
-                                $label = Params::extract($item, self::P_HEADER);
-                                Params::add($item, 'presentatoion', 'role');
-                                $li_attr = Html::attr($item);
-                            }
-                            else
-                            {
-                                $label = $item;
-                                $li_attr = ' role="presentation"';
-                            }
-                        }
-                        else
-                        {
-                            $label = '';
-                            $li_attr = ' role="presentation" class="divider"';
-                        }
-                        return "<li$li_attr>$label</li>";
-                    },
-                    $items
-                )
-            ).
+            \implode('', $li).
             '</ul>';
     }
 
