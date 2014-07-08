@@ -670,6 +670,7 @@ EOco
         $header = Params::extract($params, self::P_HEADER);
         $body = Params::extract($params, self::P_CONTENT);
         $footer = Params::extract($params, self::P_FOOTER);
+        $size = Params::extract($params, self::P_WIDTH);
         $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
 
         Params::add($params, $id, 'id');
@@ -688,11 +689,13 @@ EOco
             $body = "<div class=\"modal-body\">$body</div>";
         if (isset($footer))
             $footer = "<div class=\"modal-footer\">$footer</div>";
+        if (isset($size))
+            $size = " modal-$size";
 
         HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
 $('#$id')
 .on('shown.bs.modal',function(){
-    var \$f=\$(this).prop('prev_focus',document.activeElement).find('.btn.btn-primary');
+    var \$f=\$(this).prop('prev_focus',document.activeElement).find('.btn').not('.btn-default');
     if(\$f.length)
         \$f.first().focus();
     else
@@ -702,17 +705,20 @@ $('#$id')
 EOsc
         )));
 
-        return
-            '<div'.Html::attr($params).'>'.
-            '<div class="modal-dialog">'.
-            '<div class="modal-content">'.
-            \sprintf(
-                $wrap_fmt,
-                "$header$body$footer"
-            ).
-            '</div>'.
-            '</div>'.
-            '</div>';
+        return \sprintf(<<<EOfmt
+<div%s>
+  <div class="modal-dialog%s">
+    <div class="modal-content">
+      %s
+    </div>
+  </div>
+</div>
+EOfmt
+            ,
+            Html::attr($params),
+            $size,
+            \sprintf($wrap_fmt, "$header$body$footer")
+        );
     }
 
     /** html-formatted bootstrap tabs
