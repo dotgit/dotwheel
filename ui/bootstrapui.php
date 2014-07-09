@@ -383,6 +383,7 @@ class BootstrapUi
         self::registerAlert();
 
         Params::add($params, 'close');
+        Params::add($params, 'button', 'type');
 
         return '<button'.Html::attr($params).">&times;</button>";
     }
