@@ -50,6 +50,7 @@ class BootstrapUi
     const ICN_RADIO_ON          = 'fa-circle';
     const ICN_SAVE              = 'fa-floppy-o';
     const ICN_SIGN_IN           = 'fa-sign-in';
+    const ICN_SIGN_OUT          = 'fa-sign-out';
     const ICN_SORT_CHAR         = 'fa-sort-alpha-asc';
     const ICN_SORT_CHAR_DESC    = 'fa-sort-alpha-desc';
     const ICN_SORT_NUM          = 'fa-sort-numeric-asc';
@@ -487,7 +488,8 @@ EOco
     }
 
     /** generate dropdown list
-     * @param string $items ['item 1 html', 'item 2 html', null, 'item post divider']
+     * @param string $items ['item 1 html',
+     *  {P_HEADER:'item 2 html', li tag attributes}, null, 'item post divider']
      * @param array $params hash of ul tag attributes
      * @return string
      */
