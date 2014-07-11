@@ -76,7 +76,7 @@ class HtmlTable
     const ITEMS_PER_PAGE    = 100;
 
     /** @var int    autoincrement for automatic table id if id parameter omitted */
-    static protected $counter = 0;
+    protected static $counter = 0;
 
     /** @var array  if totals row displayed then the values are stored here */
     public static $totals = array();

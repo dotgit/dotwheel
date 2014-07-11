@@ -19,7 +19,7 @@ class CacheBase
     const P_PREFIX  = 1;
 
     /** @var string connection prefix to distinguish between different datasets on shared server */
-    static protected $prefix;
+    protected static $prefix;
 
 
 

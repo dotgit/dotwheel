@@ -13,7 +13,7 @@ namespace Dotwheel\Db;
 class Db
 {
     /** @var Resource current connection */
-    static protected $conn = null;
+    protected static $conn = null;
 
 
 

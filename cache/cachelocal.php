@@ -15,7 +15,7 @@ namespace Dotwheel\Cache;
 class CacheLocal extends CacheBase
 {
     /** @var array stores local cache */
-    static protected $store;
+    protected static $store;
 
     public static function store($name, $value, $ttl=0)
     {
