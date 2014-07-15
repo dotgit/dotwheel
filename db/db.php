@@ -186,17 +186,32 @@ class Db
     /** access database using low level HANDLER statement via primary key to fetch
      * one row in associative mode
      * @param string $table         table name
-     * @param int|string|array $pk  primary key value or array for multiple columns key.
-     *                              keys must be properly escaped
+     * @param int|string|array $pk  primary key value or array for multiple
+     *                              columns key. keys must be properly escaped
      * @return array|bool hash with the row information or <i>false</i> on error
      * + error_log
      */
     public static function handlerReadPrimary($table, $pk)
     {
-        $key = \implode(',', (array)$pk);
+        return self::handlerReadIndex($table, '`PRIMARY`', $pk);
+    }
+
+    /** access database using low level HANDLER statement via specified index to
+     * fetch one row in associative mode
+     * @param string $table             table name
+     * @param string $index             table index name
+     * @param int|string|array $value   index scalar value or array of scalars for
+     *                                  multiple columns key. keys must be properly
+     *                                  escaped
+     * @return array|bool hash with the row information or <i>false</i> on error
+     * + error_log
+     */
+    public static function handlerReadIndex($table, $index, $value)
+    {
+        $key = \implode(',', (array)$value);
         if (\mysqli_query(self::$conn, "handler $table open"))
         {
-            if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
+            if ($_ = \mysqli_query(self::$conn, "handler $table read $index = ($key)"))
             {
                 $row = \mysqli_fetch_assoc($_);
                 \mysqli_query(self::$conn, "handler $table close");
@@ -205,13 +220,13 @@ class Db
             }
             else
             {
-                \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+                \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table($index); VALUE: $key");
                 return false;
             }
         }
         else
         {
-            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table($index); VALUE: $key");
             return false;
         }
     }
@@ -225,23 +240,37 @@ class Db
      */
     public static function handlerReadMultiPrimaryInt($table, $pks)
     {
-        if (! \is_array($pks))
+        return self::handlerReadMultiIndexInt($table, '`PRIMARY`', $pks);
+    }
+
+    /** access database using low level HANDLER statement via specified index to
+     * fetch many rows in associative mode
+     * @param string $table table name
+     * @param string $index table index name
+     * @param array $values array of index values (integer values), like [val1, val2].
+     *                      keys must be properly escaped
+     * @return array|bool hash with the row information,like {val1:{record 1},
+     *                      val2:{record 2}} or <i>false</i> on error + error_log
+     */
+    public static function handlerReadMultiIndexInt($table, $index, $values)
+    {
+        if (! \is_array($values))
         {
-            \error_log('['.__METHOD__."] array of PKs needed; TABLE: $table; KEY: $pks");
+            \error_log('['.__METHOD__."] array of PKs needed; TABLE: $table; VALUE: $values");
             return false;
         }
 
         if (\mysqli_query(self::$conn, "handler $table open"))
         {
             $rows = array();
-            foreach ($pks as $pk)
+            foreach ($values as $pk)
             {
                 $key = (int)$pk;
-                if ($_ = \mysqli_query(self::$conn, "handler $table read `PRIMARY` = ($key)"))
+                if ($_ = \mysqli_query(self::$conn, "handler $table read $index = ($key)"))
                     $rows[$key] = \mysqli_fetch_assoc($_);
                 else
                 {
-                    \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+                    \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; VALUE: $key");
                     return false;
                 }
             }
@@ -250,7 +279,7 @@ class Db
         }
         else
         {
-            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; KEY: $key");
+            \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn)."; TABLE: $table; VALUE: $key");
             return false;
         }
     }
