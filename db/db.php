@@ -401,10 +401,11 @@ class Db
             return 'NULL';
     }
 
-    /** composes an escaped string set from an items array and wraps it in apostrophes
-     * (normally used to escape sets)
+    /** escapes the passed string values following tha database rules (normally
+     * used to escape array of strings)
      * @param array $values  array of strings to escape
-     * @return string wrapped value <i>"'a,b,c'"</i> or <i>'NULL'</i> if value unset
+     * @return string comma separated wrapped values <i>"'a','b','c'"</i> or
+     * <i>'NULL'</i> if value unset
      */
     public static function wrapCharCsv($values)
     {
@@ -413,10 +414,10 @@ class Db
             $vals = array();
             foreach ($values as $v)
                 if (isset($v))
-                    $vals[] = $v;
+                    $vals[] = "'".\mysqli_real_escape_string(self::$conn, $v)."'";
 
             return $vals
-                ? ("'".\mysqli_real_escape_string(self::$conn, \implode(',', $vals))."'")
+                ? \implode(',', $vals)
                 : 'NULL';
         }
         elseif (isset($values))
