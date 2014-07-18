@@ -29,7 +29,7 @@ class BootstrapUi
 
     // font-awesome icon classes
     const ICN_BAN               = 'fa-ban';
-    const ICN_DASHBOARD         = 'fa-th';
+    const ICN_DASHBOARD         = 'fa-tachometer';
     const ICN_BRIEFCASE         = 'fa-briefcase';
     const ICN_CALENDAR          = 'fa-calendar';
     const ICN_CERTIFICATE       = 'fa-certificate';
