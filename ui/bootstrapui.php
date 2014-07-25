@@ -726,13 +726,16 @@ EOfmt
 
     /** html-formatted bootstrap tabs
      * @param array $items  {{P_TARGET:'pane id'
-     *                          , P_HEADER:'tab label'
-     *                          , P_CONTENT:'pane content'
-     *                          , P_ACTIVE:bool
-     *                          }
-     *                      , div tag attributes
-     *                      }
-     * @param array $params {}
+     *      , P_HEADER:'tab label'
+     *      , P_CONTENT:'pane content'
+     *      , P_ACTIVE:bool
+     *      }
+     *  , li tag attributes
+     *  }
+     * @param array $params {P_PREFIX: 'prefix text'
+     *  , P_SUFFIX: 'suffix text'
+     *  , ul tag attributes
+     *  }
      * @return type
      */
     public static function nav($items, $params=array())
