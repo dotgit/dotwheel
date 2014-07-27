@@ -531,17 +531,30 @@ EOco
 
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
      * format to wrap the field html
-     * @param array $ui {P_PREFIX:"input prefix addon'|{P_CONTENT:'prefix content', P_ADDON_BTN:true, prefix arguments}
-     *                  , P_SUFFIX:'input suffix addon'|{P_CONTENT:'suffix content', P_ADDON_BTN:true, suffix arguments}
-     *                  }
+     * @param array $ui {P_PREFIX:'input prefix addon'
+     *      |{P_CONTENT:'prefix content'
+     *          , P_HEADER_ATTR:{input group attributes}
+     *          , P_ADDON_BTN:true
+     *          , prefix arguments
+     *      }
+     *  , P_SUFFIX:'input suffix addon'
+     *      |{P_CONTENT:'suffix content'
+     *          , P_HEADER_ATTR:{input group attributes}
+     *          , P_ADDON_BTN:true
+     *          , suffix arguments
+     *      }
+     *  }
      * @return string   '%s' if no prefixes / suffixes detected, otherwise '...%s...'
      */
     public static function fmtAddons($ui)
     {
+        $header = array();
+
         if ($prefix = Params::extract($ui, self::P_PREFIX))
         {
             if (\is_array($prefix))
             {
+                $header = Params::extract($prefix, self::P_HEADER_ATTR, $header);
                 $cnt = Params::extract($prefix, self::P_CONTENT);
                 $class = Params::extract($prefix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
                 Params::add($prefix, $class);
@@ -555,6 +568,7 @@ EOco
         {
             if (\is_array($suffix))
             {
+                $header = Params::extract($suffix, self::P_HEADER_ATTR, $header);
                 $cnt = Params::extract($suffix, self::P_CONTENT);
                 $class = Params::extract($suffix, self::P_ADDON_BTN) ? 'input-group-btn' : 'input-group-addon';
                 Params::add($suffix, $class);
@@ -566,7 +580,9 @@ EOco
 
         if ($prefix or $suffix)
         {
-            $prefix = Misc::sprintfEscape('<div class="input-group">'.$prefix);
+            Params::add($header, 'input-group');
+            $header_attr = Html::attr($header);
+            $prefix = Misc::sprintfEscape("<div$header_attr>$prefix");
             $suffix = Misc::sprintfEscape($suffix.'</div>');
         }
 
