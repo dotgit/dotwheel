@@ -34,9 +34,10 @@ class Nls
     const P_LIST_DELIM_HTML     = 18;
     const P_COLON               = 19;
     const P_COLON_HTML          = 20;
-    const P_WDAYS_SHORT         = 21;
-    const P_GMAPS_FMT           = 22;
-    const P_DATEPICKER          = 23;
+    const P_MONTHS              = 21;
+    const P_WDAYS_SHORT         = 22;
+    const P_GMAPS_FMT           = 23;
+    const P_DATEPICKER          = 24;
 
     /** @var array $store list of available nls-settings */
     public static $store = array(
@@ -61,6 +62,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
+            self::P_MONTHS=>array(1=>'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
             self::P_WDAYS_SHORT=>array('Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.com/?q=%s',
             self::P_DATEPICKER=>array('language'=>'en')
@@ -86,6 +88,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>'&nbsp;;',
             self::P_COLON=>' :',
             self::P_COLON_HTML=>'&nbsp;:',
+            self::P_MONTHS=>array(1=>'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'),
             self::P_WDAYS_SHORT=>array('Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.fr/?q=%s',
             self::P_DATEPICKER=>array('language'=>'fr', 'format'=>'dd/mm/yy', 'weekStart'=>1),
@@ -111,6 +114,7 @@ class Nls
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
+            self::P_MONTHS=>array(1=>'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'),
             self::P_WDAYS_SHORT=>array('Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'),
             self::P_GMAPS_FMT=>'http://maps.google.ru/?q=%s',
             self::P_DATEPICKER=>array('language'=>'ru', 'format'=>'dd.mm.yy', 'weekStart'=>1),
