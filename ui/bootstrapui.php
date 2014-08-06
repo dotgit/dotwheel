@@ -714,9 +714,13 @@ EOco
         HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
 $('#$id')
 .on('shown.bs.modal',function(){
-    var \$f=\$(this).prop('prev_focus',document.activeElement).find('.btn').not('.btn-default');
-    if(\$f.length)
-        \$f.first().focus();
+    var \$btn=\$(this).prop('prev_focus',document.activeElement).find('.btn').not('.btn-default');
+    if(\$btn.length){
+        if(\$btn.filter('.btn-primary').length)
+            \$btn.filter('.btn-primary').first().focus();
+        else
+            \$btn.first().focus();
+    }
     else
         $('[data-dismiss="modal"]',this).last().focus();
 })
