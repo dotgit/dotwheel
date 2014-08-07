@@ -927,8 +927,6 @@ EOfmt
      */
     public static function panel($params)
     {
-        HtmlPage::add(array(HtmlPage::STYLE=>array(__METHOD__=>'.panel-body .panel-group:last-child{margin-bottom:0;}')));
-
         if ($heading = Params::extract($params, self::P_HEADER))
             $heading = "<div class=\"panel-heading\">$heading</div>";
         if ($footer = Params::extract($params, self::P_FOOTER))
