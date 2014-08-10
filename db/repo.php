@@ -136,10 +136,10 @@ class Repo
      */
     public static function getParam($name, $param, $repo=array())
     {
-        if (isset(self::$store[$name]))
-            $repo += self::$store[$name];
         if (isset($repo[$param]))
             return $repo[$param];
+        elseif (isset(self::$store[$name][$param]))
+            return self::$store[$name][$param];
 
         return null;
     }
