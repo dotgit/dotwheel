@@ -714,7 +714,7 @@ EOco
         HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
 $('#$id')
 .on('shown.bs.modal',function(){
-    var \$btn=\$(this).prop('prev_focus',document.activeElement).find('.btn').not('.btn-default');
+    var \$btn=\$(this).find('.btn').not('.btn-default');
     if(\$btn.length){
         if(\$btn.filter('.btn-primary').length)
             \$btn.filter('.btn-primary').first().focus();
@@ -723,8 +723,7 @@ $('#$id')
     }
     else
         $('[data-dismiss="modal"]',this).last().focus();
-})
-.on('hidden.bs.modal',function(){\$($(this).prop('prev_focus')).focus();});
+});
 EOsc
         )));
 
@@ -816,7 +815,8 @@ EOfmt
     /** html-formatted pagination based on butons
      * @param array $params {P_CONTENT: content visible inside the bar
      *                      , P_WIDTH: width of the bar
-     *                      , div tag arguments of the bar
+     *                      , P_HEADER_ATTR: div tag arguments of the progress outer container
+     *                      , div tag arguments of the bar container
      *                      }
      * @return string buttons representing pages
      */
@@ -827,8 +827,11 @@ EOfmt
         Params::add($params, 'progress-bar');
         Params::add($params, 'progressbar', 'role');
         $attr = Html::attr(self::width2Attr($width, $params));
+        $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+        Params::add($header_attr, 'progress');
+        $h_attr = Html::attr($header_attr);
 
-        return "<div class=\"progress\"><div$attr>$content</div></div>";
+        return "<div$h_attr><div$attr>$content</div></div>";
     }
 
     /** html-formatted pagination based on butons
