@@ -201,8 +201,7 @@ class Db
      * @param string $table             table name
      * @param string $index             table index name
      * @param int|string|array $value   index scalar value or array of scalars for
-     *                                  multiple columns key. keys must be properly
-     *                                  escaped
+     *  multiple columns key. keys must be properly escaped
      * @return array|bool hash with the row information or <i>false</i> on error
      * + error_log
      */
@@ -238,21 +237,21 @@ class Db
      * @return array|bool hash with the row information,like {pk1:{record 1}, pk2:{record 2}} or <i>false</i> on error
      * + error_log
      */
-    public static function handlerReadMultiPrimaryInt($table, $pks)
+    public static function handlerReadPrimaryMulti($table, $pks)
     {
-        return self::handlerReadMultiIndexInt($table, '`PRIMARY`', $pks);
+        return self::handlerReadIndexMulti($table, '`PRIMARY`', $pks);
     }
 
     /** access database using low level HANDLER statement via specified index to
      * fetch many rows in associative mode
      * @param string $table table name
      * @param string $index table index name
-     * @param array $values array of index values (integer values), like [val1, val2].
-     *                      keys must be properly escaped
+     * @param array $values array of index values, like [pk1, pk2] or
+     *  [[pk11, pk12], [pk21, pk22], ...]. keys must be properly escaped.
      * @return array|bool hash with the row information,like {val1:{record 1},
      *                      val2:{record 2}} or <i>false</i> on error + error_log
      */
-    public static function handlerReadMultiIndexInt($table, $index, $values)
+    public static function handlerReadIndexMulti($table, $index, $values)
     {
         if (! \is_array($values))
         {
@@ -265,7 +264,7 @@ class Db
             $rows = array();
             foreach ($values as $pk)
             {
-                $key = (int)$pk;
+                $key = \implode(',', (array)$pk);
                 if ($_ = \mysqli_query(self::$conn, "handler $table read $index = ($key)"))
                     $rows[$key] = \mysqli_fetch_assoc($_);
                 else
