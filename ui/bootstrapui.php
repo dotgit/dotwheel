@@ -72,6 +72,8 @@ class BootstrapUi
     const FORM_COMMENT_BLOCK_FMT = '<span class="help-block">%s</span>';
     const FORM_COMMENT_INLINE_FMT = '<span class="help-inline">%s</span>';
 
+    const MDL_FOCUS_FN  = 'focusModalBtn';
+
     const P_WIDTH           = 1;
     const P_CONTENT         = 2;
     const P_CONTENT_ATTR    = 3;
@@ -691,6 +693,7 @@ EOco
         $footer = Params::extract($params, self::P_FOOTER);
         $size = Params::extract($params, self::P_WIDTH);
         $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
+        $focus_modal_btn = self::MDL_FOCUS_FN;
 
         Params::add($params, $id, 'id');
         Params::add($params, 'modal');
@@ -711,10 +714,11 @@ EOco
         if (isset($size))
             $size = " modal-$size";
 
-        HtmlPage::add(array(HtmlPage::DOM_READY=>array(__METHOD__."-$id"=><<<EOsc
-$('#$id')
-.on('shown.bs.modal',function(){
-    var \$btn=\$(this).find('.btn').not('.btn-default');
+        HtmlPage::add(array(
+            HtmlPage::SCRIPT=>array(__METHOD__=>
+<<<EOsc
+function $focus_modal_btn(\$mdl){
+    var \$btn=\$mdl.find('.btn:enabled').not('.btn-default');
     if(\$btn.length){
         if(\$btn.filter('.btn-primary').length)
             \$btn.filter('.btn-primary').first().focus();
@@ -722,10 +726,17 @@ $('#$id')
             \$btn.first().focus();
     }
     else
-        $('[data-dismiss="modal"]',this).last().focus();
-});
+        $('[data-dismiss="modal"]:enabled',\$mdl).last().focus();
+}
 EOsc
-        )));
+            ),
+            HtmlPage::DOM_READY=>array(__METHOD__."-$id"=>
+<<<EOsc
+$('#$id')
+.on('shown.bs.modal',function(){{$focus_modal_btn}($(this));});
+EOsc
+            ),
+        ));
 
         return \sprintf(<<<EOfmt
 <div%s>
