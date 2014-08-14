@@ -48,6 +48,7 @@ class Repo
 
     const F_POSITIVE        = 0x00000001;
     const F_SHOW_DECIMAL    = 0x00000002;
+    const F_SHOW_COMPACT    = 0x00000004;
 
     const F_PASSWORD        = 0x00000010;
     const F_UPPERCASE       = 0x00000020;
@@ -510,6 +511,18 @@ class Repo
             : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
     }
 
+    /** validates cents value to represent a number between 0 and 100
+     * @param int $value    field value
+     * @param string $label field name to use in error message
+     * @return bool|string <i>true</i> on success, error message on validation error
+     */
+    public static function validatePct100($value, $label)
+    {
+        return (0 <= $value and $value <= 10000)
+            ? true
+            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
+    }
+
     /** returns html representation of the field
      * @param string $name  field name
      * @param mixed $value  field value
@@ -586,7 +599,12 @@ class Repo
             case self::C_CENTS:
                 return Html::asCents(
                     $value,
-                    isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL
+                    isset($repo[self::P_FLAGS])
+                        ? (($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
+                            ? null
+                            : ($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
+                        )
+                        : false
                 );
             case self::C_BOOL:
                 // if P_ITEMS provided, must be array of 2 items
