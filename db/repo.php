@@ -301,7 +301,7 @@ class Repo
                         $flags |= self::F_POSITIVE;
                         break;
                     case self::C_INT:
-                        $val = (int)$value;
+                        $val = \is_numeric($value) ? (int)$value : false;
                         break;
                     case self::C_CENTS:
                         if (! \is_scalar($value))
@@ -341,17 +341,6 @@ class Repo
                             else
                             {
                                 $val = $value;
-
-                                if (isset($repo[self::P_VALIDATE_CALLBACK])
-                                    and ($err = \call_user_func_array(
-                                        $repo[self::P_VALIDATE_CALLBACK],
-                                        array($val)
-                                    )) !== true
-                                )
-                                {
-                                    $val = false;
-                                    break;
-                                }
 
                                 if ($flags & self::F_EMAIL
                                     and ! \filter_var($val, \FILTER_VALIDATE_EMAIL)
@@ -432,10 +421,22 @@ class Repo
                         ));
                         break;
                     }
+
                     if ($flags & self::F_POSITIVE and $val < 1)
                     {
                         $val = false;
                         $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
+                    }
+
+                    if (empty($err)
+                        and isset($repo[self::P_VALIDATE_CALLBACK])
+                        and ($err = \call_user_func_array(
+                            $repo[self::P_VALIDATE_CALLBACK],
+                            array($val)
+                        )) !== true
+                    )
+                    {
+                        $val = false;
                     }
                 }
             }
@@ -576,17 +577,21 @@ class Repo
                     isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_SHOW_DECIMAL
                 );
             case self::C_BOOL:
-                // if P_ITEMS provided, must be a string
+                // if P_ITEMS provided, must be array of 2 items
                 return Html::asEnum(
                     (int)((bool)$value),
                     isset($repo[self::P_ITEMS])
-                        ? array(
-                            '',
-                            (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
-                                ? $repo[self::P_ITEMS]
-                                : Html::encode($repo[self::P_ITEMS])
+                        ? ((isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
+                            ? $repo[self::P_ITEMS]
+                            : array(
+                                Html::encode($repo[self::P_ITEMS][0]),
+                                Html::encode($repo[self::P_ITEMS][1]),
+                            )
                         )
-                        : array(Text::dget(Nls::FW_DOMAIN, 'no'), Text::dget(Nls::FW_DOMAIN, 'yes'))
+                        : array(
+                            Text::dget(Nls::FW_DOMAIN, 'no'),
+                            Text::dget(Nls::FW_DOMAIN, 'yes'),
+                        )
                 );
             case self::C_FILE:
                 return isset($value['name']) ? Html::encode($value['name']) : '';
@@ -720,14 +725,14 @@ class Repo
         case self::C_CENTS:
             return Html::inputCents($input + array('name'=>$name, 'value'=>$value));
         case self::C_BOOL:
-            // if P_ITEMS provided, must be a string
+            // if P_ITEMS provided, must be array of 2 items
             return Html::inputCheckbox($input + array(
                 'name'=>$name,
                 'checked'=>$value ? 'on' : null,
                 Html::P_HEADER=>isset($repo[self::P_ITEMS])
                     ? ((isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
-                        ? $repo[self::P_ITEMS]
-                        : Html::encode($repo[self::P_ITEMS])
+                        ? $repo[self::P_ITEMS][1]
+                        : Html::encode($repo[self::P_ITEMS][1])
                     )
                     : null
             ));
