@@ -432,7 +432,7 @@ class Repo
                         and isset($repo[self::P_VALIDATE_CALLBACK])
                         and ($err = \call_user_func_array(
                             $repo[self::P_VALIDATE_CALLBACK],
-                            array($val)
+                            array($val, $label)
                         )) !== true
                     )
                     {
@@ -496,6 +496,18 @@ class Repo
         }
 
         return empty(self::$input_errors);
+    }
+
+    /** validates value to represent a number between 0 and 100
+     * @param int $value    field value
+     * @param string $label field name to use in error message
+     * @return bool|string <i>true</i> on success, error message on validation error
+     */
+    public static function validatePct($value, $label)
+    {
+        return (0 <= $value and $value <= 100)
+            ? true
+            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
     }
 
     /** returns html representation of the field
