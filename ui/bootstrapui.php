@@ -432,7 +432,8 @@ class BootstrapUi
             ? "$header "
             : '';
 
-        HtmlPage::add(array(HtmlPage::DOM_READY=><<<EOco
+        HtmlPage::add(array(HtmlPage::DOM_READY=>
+<<<EOco
 $('#$id_target')
 .on('show',function(){\$('#$id').addClass('dropup').removeClass('dropdown').button('toggle');})
 .on('hide',function(){\$('#$id').addClass('dropdown').removeClass('dropup').button('toggle');})
@@ -728,17 +729,16 @@ function $focus_modal_btn(\$mdl){
     else
         $('[data-dismiss="modal"]:enabled',\$mdl).last().focus();
 }
+
 EOsc
             ),
             HtmlPage::DOM_READY=>array(__METHOD__."-$id"=>
-<<<EOsc
-$('#$id')
-.on('shown.bs.modal',function(){{$focus_modal_btn}($(this));});
-EOsc
+                "$('#$id').on('shown.bs.modal',function(){{$focus_modal_btn}($(this));});"
             ),
         ));
 
-        return \sprintf(<<<EOfmt
+        return \sprintf(
+<<<EOfmt
 <div%s>
   <div class="modal-dialog%s">
     <div class="modal-content">
@@ -746,6 +746,7 @@ EOsc
     </div>
   </div>
 </div>
+
 EOfmt
             ,
             Html::attr($params),
@@ -816,7 +817,8 @@ EOfmt
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        return '<ul'.Html::attr($params).">$prefix".\implode('', $labels)."$suffix</ul>".
+        return
+            '<ul'.Html::attr($params).">$prefix".\implode('', $labels)."$suffix</ul>".
             ($panes
                 ? ('<div class="tab-content">'.\implode('', $panes).'</div>')
                 : ''
@@ -868,10 +870,12 @@ EOfmt
 
         if ($pages[0] > 1)
         {
-            $ret[] = '<div class="btn-group">'.
+            $ret[] =
+                '<div class="btn-group">'.
                 '<a class="btn" href="'.\sprintf($link_1, 1).'">1</a>'.
                 '</div>';
-            $ret[] = '<div class="btn-group">'.
+            $ret[] =
+                '<div class="btn-group">'.
                 '<a class="btn" href="'.\sprintf($link_1, $pages[0] - 1).'">&larr; '.($pages[0] - 1).'</a>'.
                 '</div>';
         }
@@ -883,10 +887,12 @@ EOfmt
 
         if ($pages[$tail] < $last_page)
         {
-            $ret[] = '<div class="btn-group">'.
+            $ret[] =
+                '<div class="btn-group">'.
                 '<a class="btn" href="'.\sprintf($link_1, $pages[$tail] + 1).'">'.($pages[$tail] + 1).' &rarr;</a>'.
                 '</div>';
-            $ret[] = '<div class="btn-group">'.
+            $ret[] =
+                '<div class="btn-group">'.
                 '<a class="btn" href="'.\sprintf($link_1, $last_page).'">'.$last_page.'</a>'.
                 '</div>';
         }
@@ -955,7 +961,8 @@ EOfmt
         Params::add($params, 'panel');
         Params::add($params, 'panel-default');
 
-        return '<div'.Html::attr($params).'>'.
+        return
+            '<div'.Html::attr($params).'>'.
             $heading.
             \sprintf($fmt, $prefix.$content.$suffix.$footer).
             '</div>';
@@ -991,13 +998,11 @@ EOfmt
             'content'=>Params::extract($params, self::P_CONTENT),
             'placement'=>Params::extract($params, self::P_ALIGN, 'bottom'),
             'html'=>true,
-            'container'=>'body'
+            'container'=>'body',
         );
 
         HtmlPage::add(array(
-            HtmlPage::DOM_READY=>array(
-                __METHOD__."-$id"=>"$('#$id').popover(".json_encode($options).');'
-            )
+            HtmlPage::DOM_READY=>array(__METHOD__."-$id"=>"$('#$id').popover(".\json_encode($options).');')
         ));
 
         return $params;
