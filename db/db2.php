@@ -17,6 +17,7 @@ class Db2
     const P_VALUES      = 3;
     const P_WHERE       = 4;
     const P_DUPLICATES  = 5;
+    const P_IGNORE      = 6;
 
     const FMT_ALPHA = 1;
     const FMT_NUM   = 2;
@@ -65,7 +66,8 @@ class Db2
 
         return $ins
             ? Db::dml(\sprintf(
-                "insert into %s (%s) values (%s)%s",
+                "insert%s into %s (%s) values (%s)%s",
+                ! empty($params[self::P_IGNORE]) ? ' ignore' : null,
                 $params[self::P_TABLE],
                 \implode(',', \array_keys($ins)),
                 \implode(',', \array_values($ins)),
