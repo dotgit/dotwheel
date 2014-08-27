@@ -272,6 +272,8 @@ class Repo
         if (empty($values))
             $values = $_REQUEST;
 
+        self::$input_errors = array();
+
         foreach ($fields as $fld=>$params)
         {
             if (\is_scalar($params))

@@ -33,8 +33,8 @@ class Db2
      * @param array $params {P_TABLE:'table_name', required
      * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
-     * , P_DUPLICATES:{fld1:true,...} (whether to include the <i>'on duplicate key
-     * update'</i> part with specified fields)
+     * , P_DUPLICATES:{fld1:true,fld2:'value',...} (whether to include the
+     * <i>'on duplicate key update'</i> part with specified fields)
      * }
      * @return int|bool     number of affected records or <i>false</i> on error
      */
@@ -55,11 +55,13 @@ class Db2
             }
             else
                 $ins[$name] = 'NULL';
-            $dupl[$name] = "$name = values($name)";
+            if (isset($params[self::P_DUPLICATES][$name]))
+            {
+                $dupl[$name] = $params[self::P_DUPLICATES][$name] === true
+                    ? "$name = values($name)"
+                    : "$name = {$params[self::P_DUPLICATES][$name]}";
+            }
         }
-        $on_dupl = isset($params[self::P_DUPLICATES])
-            ? (' on duplicate key update '.\implode(',', \array_intersect_key($dupl, $params[self::P_DUPLICATES])))
-            : '';
 
         return $ins
             ? Db::dml(\sprintf(
@@ -67,7 +69,7 @@ class Db2
                 $params[self::P_TABLE],
                 \implode(',', \array_keys($ins)),
                 \implode(',', \array_values($ins)),
-                $on_dupl
+                $dupl ? (' on duplicate key update '.\implode(',', $dupl)) : ''
             ))
             : 0;
     }
