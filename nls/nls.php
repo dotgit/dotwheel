@@ -250,4 +250,19 @@ class Nls
                 ? \sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year, $month, $day, $h, $m, $s)
                 : \sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
+
+    public static function asFloat($val)
+    {
+        $abs = \abs($val);
+        $v = \round(
+            $val,
+            $abs > 10 ? 0 : ($abs > 1 ? 1 : ($val == 0 ? 0 : 2))
+        );
+        return \number_format(
+            $val,
+            \max(0, \strlen(\strrchr($v, '.')) - 1),
+            self::$formats[self::P_DECIMAL_CHAR],
+            self::$formats[self::P_THOUSANDS_CHAR]
+        );
+    }
 }

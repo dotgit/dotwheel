@@ -119,6 +119,114 @@ class Misc
         return \min(self::convertSize(\ini_get('upload_max_filesize')), self::convertSize(\ini_get('post_max_size')));
     }
 
+    /** returns human-readable rounded amount with appropriate suffix (T,G,M,K)
+     * @param int $amount   amount to convert
+     * @param string $order an order to use, one of (T,G,M,K). if provided, no
+     *                      suffix is appended
+     * @return string value like '150', '8.3K', '15M', '374G'
+     */
+    public static function humanAmount($amount, $order=null)
+    {
+        $amount_abs = abs($amount);
+        switch($order)
+        {
+        case 'k':
+        case 'K':
+            return $amount_abs >= 10000
+                ? round($amount/1000)
+                : round($amount/1000, 1);
+
+        case 'm':
+        case 'M':
+            return $amount_abs >= 10000000
+                ? round($amount/1000000)
+                : round($amount/1000000, 1);
+
+        case 'g':
+        case 'G':
+            return $amount_abs >= 10000000000
+                ? round($amount/1000000000)
+                : round($amount/1000000000, 1);
+
+        case 't':
+        case 'T':
+            return $amount_abs >= 10000000000000
+                ? round($amount/1000000000000)
+                : round($amount/1000000000000, 1);
+
+        default:
+            if (isset($order))
+                return $amount_abs >= 10
+                    ? round($amount)
+                    : round($amount, 1);
+            elseif ($amount_abs >= 1000000000000)
+                return ($amount_abs >= 10000000000000
+                    ? round($amount/1000000000000)
+                    : round($amount/1000000000000, 1)
+                ).'T';
+            elseif ($amount_abs >= 1000000000)
+                return ($amount_abs >= 10000000000
+                    ? round($amount/1000000000)
+                    : round($amount/1000000000, 1)
+                ).'G';
+            elseif ($amount_abs >= 1000000)
+                return ($amount_abs >= 10000000
+                    ? round($amount/1000000)
+                    : round($amount/1000000, 1)
+                ).'M';
+            elseif ($amount_abs >= 1000)
+                return ($amount_abs >= 10000
+                    ? round($amount/1000)
+                    : round($amount/1000, 1)
+                ).'K';
+            else
+                return $amount_abs >= 10
+                    ? round($amount)
+                    : round($amount, 1);
+        }
+    }
+
+    /** returns human-readable number of bytes with appropriate suffix (T,G,M,K).
+     * rounded up to a higher integer
+     * @param int $bytes    number of bytes to convert
+     * @param string $order an order to use, one of (T,G,M,K). if provided, no
+     *                      suffix is appended
+     * @return string value like '150', '9K', '15M', '374G'
+     */
+    public static function humanBytes($bytes, $order=null)
+    {
+        switch($order)
+        {
+        case 'k':
+        case 'K':
+            return ceil($bytes/1024);
+
+        case 'm':
+        case 'M':
+            return ceil($bytes/1048576);
+
+        case 'g':
+        case 'G':
+            return ceil($bytes/1073741824);
+
+        case 't':
+        case 'T':
+            return ceil($bytes/1099511627776);
+
+        default:
+            if ($bytes >= 1099511627776)
+                return ceil($bytes/1099511627776).'T';
+            elseif ($bytes >= 1073741824)
+                return ceil($bytes/1073741824).'G';
+            elseif ($bytes >= 1048576)
+                return ceil($bytes/1048576).'M';
+            elseif ($bytes >= 1024)
+                return ceil($bytes/1024).'K';
+            else
+                return (int)$bytes;
+        }
+    }
+
     /** returns the parts from <code>$params</code> joined using the first parameter
      * as separator. if part is an array then calls itself recursively providing
      * this array as parameter. if the glue is an array then uses it as ['prefix',
