@@ -119,70 +119,100 @@ class Misc
         return \min(self::convertSize(\ini_get('upload_max_filesize')), self::convertSize(\ini_get('post_max_size')));
     }
 
-    /** returns human-readable rounded amount with appropriate suffix (T,G,M,K)
+    /** returns human-readable amount rounded to 3 meaningful numbers with appropriate suffix (T,G,M,K)
      * @param int $amount   amount to convert
      * @param string $order an order to use, one of (T,G,M,K). if provided, no
      *                      suffix is appended
-     * @return string value like '150', '8.3K', '15M', '374G'
+     * @return string value like '150', '8.37K', '15M', '374G'
      */
-    public static function humanAmount($amount, $order=null)
+    public static function humanFloat($amount, $order=null)
     {
-        $amount_abs = abs($amount);
+        $amount_abs = \abs($amount);
         switch($order)
         {
         case 'k':
         case 'K':
-            return $amount_abs >= 10000
-                ? round($amount/1000)
-                : round($amount/1000, 1);
+            return $amount_abs >= 100000
+                ? \round($amount/1000)
+                : ($amount_abs >= 10000
+                    ? \round($amount/1000, 1)
+                    : \round($amount/1000, 2)
+                );
 
         case 'm':
         case 'M':
-            return $amount_abs >= 10000000
-                ? round($amount/1000000)
-                : round($amount/1000000, 1);
+            return $amount_abs >= 100000000
+                ? \round($amount/1000000)
+                : ($amount_abs >= 10000000
+                    ? \round($amount/1000000, 1)
+                    : \round($amount/1000000, 2)
+                );
 
         case 'g':
         case 'G':
-            return $amount_abs >= 10000000000
-                ? round($amount/1000000000)
-                : round($amount/1000000000, 1);
+            return $amount_abs >= 100000000000
+                ? \round($amount/1000000000)
+                : ($amount_abs >= 10000000000
+                    ? \round($amount/1000000000, 1)
+                    : \round($amount/1000000000, 2)
+                );
 
         case 't':
         case 'T':
-            return $amount_abs >= 10000000000000
-                ? round($amount/1000000000000)
-                : round($amount/1000000000000, 1);
+            return $amount_abs >= 100000000000000
+                ? \round($amount/1000000000000)
+                : ($amount_abs >= 10000000000000
+                    ? \round($amount/1000000000000, 1)
+                    : \round($amount/1000000000000, 2)
+                );
 
         default:
             if (isset($order))
-                return $amount_abs >= 10
-                    ? round($amount)
-                    : round($amount, 1);
+                return $amount_abs >= 100
+                    ? \round($amount)
+                    : ($amount_abs >= 10
+                        ? \round($amount, 1)
+                        : \round($amount, 2)
+                    );
             elseif ($amount_abs >= 1000000000000)
-                return ($amount_abs >= 10000000000000
-                    ? round($amount/1000000000000)
-                    : round($amount/1000000000000, 1)
+                return ($amount_abs >= 100000000000000
+                    ? \round($amount/1000000000000)
+                    : ($amount_abs >= 10000000000000
+                        ? \round($amount/1000000000000, 1)
+                        : \round($amount/1000000000000, 2)
+                    )
                 ).'T';
             elseif ($amount_abs >= 1000000000)
-                return ($amount_abs >= 10000000000
-                    ? round($amount/1000000000)
-                    : round($amount/1000000000, 1)
+                return ($amount_abs >= 100000000000
+                    ? \round($amount/1000000000)
+                    : ($amount_abs >= 10000000000
+                        ? \round($amount/1000000000, 1)
+                        : \round($amount/1000000000, 2)
+                    )
                 ).'G';
             elseif ($amount_abs >= 1000000)
-                return ($amount_abs >= 10000000
-                    ? round($amount/1000000)
-                    : round($amount/1000000, 1)
+                return ($amount_abs >= 100000000
+                    ? \round($amount/1000000)
+                    : ($amount_abs >= 10000000
+                        ? \round($amount/1000000, 1)
+                        : \round($amount/1000000, 2)
+                    )
                 ).'M';
             elseif ($amount_abs >= 1000)
-                return ($amount_abs >= 10000
-                    ? round($amount/1000)
-                    : round($amount/1000, 1)
+                return ($amount_abs >= 100000
+                    ? \round($amount/1000)
+                    : ($amount_abs >= 10000
+                        ? \round($amount/1000, 1)
+                        : \round($amount/1000, 2)
+                    )
                 ).'K';
             else
-                return $amount_abs >= 10
-                    ? round($amount)
-                    : round($amount, 1);
+                return $amount_abs >= 100
+                    ? \round($amount)
+                    : ($amount_abs >= 10
+                        ? \round($amount, 1)
+                        : \round($amount, 2)
+                    );
         }
     }
 
@@ -199,29 +229,29 @@ class Misc
         {
         case 'k':
         case 'K':
-            return ceil($bytes/1024);
+            return \ceil($bytes/1024);
 
         case 'm':
         case 'M':
-            return ceil($bytes/1048576);
+            return \ceil($bytes/1048576);
 
         case 'g':
         case 'G':
-            return ceil($bytes/1073741824);
+            return \ceil($bytes/1073741824);
 
         case 't':
         case 'T':
-            return ceil($bytes/1099511627776);
+            return \ceil($bytes/1099511627776);
 
         default:
             if ($bytes >= 1099511627776)
-                return ceil($bytes/1099511627776).'T';
+                return \ceil($bytes/1099511627776).'T';
             elseif ($bytes >= 1073741824)
-                return ceil($bytes/1073741824).'G';
+                return \ceil($bytes/1073741824).'G';
             elseif ($bytes >= 1048576)
-                return ceil($bytes/1048576).'M';
+                return \ceil($bytes/1048576).'M';
             elseif ($bytes >= 1024)
-                return ceil($bytes/1024).'K';
+                return \ceil($bytes/1024).'K';
             else
                 return (int)$bytes;
         }
