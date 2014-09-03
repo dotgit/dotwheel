@@ -112,6 +112,14 @@ class BootstrapUi
     const W_SMALL_OFFSET    = 'sm-offset';
     const W_MIDDLE_OFFSET   = 'md-offset';
     const W_LARGE_OFFSET    = 'lg-offset';
+    const W_XSMALL_PUSH     = 'xs-push';
+    const W_SMALL_PUSH      = 'sm-push';
+    const W_MIDDLE_PUSH     = 'md-push';
+    const W_LARGE_PUSH      = 'lg-push';
+    const W_XSMALL_PULL     = 'xs-pull';
+    const W_SMALL_PULL      = 'sm-pull';
+    const W_MIDDLE_PULL     = 'md-pull';
+    const W_LARGE_PULL      = 'lg-pull';
     const WIDTH_1           = 12;
     const WIDTH_11_12       = 11;
     const WIDTH_5_6         = 10;
