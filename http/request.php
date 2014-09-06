@@ -101,16 +101,6 @@ class Request
         return true;
     }
 
-    /** returns current database connection name
-     * @return string
-     */
-    public static function getDb()
-    {
-        return (empty($_SESSION[self::$cookie_db]) or empty(self::$databases[(string)$_SESSION[self::$cookie_db]]))
-            ? self::$db_default
-            : $_SESSION[self::$cookie_db];
-    }
-
     /** returns array with CGI request headers
      * @return array
      */
