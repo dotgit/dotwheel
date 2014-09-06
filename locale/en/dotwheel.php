@@ -12,6 +12,7 @@ $TRANSLATIONS = array (
   1619431639 => 'error uploading file from \'%s\'',
   152190265 => 'value is required in \'%s\'',
   3495620742 => 'type mismatch for \'%s\'',
+  2595739605 => 'value in \'%s\' must be between 0 and 100',
   1739204639 => 'no',
   1978086825 => 'yes',
   2336481360 => 'Input verification error',

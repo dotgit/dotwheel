@@ -12,6 +12,7 @@ $TRANSLATIONS = array (
   1619431639 => 'erreur de chargement du fichier dans \'%s\'',
   152190265 => 'valeur est obligatoire dans \'%s\'',
   3495620742 => 'mauvais type de données dans \'%s\'',
+  2595739605 => 'valeur dans \'%s\' doit rester entre 0 et 100',
   1739204639 => 'non',
   1978086825 => 'oui',
   2336481360 => 'Erreur à la vérification des données',

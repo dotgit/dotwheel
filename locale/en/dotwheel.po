@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-08-14 18:21+0100\n"
+"POT-Creation-Date: 2014-09-06 15:53+0100\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Stas Trefilov <stas@vertilia.com>\n"
+"Last-Translator: stas trefilov <stas@vertilia.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -13,18 +13,78 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: ../../../\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.6.9\n"
 "X-Poedit-KeywordsList: dget:2;pget:1c,2;dpget:2c,3;nget:1,2;dnget:2,3;"
 "pnget:1c,2,3;dpnget:2c,3,4\n"
 "X-Poedit-SearchPath-0: dotwheel\n"
 
-#: dotwheel/ui/htmltable.php:512
-msgid "Prev"
-msgstr "Prev"
+#: dotwheel/db/repo.php:339
+#, php-format
+msgid "value in '%s' must not exceed %u characters"
+msgstr "value in '%s' must not exceed %u characters"
 
-#: dotwheel/ui/htmltable.php:523
-msgid "Next"
-msgstr "Next"
+#: dotwheel/db/repo.php:354
+#, php-format
+msgid "value in '%s' does not represent an email address"
+msgstr "value in '%s' does not represent an email address"
+
+#: dotwheel/db/repo.php:366
+#, php-format
+msgid "value in '%s' does not represent a web address"
+msgstr "value in '%s' does not represent a web address"
+
+#: dotwheel/db/repo.php:378
+#, php-format
+msgid "value in '%s' does not match the required format"
+msgstr "value in '%s' does not match the required format"
+
+#: dotwheel/db/repo.php:408
+#, php-format
+msgid "value in '%s' is not a valid date"
+msgstr "value in '%s' is not a valid date"
+
+#: dotwheel/db/repo.php:431
+#, php-format
+msgid "value in '%s' must be positive"
+msgstr "value in '%s' must be positive"
+
+#: dotwheel/db/repo.php:451
+#, php-format
+msgid "incorrect file information in '%s'"
+msgstr "incorrect file information in '%s'"
+
+#: dotwheel/db/repo.php:464
+#, php-format
+msgid "file too big (max allowed size %uMb) in '%s'"
+msgstr "file too big (max allowed size %uMb) in '%s'"
+
+#: dotwheel/db/repo.php:471
+#, php-format
+msgid "error uploading file from '%s'"
+msgstr "error uploading file from '%s'"
+
+#: dotwheel/db/repo.php:490
+#, php-format
+msgid "value is required in '%s'"
+msgstr "value is required in '%s'"
+
+#: dotwheel/db/repo.php:498
+#, php-format
+msgid "type mismatch for '%s'"
+msgstr "type mismatch for '%s'"
+
+#: dotwheel/db/repo.php:513 dotwheel/db/repo.php:525
+#, php-format
+msgid "value in '%s' must be between 0 and 100"
+msgstr "value in '%s' must be between 0 and 100"
+
+#: dotwheel/db/repo.php:624
+msgid "no"
+msgstr "no"
+
+#: dotwheel/db/repo.php:625
+msgid "yes"
+msgstr "yes"
 
 #: dotwheel/http/response.php:116
 msgid "Input verification error"
@@ -34,70 +94,10 @@ msgstr "Input verification error"
 msgid "Command execution error"
 msgstr "Command execution error"
 
-#: dotwheel/db/repo.php:336
-#, php-format
-msgid "value in '%s' must not exceed %u characters"
-msgstr "value in '%s' must not exceed %u characters"
+#: dotwheel/ui/htmltable.php:512
+msgid "Prev"
+msgstr "Prev"
 
-#: dotwheel/db/repo.php:351
-#, php-format
-msgid "value in '%s' does not represent an email address"
-msgstr "value in '%s' does not represent an email address"
-
-#: dotwheel/db/repo.php:363
-#, php-format
-msgid "value in '%s' does not represent a web address"
-msgstr "value in '%s' does not represent a web address"
-
-#: dotwheel/db/repo.php:375
-#, php-format
-msgid "value in '%s' does not match the required format"
-msgstr "value in '%s' does not match the required format"
-
-#: dotwheel/db/repo.php:405
-#, php-format
-msgid "value in '%s' is not a valid date"
-msgstr "value in '%s' is not a valid date"
-
-#: dotwheel/db/repo.php:428
-#, php-format
-msgid "value in '%s' must be positive"
-msgstr "value in '%s' must be positive"
-
-#: dotwheel/db/repo.php:448
-#, php-format
-msgid "incorrect file information in '%s'"
-msgstr "incorrect file information in '%s'"
-
-#: dotwheel/db/repo.php:461
-#, php-format
-msgid "file too big (max allowed size %uMb) in '%s'"
-msgstr "file too big (max allowed size %uMb) in '%s'"
-
-#: dotwheel/db/repo.php:468
-#, php-format
-msgid "error uploading file from '%s'"
-msgstr "error uploading file from '%s'"
-
-#: dotwheel/db/repo.php:487
-#, php-format
-msgid "value is required in '%s'"
-msgstr "value is required in '%s'"
-
-#: dotwheel/db/repo.php:495
-#, php-format
-msgid "type mismatch for '%s'"
-msgstr "type mismatch for '%s'"
-
-#: dotwheel/db/repo.php:510
-#, php-format
-msgid "value in '%s' must be between 0 and 100"
-msgstr "value in '%s' must be between 0 and 100"
-
-#: dotwheel/db/repo.php:604
-msgid "no"
-msgstr "no"
-
-#: dotwheel/db/repo.php:605
-msgid "yes"
-msgstr "yes"
+#: dotwheel/ui/htmltable.php:523
+msgid "Next"
+msgstr "Next"

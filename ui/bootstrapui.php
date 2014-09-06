@@ -483,6 +483,7 @@ EOco
         $addon_prefix = Params::extract($params, self::P_PREFIX);
         $addon_suffix = Params::extract($params, self::P_SUFFIX);
         $footer = Params::extract($params, self::P_FOOTER);
+        $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
 
         Params::add($params, 'panel-collapse');
         Params::add($params, 'collapse');
@@ -494,7 +495,7 @@ EOco
             self::P_PREFIX=>$addon_prefix,
             self::P_SUFFIX=>$addon_suffix,
             self::P_FOOTER=>$footer,
-            self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>').'%s</div>'
+            self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>')."$wrap_fmt</div>"
         ));
     }
 
@@ -958,7 +959,7 @@ EOfmt
         if ($heading = Params::extract($params, self::P_HEADER))
             $heading = "<div class=\"panel-heading\">$heading</div>";
         if ($footer = Params::extract($params, self::P_FOOTER))
-            $footer = "<div class=\"panel-footer\">$footer</div>";
+            $footer = "<div class=\"panel-footer clearfix text-right\">$footer</div>";
         $fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
         $content_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
         Params::add($content_attr, 'panel-body');
