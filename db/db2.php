@@ -34,6 +34,7 @@ class Db2
      * @param array $params {P_TABLE:'table_name', required
      * , P_FIELDS:{fld1:FMT_ALPHA|FMT_NUM|FMT_ASIS,...}
      * , P_VALUES:{fld1:value1,...}
+     * , P_IGNORE:null|true (whether to use ignore hint)
      * , P_DUPLICATES:{fld1:true,fld2:'value',...} (whether to include the
      * <i>'on duplicate key update'</i> part with specified fields)
      * }
