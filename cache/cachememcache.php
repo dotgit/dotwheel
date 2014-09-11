@@ -33,7 +33,7 @@ class CacheMemcache extends CacheBase
      *                      }
      * @return bool
      */
-    public static function init(array $params)
+    public static function init($params)
     {
         if (\count($params) > 1)
         {
