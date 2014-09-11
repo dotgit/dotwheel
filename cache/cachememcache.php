@@ -12,6 +12,8 @@
 
 namespace Dotwheel\Cache;
 
+use Memcached;
+
 class CacheMemcache extends CacheBase
 {
     const P_SERVERS = 2;
@@ -31,30 +33,39 @@ class CacheMemcache extends CacheBase
      *                      }
      * @return bool
      */
-    public static function init($params)
+    public static function init(array $params)
     {
-        self::$conn = new \Memcached(__METHOD__.$params[self::P_PREFIX]);
+        if (\count($params) > 1)
+        {
+            self::$conn = new Memcached(__METHOD__.$params[self::P_PREFIX]);
 
-        $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
-        self::$conn->setOptions($options + array(
-            \Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
-        ));
-        if (isset($params[self::P_LOGIN]))
-            self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
-        if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
-            self::$conn->addServers($params[self::P_SERVERS]);
+            $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
+            self::$conn->setOptions($options + array(
+                Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
+            ));
+            if (isset($params[self::P_LOGIN]))
+                self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
+            if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
+                self::$conn->addServers($params[self::P_SERVERS]);
 
-        return parent::init($params[self::P_PREFIX]);
+            return parent::init($params[self::P_PREFIX]);
+        }
+
+        parent::init(isset($params[self::P_PREFIX]) ? $params[self::P_PREFIX] : null);
     }
 
     public static function store($name, $value, $ttl=null)
     {
-        return self::$conn->set($name, $value, isset($ttl) ? $ttl : 86400); // 24 hours
+        return self::$conn
+            ? self::$conn->set($name, $value, isset($ttl) ? $ttl : 86400)   // 24 hours
+            : parent::store($name, $value, $ttl);
     }
 
     public static function storeMulti($values, $ttl=null)
     {
-        return self::$conn->setMulti($values, isset($ttl) ? $ttl : 86400);  // 24 hours
+        return self::$conn
+            ? self::$conn->setMulti($values, isset($ttl) ? $ttl : 86400)    // 24 hours
+            : parent::storeMulti($values, $ttl);
     }
 
     /** gets the stored value or <i>null</i> if not found. may use the read-through
@@ -69,14 +80,18 @@ class CacheMemcache extends CacheBase
      */
     public static function fetch($name, $callback=null)
     {
-        $value = self::$conn->get($name, $callback);
+        $value = self::$conn
+            ? self::$conn->get($name, $callback)
+            : parent::fetch($name);
 
         return $value === false ? null : $value;
     }
 
     public static function fetchMulti($names)
     {
-        $values = self::$conn->getMulti($names);
+        $values = self::$conn
+            ? self::$conn->getMulti($names)
+            : parent::fetchMulti($names);
 
         return $values === false ? array() : $values;
     }
@@ -87,9 +102,14 @@ class CacheMemcache extends CacheBase
      */
     public static function delete($name)
     {
-        if (\is_array($name))
-            return self::$conn->deleteMulti($name);
+        if (self::$conn)
+        {
+            if (\is_array($name))
+                return self::$conn->deleteMulti($name);
+            else
+                return self::$conn->delete($name);
+        }
         else
-            return self::$conn->delete($name);
+            return parent::delete($name);
     }
 }
