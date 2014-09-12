@@ -80,9 +80,12 @@ class CacheMemcache extends CacheBase
      */
     public static function fetch($name, $callback=null)
     {
-        $value = self::$conn
-            ? self::$conn->get($name, $callback)
-            : parent::fetch($name);
+        if (self::$conn)
+            $value = self::$conn->get($name, $callback);
+        elseif ($callback)
+            $callback(null, $name, $value);
+        else
+            $value = false;
 
         return $value === false ? null : $value;
     }

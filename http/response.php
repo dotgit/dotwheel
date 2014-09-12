@@ -183,8 +183,10 @@ class Response
     {
         if ($redirect === true)
             \header('Location: '.Http::getRedirect(Request::$next, static::$url_params, static::$url_hash));
-        elseif (\is_string($redirect))
+        elseif (\is_string($redirect) and \strpos($redirect, ' ') === false)
             \header("Location: $redirect");
+        else
+            static::outputHtml($redirect);
     }
 
     /** produce and output the result array in json format
