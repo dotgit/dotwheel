@@ -502,13 +502,13 @@ EOco
     /** generate dropdown list
      * @param string $items ['item 1 html',
      *  {P_HEADER:'item 2 html', li tag attributes}, null, 'item post divider']
-     * @param array $params hash of ul tag attributes
+     * @param array $attr   hash of ul tag attributes
      * @return string
      */
-    public static function dropdown($items, $params=array())
+    public static function dropdown($items, $attr=array())
     {
-        Params::add($params, 'dropdown-menu');
-        Params::add($params, 'menu', 'role');
+        Params::add($attr, 'dropdown-menu');
+        Params::add($attr, 'menu', 'role');
 
         $li = array();
         foreach ($items as $item)
@@ -536,9 +536,46 @@ EOco
             $li[] = "<li$li_attr>$label</li>";
         }
 
-        return '<ul'.Html::attr($params).'>'.
+        return '<ul'.Html::attr($attr).'>'.
             \implode('', $li).
             '</ul>';
+    }
+
+    /** display button with dropdown menu
+     * @param string $params {P_HEADER_ATTR: {button attributes},
+     *  P_HEADER: 'button label, encoded',
+     *  P_CONTENT_ATTR: {dropdown attributes},
+     *  P_CONTENT: [dropdown items],
+     *  parent div attributes
+     * }
+     * @return string
+     */
+    public static function dropdownButton($params)
+    {
+        $btn_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+        $header = Params::extract($params, self::P_HEADER);
+        $dropdown_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
+        $items = Params::extract($params, self::P_CONTENT);
+
+        Params::add($params, 'dropdown');
+        Params::add($btn_attr, 'btn dropdown-toggle');
+        Params::add($btn_attr, 'dropdown', 'data-toggle');
+
+        return \sprintf(
+<<<EObt
+<div%s>
+  <button%s>
+    %s <b class="caret"></b>
+  </button>
+  %s
+</div>
+EObt
+            ,
+            Html::attr($params),
+            Html::attr($btn_attr),
+            $header,
+            self::dropdown($items, $dropdown_attr)
+        );
     }
 
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
