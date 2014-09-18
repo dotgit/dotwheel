@@ -350,6 +350,19 @@ class Misc
         return \str_replace('%', '%%', $str);
     }
 
+    /** trims string to the specified length adding suffix
+     * @param string $str       string to trim
+     * @param int $len          maximal trimmed string lenth
+     * @param string $suffix    suffix to add
+     * @return string           trimmed string
+     */
+    public static function trim($str, $len=0, $suffix='...')
+    {
+        return ($len && \mb_strlen($str, Nls::$charset) > $len)
+            ? \mb_substr($str, 0, $len - \max(0, \mb_strlen($suffix, Nls::$charset) - 1), Nls::$charset).$suffix
+            : $str;
+    }
+
     /** trims string to the specified length by word boundary adding suffix
      * @param string $str       string to trim
      * @param int $len          maximal trimmed string lenth
