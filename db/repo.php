@@ -423,6 +423,29 @@ class Repo
                             : \array_flip($value)
                         ));
                         break;
+                    case self::C_FILE:
+                        if (isset($_FILES[$fld]))
+                        {
+                            if (empty($_FILES[$fld]['error']))
+                                $val = $_FILES[$fld];
+                            else
+                            {
+                                switch ($_FILES[$fld]['error'])
+                                {
+                                case UPLOAD_ERR_INI_SIZE:
+                                    $val = false;
+                                    $err = \sprintf(
+                                        Text::dget(Nls::FW_DOMAIN, "file in '%s' is too big (maximal file size: %s)"),
+                                        $label,
+                                        \ini_get('upload_max_filesize')
+                                    );
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                            $val = false;
+                        break;
                     }
 
                     if ($flags & self::F_POSITIVE and $val < 1)

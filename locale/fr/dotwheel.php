@@ -6,6 +6,7 @@ $TRANSLATIONS = array (
   582292058 => 'valeur dans \'%s\' ne représente pas une adresse web',
   259907983 => 'valeur dans \'%s\' ne correspond pas au format',
   3245891744 => 'valeur dans \'%s\' n\'est pas une date',
+  3804903837 => 'fichier dans \'%s\' est trop grand (la taille maximale est de %s)',
   3860135116 => 'valeur dans \'%s\' doit être positif',
   2842833229 => 'les informations du fichier non valides dans \'%s\'',
   3375795050 => 'fichier est trop grand (la taille maximale est de %uMo) dans \'%s\'',

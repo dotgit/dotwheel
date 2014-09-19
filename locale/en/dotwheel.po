@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-06 15:53+0100\n"
+"POT-Creation-Date: 2014-09-19 17:29+0100\n"
 "PO-Revision-Date: \n"
-"Last-Translator: stas trefilov <stas@vertilia.com>\n"
+"Last-Translator: Stas Trefilov <stas.trefilov@gmail.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
@@ -43,46 +43,51 @@ msgstr "value in '%s' does not match the required format"
 msgid "value in '%s' is not a valid date"
 msgstr "value in '%s' is not a valid date"
 
-#: dotwheel/db/repo.php:431
+#: dotwheel/db/repo.php:438
+#, php-format
+msgid "file in '%s' is too big (maximal file size: %s)"
+msgstr "file in '%s' is too big (maximal file size: %s)"
+
+#: dotwheel/db/repo.php:454
 #, php-format
 msgid "value in '%s' must be positive"
 msgstr "value in '%s' must be positive"
 
-#: dotwheel/db/repo.php:451
+#: dotwheel/db/repo.php:474
 #, php-format
 msgid "incorrect file information in '%s'"
 msgstr "incorrect file information in '%s'"
 
-#: dotwheel/db/repo.php:464
+#: dotwheel/db/repo.php:487
 #, php-format
 msgid "file too big (max allowed size %uMb) in '%s'"
 msgstr "file too big (max allowed size %uMb) in '%s'"
 
-#: dotwheel/db/repo.php:471
+#: dotwheel/db/repo.php:494
 #, php-format
 msgid "error uploading file from '%s'"
 msgstr "error uploading file from '%s'"
 
-#: dotwheel/db/repo.php:490
+#: dotwheel/db/repo.php:511
 #, php-format
 msgid "value is required in '%s'"
 msgstr "value is required in '%s'"
 
-#: dotwheel/db/repo.php:498
+#: dotwheel/db/repo.php:518
 #, php-format
 msgid "type mismatch for '%s'"
 msgstr "type mismatch for '%s'"
 
-#: dotwheel/db/repo.php:513 dotwheel/db/repo.php:525
+#: dotwheel/db/repo.php:533 dotwheel/db/repo.php:545
 #, php-format
 msgid "value in '%s' must be between 0 and 100"
 msgstr "value in '%s' must be between 0 and 100"
 
-#: dotwheel/db/repo.php:624
+#: dotwheel/db/repo.php:644
 msgid "no"
 msgstr "no"
 
-#: dotwheel/db/repo.php:625
+#: dotwheel/db/repo.php:645
 msgid "yes"
 msgstr "yes"
 
