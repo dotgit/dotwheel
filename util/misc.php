@@ -43,6 +43,21 @@ class Misc
             return $date_next;
     }
 
+    /** converts numbers from '1K' form to 1024 form
+     * @param string $size_str  size string to convert
+     * @return int integer value
+     */
+    public static function bytesHuman($size_str)
+    {
+        switch (\substr($size_str, -1))
+        {
+            case 'M': case 'm': return (int)$size_str << 20;
+            case 'K': case 'k': return (int)$size_str << 10;
+            case 'G': case 'g': return (int)$size_str << 30;
+            default: return (int)$size_str;
+        }
+    }
+
     /** converts the proposed size to from K, M or G form to bytes
      * @param string $size_str  string with size representation (128M, 2G etc.)
      * @return int              size in bytes
