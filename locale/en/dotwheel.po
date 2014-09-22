@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-19 17:29+0100\n"
+"POT-Creation-Date: 2014-09-22 12:01+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Stas Trefilov <stas.trefilov@gmail.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
@@ -43,51 +43,41 @@ msgstr "value in '%s' does not match the required format"
 msgid "value in '%s' is not a valid date"
 msgstr "value in '%s' is not a valid date"
 
-#: dotwheel/db/repo.php:438
-#, php-format
-msgid "file in '%s' is too big (maximal file size: %s)"
-msgstr "file in '%s' is too big (maximal file size: %s)"
-
-#: dotwheel/db/repo.php:454
+#: dotwheel/db/repo.php:431
 #, php-format
 msgid "value in '%s' must be positive"
 msgstr "value in '%s' must be positive"
 
-#: dotwheel/db/repo.php:474
+#: dotwheel/db/repo.php:452 dotwheel/db/repo.php:466
 #, php-format
-msgid "incorrect file information in '%s'"
-msgstr "incorrect file information in '%s'"
+msgid "too big file in '%s' (maximal allowed file size: %s)"
+msgstr "too big file in '%s' (maximal allowed file size: %s)"
 
-#: dotwheel/db/repo.php:487
-#, php-format
-msgid "file too big (max allowed size %uMb) in '%s'"
-msgstr "file too big (max allowed size %uMb) in '%s'"
-
-#: dotwheel/db/repo.php:494
+#: dotwheel/db/repo.php:472
 #, php-format
 msgid "error uploading file from '%s'"
 msgstr "error uploading file from '%s'"
 
-#: dotwheel/db/repo.php:511
+#: dotwheel/db/repo.php:489
 #, php-format
 msgid "value is required in '%s'"
 msgstr "value is required in '%s'"
 
-#: dotwheel/db/repo.php:518
+#: dotwheel/db/repo.php:496
 #, php-format
 msgid "type mismatch for '%s'"
 msgstr "type mismatch for '%s'"
 
-#: dotwheel/db/repo.php:533 dotwheel/db/repo.php:545
+#: dotwheel/db/repo.php:511 dotwheel/db/repo.php:523
 #, php-format
 msgid "value in '%s' must be between 0 and 100"
 msgstr "value in '%s' must be between 0 and 100"
 
-#: dotwheel/db/repo.php:644
+#: dotwheel/db/repo.php:622
 msgid "no"
 msgstr "no"
 
-#: dotwheel/db/repo.php:645
+#: dotwheel/db/repo.php:623
 msgid "yes"
 msgstr "yes"
 
@@ -106,3 +96,9 @@ msgstr "Prev"
 #: dotwheel/ui/htmltable.php:523
 msgid "Next"
 msgstr "Next"
+
+#~ msgid "incorrect file information in '%s'"
+#~ msgstr "incorrect file information in '%s'"
+
+#~ msgid "file too big (max allowed size %uMb) in '%s'"
+#~ msgstr "file too big (max allowed size %uMb) in '%s'"

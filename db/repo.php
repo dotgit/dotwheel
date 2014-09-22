@@ -423,29 +423,6 @@ class Repo
                             : \array_flip($value)
                         ));
                         break;
-                    case self::C_FILE:
-                        if (isset($_FILES[$fld]))
-                        {
-                            if (empty($_FILES[$fld]['error']))
-                                $val = $_FILES[$fld];
-                            else
-                            {
-                                switch ($_FILES[$fld]['error'])
-                                {
-                                case UPLOAD_ERR_INI_SIZE:
-                                    $val = false;
-                                    $err = \sprintf(
-                                        Text::dget(Nls::FW_DOMAIN, "file in '%s' is too big (maximal file size: %s)"),
-                                        $label,
-                                        \ini_get('upload_max_filesize')
-                                    );
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                            $val = false;
-                        break;
                     }
 
                     if ($flags & self::F_POSITIVE and $val < 1)
@@ -471,7 +448,11 @@ class Repo
                 if (empty($_FILES[$fld]))
                 {
                     $val = false;
-                    $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "incorrect file information in '%s'"), $label);
+                    $err = \sprintf(
+                        Text::dget(Nls::FW_DOMAIN, "too big file in '%s' (maximal allowed file size: %s)"),
+                        $label,
+                        Misc::humanBytes(Misc::getMaxUploadSize())
+                    );
                 }
                 elseif ($_FILES[$fld]['error'] == UPLOAD_ERR_NO_FILE)
                     $val = null;
@@ -482,12 +463,9 @@ class Repo
                     case UPLOAD_ERR_INI_SIZE:
                     case UPLOAD_ERR_FORM_SIZE:
                         $msg = \sprintf(
-                            Text::dget(
-                                Nls::FW_DOMAIN,
-                                "file too big (max allowed size %uMb) in '%s'"
-                            ),
-                            Misc::getMaxUploadSize() / 1048576,
-                            $label
+                            Text::dget(Nls::FW_DOMAIN, "too big file in '%s' (maximal allowed file size: %s)"),
+                            $label,
+                            Misc::humanBytes(Misc::getMaxUploadSize())
                         );
                         break;
                     default:

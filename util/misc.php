@@ -43,11 +43,11 @@ class Misc
             return $date_next;
     }
 
-    /** converts numbers from '1K' form to 1024 form
-     * @param string $size_str  size string to convert
-     * @return int integer value
+    /** converts numbers from shorthand form (like '1K') to an integer
+     * @param string $size_str  shorthand size string to convert
+     * @return int integer value in bytes
      */
-    public static function bytesHuman($size_str)
+    public static function convertSize($size_str)
     {
         switch (\substr($size_str, -1))
         {
@@ -55,21 +55,6 @@ class Misc
             case 'K': case 'k': return (int)$size_str << 10;
             case 'G': case 'g': return (int)$size_str << 30;
             default: return (int)$size_str;
-        }
-    }
-
-    /** converts the proposed size to from K, M or G form to bytes
-     * @param string $size_str  string with size representation (128M, 2G etc.)
-     * @return int              size in bytes
-     */
-    public static function convertSize($size_str)
-    {
-        switch (\substr($size_str, -1))
-        {
-            case 'M': case 'm': return (int)$size_str * 1048576;
-            case 'K': case 'k': return (int)$size_str * 1024;
-            case 'G': case 'g': return (int)$size_str * 1073741824;
-            default: return $size_str;
         }
     }
 
@@ -131,7 +116,10 @@ class Misc
 
     public static function getMaxUploadSize()
     {
-        return \min(self::convertSize(\ini_get('upload_max_filesize')), self::convertSize(\ini_get('post_max_size')));
+        return \min(
+            self::convertSize(\ini_get('upload_max_filesize')),
+            self::convertSize(\ini_get('post_max_size'))
+        );
     }
 
     /** returns human-readable amount rounded to 3 meaningful numbers with appropriate suffix (T,G,M,K)
