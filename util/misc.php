@@ -344,6 +344,21 @@ class Misc
             \session_regenerate_id(true);
     }
 
+    /** simplify the line by only keeping lowercased alphanumeric symbols and replacing all the rest with dashes,
+     * then coalescing dashes and removing trailing dashes
+     * ex: 'Very Common Name, Inc...' becomes 'very-common-name-inc'
+     * @param string $line
+     * @return string
+     */
+    public static function simplifyLine($line)
+    {
+        return \trim(\preg_replace(
+            '/\\W+/',
+            '-',
+            \mb_strtolower($line, Nls::$charset)
+        ), '-');
+    }
+
     /** escapes a string to be used in sprintf by doubling the % characters
      * @param string $str   string to escape
      * @return string
