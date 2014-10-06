@@ -486,7 +486,7 @@ class Repo
 
             // check required flags
             if ($val === null and ! empty($repo[self::P_REQUIRED]))
-                $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
+                self::$input_errors[] = \sprintf(Text::dget(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
 
             if ($val !== false)
                 self::$validated[$fld] = $val;
