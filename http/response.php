@@ -75,13 +75,13 @@ class Response
     /** error message on html page */
     public static function outputHtmlError($msg=null)
     {
-        static::outputHtml('<section><h1>'.Html::encode($msg).'</h1>'.
-            (static::$errors
+        static::outputHtml(\sprintf(
+            '<section><h1>%s</h1>%s</section>',
+            Html::encode($msg),
+            static::$errors
                 ? ('<ul><li>'.\implode('</li><li>', static::$errors).'</li></ul>')
                 : ''
-            ).
-            '</section>'
-        );
+        ));
     }
 
     /** error message on json page */
