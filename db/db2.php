@@ -129,17 +129,18 @@ class Db2
     }
 
     /** serializes the value if it is not a scalar. long values are gzdeflate-d
-     * @param type $blob    value to store
+     * @param mixed $blob   value to store
+     * @param int $size     size of the field in bytes
      * @return string encoded blob value
      */
-    public static function blobEncode($blob)
+    public static function blobEncode($blob, $size=65535)
     {
         if (isset($blob) and ! \is_scalar($blob))
             $blob = ' j:'.\json_encode($blob);
         if (\strlen($blob) > 127)
             $blob = ' z:'.\gzdeflate($blob);
 
-        return \strlen($blob) <= 65535 ? $blob : null;
+        return \strlen($blob) <= $size ? $blob : null;
     }
 
     /** dml operation to exchange the position of two lines
