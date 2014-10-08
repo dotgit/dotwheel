@@ -14,6 +14,10 @@ use Dotwheel\Nls\Nls;
 
 class Mime
 {
+    const RFC5322_ATOMS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-/=?^_`{|}~';
+
+
+
     /** concatenates message parts using calculated boundary, returns compiled mime message and sets $headers
      * @param array $parts      mime parts encoded using self::part*() methods
      * @param array $headers    returned headers containing mime version and content boundary used
@@ -30,6 +34,15 @@ class Mime
             "--$boundary\r\n".
             \implode("\r\n--$boundary\r\n", $parts).
             "\r\n--$boundary--";
+    }
+
+    public static function displayname($name)
+    {
+        $phrase_preg = \preg_quote(self::RFC5322_ATOMS);
+        if (\preg_match("/[^\s$phrase_preg]/", $name))
+            return self::subject($name);
+        else
+            return $name;
     }
 
     /** returns base64-encoded $content chunk_split'ted and prefixed with corresponding mime headers
