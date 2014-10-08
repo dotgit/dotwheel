@@ -38,8 +38,9 @@ class Mime
 
     public static function displayname($name)
     {
-        $phrase_preg = \preg_quote(self::RFC5322_ATOMS);
-        if (\preg_match("/[^\s$phrase_preg]/", $name))
+        $phrase_preg = \preg_quote(self::RFC5322_ATOMS, '/');
+
+        if (\preg_match("/[^$phrase_preg\s]/", $name))
             return self::subject($name);
         else
             return $name;
