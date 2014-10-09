@@ -254,10 +254,8 @@ class Nls
     public static function asFloat($val)
     {
         $abs = \abs($val);
-        $v = \round(
-            $val,
-            $abs > 10 ? 0 : ($abs > 1 ? 1 : ($val == 0 ? 0 : 2))
-        );
+        $v = \round($val, 2);
+
         return \number_format(
             $val,
             \max(0, \strlen(\strrchr($v, '.')) - 1),
