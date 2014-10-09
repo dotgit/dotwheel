@@ -400,7 +400,7 @@ class Repo
                         break;
                     case self::C_DATE:
                         if (\is_scalar($value))
-                            $val = Nls::asDate($value, $flags & self::F_DATETIME);
+                            $val = Nls::toDate($value, $flags & self::F_DATETIME);
                         else
                             $val = false;
 
@@ -883,8 +883,8 @@ class Repo
         if (empty($value))
             return "$name is null";
         elseif (\preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
-            and $d1 = Nls::asDate($matches[1], $datetime)
-            and $d2 = Nls::asDate($matches[2], $datetime)
+            and $d1 = Nls::toDate($matches[1], $datetime)
+            and $d2 = Nls::toDate($matches[2], $datetime)
         )
         {
             if ($datetime and \substr($d2, -8) == '00:00:00')
@@ -892,14 +892,14 @@ class Repo
             return "$name between ".Db::wrapChar($d1).' and '.Db::wrapChar($d2);
         }
         elseif (\preg_match('/^<\s*(\S+)$/', $value, $matches)
-            and $d = Nls::asDate($matches[1], $datetime)
+            and $d = Nls::toDate($matches[1], $datetime)
         )
             return "$name < ".Db::wrapChar($d);
         elseif (\preg_match('/^>\s*(\S+)$/', $value, $matches)
-            and $d = Nls::asDate($matches[1], $datetime)
+            and $d = Nls::toDate($matches[1], $datetime)
         )
             return "$name > ".Db::wrapChar($d);
-        elseif ($d = Nls::asDate($matches[1], $datetime))
+        elseif ($d = Nls::toDate($matches[1], $datetime))
             return "$name = ".Db::wrapChar($d);
         else
             return null;

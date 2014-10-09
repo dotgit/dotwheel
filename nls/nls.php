@@ -230,7 +230,7 @@ class Nls
      * @param boolean $datetime whether to include time
      * @return string|boolean date string or false on error
      */
-    public static function asDate($value, $datetime=null)
+    public static function toDate($value, $datetime=null)
     {
         $d1 = $d2 = $d3 = $h = $m = $s = null;
         \sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
