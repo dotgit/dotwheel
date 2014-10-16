@@ -316,7 +316,7 @@ class Db
         if ($stmt = \mysqli_prepare(self::$conn, $sql)
             and \call_user_func_array(
                 'mysqli_stmt_bind_param',
-                \array_merge(array($stmt, $types), \array_map(function (&$el) {return $el;}, $params))
+                \array_merge(array($stmt, $types), $params)
             )
             and \mysqli_stmt_execute($stmt)
         )
