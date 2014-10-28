@@ -398,4 +398,27 @@ class Misc
             Nls::$charset
         ).$suffix;
     }
+
+    /** whether the byte code corresponds to a utf-8 starting byte
+     * @param int $char
+     * @return bool
+     */
+    public static function utf8First($char)
+    {
+        return (($char & 0b11100000) == 0b11000000)
+            or (($char & 0b11110000) == 0b11100000)
+            or (($char & 0b11111000) == 0b11110000)
+            or (($char & 0b11111100) == 0b11111000)
+            or (($char & 0b11111110) == 0b11111100)
+            ;
+    }
+
+    /** whether the byte code corresponds to a utf-8 following byte
+     * @param int $char
+     * @return bool
+     */
+    public static function utf8Next($char)
+    {
+        return ($char & 0b11000000) == 0b10000000;
+    }
 }
