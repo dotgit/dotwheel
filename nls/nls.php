@@ -50,7 +50,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>',',
             self::P_MON_CODE=>'USD',
             self::P_MON_CHAR=>'$',
-            self::P_MON_FMT=>'$%s',
+            self::P_MON_FMT=>'%2$s %1$s',    // value / currency
             self::P_DATE_DT=>'m/d/y',
             self::P_DATEFULL_DT=>'m/d/Y',
             self::P_DATETIME_DT=>'m/d/y H:i',
@@ -76,7 +76,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>' ',
             self::P_MON_CODE=>'EUR',
             self::P_MON_CHAR=>'€',
-            self::P_MON_FMT=>'%s€',
+            self::P_MON_FMT=>'%s %s',        // value / currency
             self::P_DATE_DT=>'d/m/y',
             self::P_DATEFULL_DT=>'d/m/Y',
             self::P_DATETIME_DT=>'d/m/y H:i',
@@ -102,7 +102,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>' ',
             self::P_MON_CODE=>'RUR',
             self::P_MON_CHAR=>'R',
-            self::P_MON_FMT=>'%sR',
+            self::P_MON_FMT=>'%s %s',        // value / currency
             self::P_DATE_DT=>'d.m.y',
             self::P_DATEFULL_DT=>'d.m.Y',
             self::P_DATETIME_DT=>'d.m.y H:i',
