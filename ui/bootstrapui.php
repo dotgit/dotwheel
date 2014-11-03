@@ -557,7 +557,7 @@ EOco
         $dropdown_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
         $items = Params::extract($params, self::P_CONTENT);
 
-        Params::add($params, 'dropdown');
+        Params::add($params, 'btn-group');
         Params::add($btn_attr, 'btn dropdown-toggle');
         Params::add($btn_attr, 'dropdown', 'data-toggle');
 
