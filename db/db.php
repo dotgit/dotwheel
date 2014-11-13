@@ -51,7 +51,12 @@ class Db
     public static function fetchRow($sql)
     {
         if ($_ = \mysqli_query(self::$conn, $sql))
-            return \mysqli_fetch_assoc($_);
+        {
+            $row = \mysqli_fetch_assoc($_);
+            \mysqli_free_result($_);
+
+            return $row;
+        }
         else
         {
             \error_log('['.__METHOD__.'] '.\mysqli_error(self::$conn).'; SQL: '.$sql);
