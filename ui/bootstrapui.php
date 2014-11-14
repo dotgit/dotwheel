@@ -805,6 +805,7 @@ EOfmt
      * @param array $items  {{P_TARGET:'pane id'
      *      , P_HEADER:'tab label'
      *      , P_CONTENT:'pane content'
+     *      , P_CONTENT_ATTR:a tag attributes
      *      , P_ACTIVE:bool
      *      }
      *  , li tag attributes
@@ -836,6 +837,7 @@ EOfmt
             {
                 $header = Params::extract($item, self::P_HEADER);
                 $content = Params::extract($item, self::P_CONTENT);
+                $content_attr = Params::extract($item, self::P_CONTENT_ATTR, array());
                 if (isset($content))
                 {
                     $id = Params::extract($item, self::P_TARGET);
@@ -845,16 +847,18 @@ EOfmt
                         Params::add($item, 'active');
                         Params::add($pane, 'active');
                     }
-                    $labels[] = '<li'.Html::attr($item)."><a href=\"#$id\" data-toggle=\"$toggle\">$header</a></li>";
+                    Params::add($content_attr, "#$id", 'href');
+                    Params::add($content_attr, "$toggle", 'data-toggle');
+                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($content_attr).">$header</a></li>";
                     $panes[] = '<div'.Html::attr($pane).">$content</div>";
                     unset($items[$k]);
                 }
                 else
                 {
-                    $target = Params::extract($item, self::P_TARGET);
+                    Params::add($content_attr, Params::extract($item, self::P_TARGET), 'href');
                     if (Params::extract($item, self::P_ACTIVE))
                         Params::add($item, 'active');
-                    $labels[] = '<li'.Html::attr($item)."><a href=\"$target\">$header</a></li>";
+                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($content_attr).">$header</a></li>";
                 }
             }
             else
