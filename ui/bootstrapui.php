@@ -737,6 +737,7 @@ EObt
         $close = Params::extract($params, self::P_CLOSE);
         $header = Params::extract($params, self::P_HEADER);
         $body = Params::extract($params, self::P_CONTENT);
+        $body_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
         $footer = Params::extract($params, self::P_FOOTER);
         $size = Params::extract($params, self::P_WIDTH);
         $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
@@ -747,6 +748,7 @@ EObt
         Params::add($params, 'dialog', 'role');
         Params::add($params, 'true', 'aria-hidden');
         Params::add($params, 'true', 'data-keyboard');
+        Params::add($body_attr, 'modal-body');
 
         if (\is_array($close))
             Params::add($close, 'modal', 'data-dismiss');
@@ -755,7 +757,7 @@ EObt
         if (isset($header))
             $header = "<div class=\"modal-header\">".self::close($close)."<h4 class=\"modal-title\">$header</h4></div>";
         if (isset($body))
-            $body = "<div class=\"modal-body\">$body</div>";
+            $body = "<div".Html::attr($body_attr).">$body</div>";
         if (isset($footer))
             $footer = "<div class=\"modal-footer\">$footer</div>";
         if (isset($size))
@@ -773,7 +775,7 @@ function $focus_modal_btn(\$mdl){
             \$btn.first().focus();
     }
     else
-        $('[data-dismiss="modal"]:enabled',\$mdl).last().focus();
+        $('[data-dismiss="modal"]:enabled',\$mdl).first().focus();
 }
 
 EOsc
