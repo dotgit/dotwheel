@@ -35,8 +35,17 @@ class Response
 
 
     /** add error message(s) to the list
-     * @param string $msg       adds one or more messages to self::$errors
-     *                          (all messages stored in html)
+     * @param string|array $msg adds one or more messages to self::$errors
+     * (all messages stored in html). $msg may be an array of messages to add.
+     * in this case each individual message may be a string or an array with
+     * Html::P_HEADER item set with an error message. use Html::P_WRAP_FMT item
+     * to provide wrapper for the error messages
+     * Ex.1: 'text message'
+     * Ex.2: ['text message 1', 'text message 2']
+     * Ex.3: [{Html::P_WRAP_FMT:'&lt;div&gt;%s&lt;/div&gt;',
+     *  {Html::P_HEADER:'html message 1'},
+     *  {Html::P_HEADER:'html message 2'}
+     * ]
      * @param bool $html        whether the $msg is already html-encoded [false]
      */
     public static function addError($msg, $html=false)
@@ -44,7 +53,9 @@ class Response
         if (\is_array($msg))
             static::$errors = \array_merge(
                 static::$errors,
-                $html ? $msg : \array_map(function ($item) {return Html::encode($item);}, $msg)
+                $html
+                    ? $msg
+                    : \array_map(function ($item) {return \is_scalar($item) ? Html::encode($item) : $item;}, $msg)
             );
         else
             static::$errors[] = $html ? $msg : Html::encode($msg);
@@ -75,12 +86,30 @@ class Response
     /** error message on html page */
     public static function outputHtmlError($msg=null)
     {
+        $errors = array();
+        if (static::$errors)
+        {
+            $wrap = '<ul>%s</ul>';
+            $li = 0;
+            foreach (static::$errors as $err)
+                if (\is_array($err))
+                {
+                    if (isset($err[Html::P_HEADER]))
+                       $errors[] =  $err[Html::P_HEADER];
+                    if (isset($err[Html::P_WRAP_FMT]))
+                       $wrap =  $err[Html::P_WRAP_FMT];
+                }
+                else
+                    $errors[] = "<li>$err</li>";
+            $errors_list = \sprintf ($wrap, \implode('', $errors));
+        }
+        else
+            $errors_list = null;
+
         static::outputHtml(\sprintf(
             '<section><h1>%s</h1>%s</section>',
             Html::encode($msg),
-            static::$errors
-                ? ('<ul><li>'.\implode('</li><li>', static::$errors).'</li></ul>')
-                : ''
+            $errors_list
         ));
     }
 
