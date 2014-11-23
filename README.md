@@ -6,11 +6,11 @@ Introduction
 
 dotwheel is a performance-oriented, minimalistic php framework. Based on a Model-View-Controller architecture it helps with code organization and contains the following functionality:
 
-- database access (including fields repository handling, advanced sharding technics, mysql handler interface, blob zipping)
-- cache handling (including memcache and APC utilisation)
+- database access (including fields repository handling, advanced sharding technics, mysql handler interface, blob compression)
+- cache handling (including memcache and APC wrappers)
 - http-related module (auto-definition of request type, clean response architecture)
 - UI module (including Twitter Bootstrap integration, easy html table generation using information from fields repository)
-- additional utility classes helping with ACL handling, password hashing, gettext-based NLS support, etc.
+- additional utility classes helping with ACL handling, password hashing, NLS support based on gettext .po files, etc.
 
 Fully namespaced, framework facilitates the use of advanced development technics such as data caching, database sharding, high-speed user interfaces when creating modern web-based applications.
 
@@ -25,4 +25,4 @@ Runs on PHP 5.3, latest PHP version recommended. The following extensions are ad
 
 Installation
 ----
-Clone the repository into the Vendors directory of your project.
+Clone the repository into the Vendors directory of your project, update set_include_path() in your autoloader, go!
