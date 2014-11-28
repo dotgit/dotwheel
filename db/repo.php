@@ -602,7 +602,7 @@ class Repo
                     isset($repo[self::P_FLAGS])
                         ? (($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
                             ? null
-                            : ($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
+                            : ($repo[self::P_FLAGS] & self::F_SHOW_DECIMAL)
                         )
                         : false
                 );
