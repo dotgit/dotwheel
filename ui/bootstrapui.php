@@ -565,7 +565,7 @@ EOco
 <<<EObt
 <div%s>
   <button%s>
-    %s <b class="caret"></b>
+    %s <span class="caret"></span>
   </button>
   %s
 </div>
@@ -806,6 +806,8 @@ EOfmt
     /** html-formatted bootstrap tabs
      * @param array $items  {{P_TARGET:'pane id'
      *      , P_HEADER:'tab label'
+     *      , P_FOOTER:'tab label postfix'
+     *      , P_HEADER_ATTR:a tag attributes
      *      , P_CONTENT:'pane content'
      *      , P_CONTENT_ATTR:a tag attributes
      *      , P_ACTIVE:bool
@@ -838,29 +840,32 @@ EOfmt
             if (\is_array($item))
             {
                 $header = Params::extract($item, self::P_HEADER);
+                $header_attr = Params::extract($item, self::P_HEADER_ATTR, array());
+                $footer = Params::extract($item, self::P_FOOTER);
                 $content = Params::extract($item, self::P_CONTENT);
-                $content_attr = Params::extract($item, self::P_CONTENT_ATTR, array());
                 if (isset($content))
                 {
                     $id = Params::extract($item, self::P_TARGET);
-                    $pane = array('id'=>$id, 'class'=>'tab-pane');
+                    $content_attr = Params::extract($item, self::P_CONTENT_ATTR, array());
+                    Params::add($content_attr, $id, 'id');
+                    Params::add($content_attr, 'tab-pane');
                     if (Params::extract($item, self::P_ACTIVE))
                     {
                         Params::add($item, 'active');
-                        Params::add($pane, 'active');
+                        Params::add($content_attr, 'active');
                     }
-                    Params::add($content_attr, "#$id", 'href');
-                    Params::add($content_attr, "$toggle", 'data-toggle');
-                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($content_attr).">$header</a></li>";
-                    $panes[] = '<div'.Html::attr($pane).">$content</div>";
+                    Params::add($header_attr, "#$id", 'href');
+                    Params::add($header_attr, "$toggle", 'data-toggle');
+                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($header_attr).">$header</a>$footer</li>";
+                    $panes[] = '<div'.Html::attr($content_attr).">$content</div>";
                     unset($items[$k]);
                 }
                 else
                 {
-                    Params::add($content_attr, Params::extract($item, self::P_TARGET), 'href');
+                    Params::add($header_attr, Params::extract($item, self::P_TARGET), 'href');
                     if (Params::extract($item, self::P_ACTIVE))
                         Params::add($item, 'active');
-                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($content_attr).">$header</a></li>";
+                    $labels[] = '<li'.Html::attr($item)."><a".Html::attr($header_attr).">$header</a>$footer</li>";
                 }
             }
             else
