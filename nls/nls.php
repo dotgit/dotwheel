@@ -233,8 +233,18 @@ class Nls
     public static function toDate($value, $datetime=null)
     {
         $d1 = $d2 = $d3 = $h = $m = $s = null;
-        \sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
-        list($year, $month, $day) = \explode('-', \sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
+        if (\preg_match('/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?/', $value, $m))
+        {
+            if (isset($m[6]))
+                list(, $year, $month, $day, $h, $m, $s) = $m;
+            else
+                list(, $year, $month, $day) = $m;
+        }
+        else
+        {
+            \sscanf($value, self::$formats[self::P_DATETIMESEC_FMT], $d1, $d2, $d3, $h, $m, $s);
+            list($year, $month, $day) = \explode('-', \sprintf(self::$formats[self::P_DATEREV_FMT], $d1, $d2, $d3));
+        }
 
         if (empty($year))
             $year = \date('Y');
