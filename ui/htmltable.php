@@ -33,6 +33,7 @@ class HtmlTable
     const P_SUFFIX      = 7;
     const P_GROUP_CLASS = 8;
     const P_TOTAL_CLASS = 9;
+    const P_FOOTERS     = 10;
 
     const R_VALUES  = -1;
     const R_TD      = -2;
@@ -160,7 +161,7 @@ class HtmlTable
      *  , P_FIELDS:{fld1:{F_WIDTH:'20%'
      *          , F_ALIGN:'center'
      *          , F_REPO:{field repository arguments}
-     *          , F_HEADER:{F_HEADER_LABEL:Repo::P_LABEL_SHORT|null, F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null, th tag arguments}
+     *          , F_HEADER:{F_HEADER_TYPE:Repo::P_LABEL_SHORT|null, F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null, th tag arguments}
      *          , F_CHECKBOX:true   // replaces header with a checkbox and a toggler js code
      *          , F_HIDDEN:true
      *          , F_ASIS:true
@@ -243,16 +244,20 @@ class HtmlTable
             {
                 if ($f[self::F_HEADER] !== false)
                 {
-                    if ($h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE))
-                        $headers[$field] = Repo::getLabel($field, $h, $repo[$field]);
-                    elseif ($abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR))
+                    $h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE);
+                    $abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR);
+
+                    if ($h)
+                        $headers[$field] = Html::encode(Repo::getLabel($field, $h, $repo[$field]));
+                    elseif ($abbr)
                         $headers[$field] = Html::asAbbr(
                             Html::encode(Repo::getLabel($field, Repo::P_LABEL_SHORT, $repo[$field])),
                             Repo::getLabel($field, $abbr === true ? Repo::P_LABEL_LONG : $abbr, $repo[$field])
                         );
-                    else
-                        $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
-                    if ($f[self::F_HEADER])
+                    elseif (\is_scalar($f[self::F_HEADER]))
+                        $headers[$field] = $f[self::F_HEADER];
+
+                    if (\is_array($f[self::F_HEADER]))
                         $headers_td[$field] = $f[self::F_HEADER];
                 }
             }
@@ -351,7 +356,8 @@ EOm
                 $asis[$field] = true;
         }
 
-        $rows_values = Params::extract($params, self::P_ROWS);
+        $rows_values = Params::extract($params, self::P_ROWS, array());
+        $footers_values = Params::extract($params, self::P_FOOTERS, array());
         $rows_td = Params::extract($params, self::P_TD, array());
         $rows_tr = Params::extract($params, self::P_TR, array());
         $prefix = Params::extract($params, self::P_PREFIX);
@@ -456,6 +462,33 @@ EOm
                     $t[$field] = '';
             }
             $tfoot .= Html::tr(array(Html::P_VALUES=>$t, 'class'=>$total_class));
+        }
+
+        foreach ($footers_values as $krow=>$row)
+        {
+            $values = array();
+            $td = isset($rows_td[$krow]) ? $rows_td[$krow] : array();
+            $tr = isset($rows_tr[$krow]) ? $rows_tr[$krow] : array();
+
+            // cycle through the fields
+            //
+
+            foreach ($repo as $field=>$r)
+            {
+                // set cell value
+
+                // whether as is column...
+                if (isset($asis[$field]))
+                    $values[$field] = $row[$field];
+                // ...or normal value (if not hidden)
+                elseif (empty($hidden[$field]))
+                {
+                    $v = Repo::asHtmlStatic($field, $row[$field], $r);
+                    $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
+                }
+            }
+
+            $tfoot .= Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
         }
 
         // add suffix
