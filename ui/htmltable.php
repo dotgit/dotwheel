@@ -182,6 +182,9 @@ class HtmlTable
      *  , P_ROWS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
      *      , r2:{fld1:'value',fld2:'value',fld3:'value'}
      *      }
+     *  , P_FOOTERS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
+     *      , r2:{fld1:'value',fld2:'value',fld3:'value'}
+     *      }
      *  , P_TD:{r1:{fld3:' td tag attributes'}, ...}
      *  , P_TR:{r2:' tr tag attributes'}, ...}
      *  , P_PREFIX:''
