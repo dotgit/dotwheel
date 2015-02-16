@@ -263,7 +263,15 @@ class Nls
 
     public static function asFloat($val)
     {
-        $abs = \abs($val);
+        $v = \round($val, 2);
+
+        return (\strpos($v, '.') and self::$formats[self::P_DECIMAL_CHAR] != '.')
+            ? \str_replace('.', self::$formats[self::P_DECIMAL_CHAR], $v)
+            : $v;
+    }
+
+    public static function asNumber($val)
+    {
         $v = \round($val, 2);
 
         return \number_format(
