@@ -35,7 +35,7 @@ class CacheMemcache extends CacheBase
      */
     public static function init($params)
     {
-        if (\count($params) > 1)
+        if (isset($params[self::P_SERVERS]) and empty(self::$conn))
         {
             self::$conn = new Memcached(__METHOD__.$params[self::P_PREFIX]);
 
@@ -45,8 +45,7 @@ class CacheMemcache extends CacheBase
             ));
             if (isset($params[self::P_LOGIN]))
                 self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
-            if (isset($params[self::P_SERVERS]) and ! self::$conn->getServerList())
-                self::$conn->addServers($params[self::P_SERVERS]);
+            self::$conn->addServers($params[self::P_SERVERS]);
 
             return parent::init($params[self::P_PREFIX]);
         }

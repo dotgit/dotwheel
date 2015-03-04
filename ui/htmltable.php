@@ -54,11 +54,6 @@ class HtmlTable
     const F_URL_FIELD       = 81;
     const F_URL_FMT         = 82;
     const F_URL_TARGET      = 83;
-    const F_TOTAL           = 9;
-    const F_TOTAL_SUM       = 91;
-    const F_TOTAL_COUNT     = 92;
-    const F_TOTAL_AVG       = 93;
-    const F_TOTAL_TEXT      = 94;
     const F_HIDDEN          = 100;
     const F_ASIS            = 101;
 
@@ -82,17 +77,20 @@ class HtmlTable
     /** @var array  if totals row displayed then the values are stored here */
     public static $totals = array();
 
-    /** @var array  list of elements (tables) with corresponding details,
-     *              like {users:{CGI_SORT:'u_lastname,r'
-     *                  , CGI_FILTERS:{u_status:'online',u_lastname:'tref'}
-     *                  , CGI_PAGE:2
-     *                  }
-     *              , roles:...
-     *              }
-     *              details per table come from the following request parameters:
-     *              - s (sort): s[users]=u_lastname,r
-     *              - f (filters): f[users][u_status]=online&f[users][u_lastname]=tref
-     *              - p (page): p[users]=2
+    /** @var array  list of elements (tables) with corresponding details, like
+     *  <pre>{
+     *      users:
+     *      {CGI_SORT:
+     *          'u_lastname,r',
+     *          CGI_FILTERS:{u_status:'online',u_lastname:'tref'},
+     *          CGI_PAGE:2,
+     *      },
+     *      roles:...
+     *  }</pre>
+     *  details per table come from the following request parameters:
+     *  <li>s (sort): s[users]=u_lastname,r
+     *  <li>f (filters): f[users][u_status]=online&f[users][u_lastname]=tref
+     *  <li>p (page): p[users]=2
      */
     public static $details = array();
 
@@ -155,42 +153,68 @@ class HtmlTable
 
     /** returns the html code of a table
      * @param array $params list of table parameters:
-     *  {id:'tbl1'
-     *  , P_GROUP_CLASS:'_grp'
-     *  , P_TOTAL_CLASS:'_ttl'
-     *  , P_FIELDS:{fld1:{F_WIDTH:'20%'
-     *          , F_ALIGN:'center'
-     *          , F_REPO:{field repository arguments}
-     *          , F_HEADER:{F_HEADER_TYPE:Repo::P_LABEL_SHORT|null, F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null, th tag arguments}
-     *          , F_CHECKBOX:true   // replaces header with a checkbox and a toggler js code
-     *          , F_HIDDEN:true
-     *          , F_ASIS:true
-     *          , F_SORT:{F_SORT_EXCLUDE:true, F_SORT_GROUP:'fld2'|true}
-     *          , F_FMT:'<span class="tag">%s</span>'
-     *          , F_URL:{F_URL_FIELD:'fld2',F_URL_ADDRESS:'/path/script.php?id=%u&mode=edit',F_URL_TARGET:'_blank'}
-     *          , F_TOTAL:(TOTAL_SUM|true)|TOTAL_COUNT|TOTAL_AVG|'text'
-     *          }
-     *      , fld2:{}
-     *      }
-     *  , P_SORT:{S_FIELD:'fld1'
-     *      , S_ICON:ICN_SORT_CHAR
-     *      , S_REVERSE:true
-     *      , S_SCRIPT:'/this/script.php'
-     *      , S_PARAMS:{s:{tbl1:'fld_current'},f:{tbl1:{f1:'on'}},...} // sort param for current table will be replaced by %s, page param for current table will be unset
-     *      , S_TARGET:'_blank'
-     *      }
-     *  , P_ROWS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
-     *      , r2:{fld1:'value',fld2:'value',fld3:'value'}
-     *      }
-     *  , P_FOOTERS:{r1:{fld1:'value',fld2:'value',fld3:'value'}
-     *      , r2:{fld1:'value',fld2:'value',fld3:'value'}
-     *      }
-     *  , P_TD:{r1:{fld3:' td tag attributes'}, ...}
-     *  , P_TR:{r2:' tr tag attributes'}, ...}
-     *  , P_PREFIX:''
-     *  , P_SUFFIX:''
-     *  , table tag arguments
-     *  }
+     * <pre>
+     * {
+     *  id:'tbl1',
+     *  P_GROUP_CLASS:'_grp',
+     *  P_TOTAL_CLASS:'_ttl',
+     *  P_FIELDS:{
+     *      fld1:{
+     *          F_WIDTH:'20%',
+     *          F_ALIGN:'center',
+     *          F_REPO:{field repository arguments},
+     *          F_HEADER:{
+     *              F_HEADER_TYPE:Repo::P_LABEL_SHORT|null,
+     *              F_HEADER_ABBR:Repo::P_LABEL_LONG|true|null,
+     *              th tag arguments,
+     *          },
+     *          F_CHECKBOX:true,   // replaces header with a checkbox and a toggler js code
+     *          F_HIDDEN:true,
+     *          F_ASIS:true,
+     *          F_SORT:{
+     *              F_SORT_EXCLUDE:true,
+     *              F_SORT_GROUP:'fld2'|true,
+     *          },
+     *          F_FMT:'value: %s',
+     *          F_URL:{
+     *              F_URL_FIELD:'fld2',
+     *              F_URL_ADDRESS:'/path/script.php?id=%u&mode=edit',
+     *              F_URL_TARGET:'_blank',
+     *          },
+     *      },
+     *      ...
+     *  },
+     *  P_SORT:{
+     *      S_FIELD:'fld1',
+     *      S_ICON:ICN_SORT_CHAR,
+     *      S_REVERSE:true,
+     *      S_SCRIPT:'/this/script.php',
+     *      S_PARAMS:{
+     *          CGI_SORT:{tbl_id:'fld_current'},  // CGI_SORT[tbl_id] param will be replaced by %s
+     *          CGI_PAGE:{tbl_id:{f1:'on'}},      // CGI_PAGE[tbl_id] param for current table will be unset
+     *      },
+     *      S_TARGET:'_blank',
+     *  },
+     *  P_ROWS:{
+     *      r1:{fld1:'value',fld2:'value',fld3:'value'},
+     *      r2:{fld1:'value',fld2:'value',fld3:'value'},
+     *  },
+     *  P_FOOTERS:{
+     *      r1:{fld1:'value',fld2:'value',fld3:'value'},
+     *      r2:{fld1:'value',fld2:'value',fld3:'value'},
+     *  },
+     *  P_TD:{
+     *      r1:{fld3:' td tag attributes'},
+     *      ...
+     *  },
+     *  P_TR:{
+     *      r2:' tr tag attributes'},
+     *      ...
+     *  },
+     *  P_PREFIX:'',
+     *  P_SUFFIX:'',
+     *  table tag arguments,
+     * }
      * @todo implement layout parameter
      * @return string|null
      */
@@ -224,14 +248,10 @@ class HtmlTable
         $urls_field = array();
         $urls_fmt = array();
         $urls_target = array();
-        $totals = false;
-        $totals_fn = array();
-        $totals_cnt = array();
         $hidden = array();
         $asis = array();
 
         $group_class = Params::extract($params, self::P_GROUP_CLASS, '_grp');
-        $total_class = Params::extract($params, self::P_TOTAL_CLASS, '_ttl');
 
         foreach (Params::extract($params, self::P_FIELDS, array()) as $field=>$f)
         {
@@ -306,21 +326,6 @@ EOm
                 $urls_fmt[$field] = $f[self::F_URL][self::F_URL_FMT];
                 if (isset($f[self::F_URL][self::F_URL_TARGET]))
                     $urls_target[$field] = $f[self::F_URL][self::F_URL_TARGET];
-            }
-
-            if (isset($f[self::F_TOTAL]))
-            {
-                $totals = true;
-                if ($f[self::F_TOTAL] === true)
-                    $totals_fn[$field] = self::F_TOTAL_SUM;
-                elseif (\is_string($f[self::F_TOTAL]))
-                    $totals_fn[$field] = self::F_TOTAL_TEXT;
-                else
-                    $totals_fn[$field] = $f[self::F_TOTAL];
-                self::$totals[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT
-                    ? Html::encode($f[self::F_TOTAL])
-                    : 0;
-                $totals_cnt[$field] = $totals_fn[$field] === self::F_TOTAL_TEXT ? null : 0;
             }
 
             if (isset($sort)
@@ -419,53 +424,16 @@ EOm
                             $v
                         );
                     $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
-                    if ($totals
-                        and isset($row[$field])
-                        and isset($totals_fn[$field])
-                        and $totals_fn[$field] !== self::F_TOTAL_TEXT
-                    )
-                    {
-                        self::$totals[$field] += $row[$field];
-                        ++$totals_cnt[$field];
-                    }
                 }
             }
 
             echo Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
         }
 
-        $tfoot = null;
-
-        // add totals row
+        // handle table footer rows
         //
 
-        if ($totals)
-        {
-            $t = array();
-            foreach ($repo as $field=>$r)
-            {
-                if (isset(self::$totals[$field]))
-                {
-                    if ($totals_fn[$field] === self::F_TOTAL_COUNT)
-                        self::$totals[$field] = $totals_cnt[$field];
-                    elseif ($totals_fn[$field] == self::F_TOTAL_AVG)
-                        self::$totals[$field] /= $totals_cnt[$field];
-                    $t[$field] = Repo::asHtmlStatic(
-                        $field,
-                        self::$totals[$field],
-                        $totals_fn[$field] === self::F_TOTAL_TEXT
-                            ? array(Repo::P_CLASS=>Repo::C_TEXT)
-                            : (Repo::isArithmetical($r)
-                                ? $r
-                                : array(Repo::P_CLASS=>Repo::C_INT)
-                            )
-                    );
-                }
-                else
-                    $t[$field] = '';
-            }
-            $tfoot .= Html::tr(array(Html::P_VALUES=>$t, 'class'=>$total_class));
-        }
+        $tfoot = null;
 
         foreach ($footers_values as $krow=>$row)
         {
@@ -494,9 +462,6 @@ EOm
             $tfoot .= Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
         }
 
-        // add suffix
-        //
-
         if (isset($suffix))
             $tfoot .= Html::tr(array(
                 Html::P_VALUES=>array($suffix),
@@ -505,6 +470,9 @@ EOm
 
         if ($tfoot)
             echo '<tfoot>', $tfoot;
+
+        // stop table
+        //
 
         echo Html::tableStop();
 
