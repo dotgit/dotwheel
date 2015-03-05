@@ -455,7 +455,9 @@ EOm
                 elseif (empty($hidden[$field]))
                 {
                     $v = Repo::asHtmlStatic($field, $row[$field], $r);
-                    $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
+                    $values[$field] = isset($row[$field])
+                        ? (isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v)
+                        : null;
                 }
             }
 
