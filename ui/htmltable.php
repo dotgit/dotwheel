@@ -291,12 +291,15 @@ class HtmlTable
             {
                 $checkboxes[$field] = $f[self::F_CHECKBOX];
                 $headers[$field] = Html::inputCheckbox(array('id'=>"{$table_id}_chk"));
-                HtmlPage::add(array(HtmlPage::DOM_READY=>array("{$table_id}_chk"=><<<EOm
+                HtmlPage::add(array(
+                    HtmlPage::DOM_READY=>array("{$table_id}_chk"=>
+<<<EOm
 $('#{$table_id}_chk')
 .change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);})
 ;
 EOm
-                )));
+                    )
+                ));
                 if (! isset($f[self::F_ALIGN]))
                     $f[self::F_ALIGN] = 'center';
             }
@@ -332,26 +335,21 @@ EOm
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 )
             {
+                $s_sfx = ($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE]))
+                    ? self::SORT_REV_SUFFIX
+                    : '';
                 $headers[$field] = \sprintf(
-                    '<a href="%s"%s>%s</a>',
-                    (isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '').
-                        Html::urlArgs('?', \array_merge_recursive($sort_params, array(
-                            self::CGI_SORT=>array(
-                                $table_id=>$field.
-                                    (($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE]))
-                                        ? self::SORT_REV_SUFFIX
-                                        : ''
-                                    )
-                            )
-                        ))),
+                    '<a href="%s%s"%s>%s</a>%s',
+                    isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '',
+                    Html::urlArgs('?', \array_merge_recursive($sort_params, array(
+                        self::CGI_SORT=>array($table_id=>"$field$s_sfx"),
+                    ))),
                     isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : '',
-                    $headers[$field]
+                    $headers[$field],
+                    (isset($sort[self::S_FIELD]) and $sort[self::S_FIELD] == $field and isset($sort[self::S_ICON]))
+                        ? "&nbsp;{$sort[self::S_ICON]}"
+                        : ''
                 );
-                if (isset($sort[self::S_FIELD])
-                    and $sort[self::S_FIELD] == $field
-                    and isset($sort[self::S_ICON])
-                )
-                    $headers[$field] .= '&nbsp;'.$sort[self::S_ICON];
             }
 
             if (isset($f[self::F_HIDDEN]))
@@ -427,13 +425,16 @@ EOm
                 }
             }
 
-            echo Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
+            echo Html::tr(array(
+                Html::P_VALUES=>$values,
+                Html::P_TD_ATTR=>$td ? $td : null,
+            ) + $tr);
         }
 
         // handle table footer rows
         //
 
-        $tfoot = null;
+        $tfoot = array();
 
         foreach ($footers_values as $krow=>$row)
         {
@@ -461,17 +462,20 @@ EOm
                 }
             }
 
-            $tfoot .= Html::tr(array(Html::P_VALUES=>$values, Html::P_TD_ATTR=>$td ? $td : null) + $tr);
+            $tfoot[] = Html::tr(array(
+                Html::P_VALUES=>$values,
+                Html::P_TD_ATTR=>$td ? $td : null,
+            ) + $tr);
         }
 
         if (isset($suffix))
-            $tfoot .= Html::tr(array(
+            $tfoot[] = Html::tr(array(
                 Html::P_VALUES=>array($suffix),
-                Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"')
+                Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"'),
             ));
 
         if ($tfoot)
-            echo '<tfoot>', $tfoot;
+            echo '<tfoot>', implode('', $tfoot);
 
         // stop table
         //
@@ -503,7 +507,7 @@ EOm
                 $pages = (int)(($total-1) / $items) + 1;
                 $page_first = (int)($page / self::PAGES_PER_BLOCK) * self::PAGES_PER_BLOCK;
                 $page_next = \min($page_first + self::PAGES_PER_BLOCK, $pages);
-                $url0 = $action.$args0;
+                $url0 = "$action$args0";
                 $url = $url0 . ($args0 ? "&p%5B$table_id%5D=" : "?p%5B$table_id%5D=");
                 $parts = array();
 
