@@ -279,6 +279,8 @@ class HtmlTable
                         );
                     elseif (\is_scalar($f[self::F_HEADER]))
                         $headers[$field] = $f[self::F_HEADER];
+                    else
+                        $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
 
                     if (\is_array($f[self::F_HEADER]))
                         $headers_td[$field] = $f[self::F_HEADER];
