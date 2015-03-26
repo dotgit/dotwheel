@@ -46,6 +46,11 @@ class Misc
     /** converts numbers from shorthand form (like '1K') to an integer
      * @param string $size_str  shorthand size string to convert
      * @return int integer value in bytes
+     * @assert('15') == 15
+     * @assert('1K') == 1024
+     * @assert('2k') == 2048
+     * @assert('1M') == 1048576
+     * @assert('1g') == 1073741824
      */
     public static function convertSize($size_str)
     {
@@ -56,6 +61,19 @@ class Misc
             case 'G': case 'g': return (int)$size_str << 30;
             default: return (int)$size_str;
         }
+    }
+
+    /** returns number of days between 2 dates
+     * @param string $date_start    first date of period (yyyy-mm-mm)
+     * @param type $date_end        last date of period (yyyy-mm-dd)
+     * @return int
+     * @assert('2013-01-01', '2013-01-01') == 1
+     * @assert('2013-01-01', '2013-01-31') == 31
+     * @assert('2013-01-01', '2013-12-31') == 365
+     */
+    public static function daysInPeriod($date_start, $date_end)
+    {
+        return \round((\strtotime("$date_end +1 day") - \strtotime($date_start))/86400);
     }
 
     /** assembles standard address representation from different parts. resulting
@@ -127,6 +145,17 @@ class Misc
      * @param string $order an order to use, one of (T,G,M,K). if provided, no
      *                      suffix is appended
      * @return string value like '150', '8.37K', '15M', '374G'
+     * @assert(20) == '20'
+     * @assert(999) == '999'
+     * @assert(1000) == '1K'
+     * @assert(2000) == '2K'
+     * @assert(2100) == '2.1K'
+     * @assert(2150) == '2.15K'
+     * @assert(2157) == '2.16K'
+     * @assert(21573) == '21.6K'
+     * @assert(-21573) == '-21.6K'
+     * @assert(2000, 'K') == '2'
+     * @assert(2157, 'K') == '2.16'
      */
     public static function humanFloat($amount, $order=null)
     {
@@ -225,6 +254,15 @@ class Misc
      * @param string $order an order to use, one of (T,G,M,K). if provided, no
      *                      suffix is appended
      * @return string value like '150', '9K', '15M', '374G'
+     * @assert(20) == '20'
+     * @assert(999) == '999'
+     * @assert(1000) == '1000'
+     * @assert(1024) == '1K'
+     * @assert(1025) == '2K'
+     * @assert(2048) == '2K'
+     * @assert(1048575) == '1024K'
+     * @assert(1048576) == '1M'
+     * @assert(1048577) == '2M'
      */
     public static function humanBytes($bytes, $order=null)
     {
@@ -399,25 +437,36 @@ class Misc
         ).$suffix;
     }
 
-    /** whether the byte code corresponds to a utf-8 starting byte
+    /** whether the byte code corresponds to a valid UTF-8 leading byte
      * @param int $char
-     * @return bool
+     * @return int|null|false value indicating number of bytes for the Unicode character,
+     * <i>0</i> if trailing byte, <i>null</i> if US-ASCII byte,
+     * <i>false</i> if incorrect UTF-8 byte (0xC0, 0xC1, 0xF5 .. 0xFF)
+     * @see http://tools.ietf.org/html/rfc3629
      */
-    public static function utf8First($char)
+    public static function utf8Leading($char)
     {
-        return (($char & 0b11100000) == 0b11000000)
-            or (($char & 0b11110000) == 0b11100000)
-            or (($char & 0b11111000) == 0b11110000)
-            or (($char & 0b11111100) == 0b11111000)
-            or (($char & 0b11111110) == 0b11111100)
-            ;
+        if     (($char & 0b10000000) == 0b00000000) // ascii byte
+            return null;
+        elseif (($char & 0b11000000) == 0b10000000) // trailing byte
+            return 0;
+        elseif ($char == 0xC0 or $char == 0xC1 or $char >= 0xF5) // incorrect
+            return false;
+        elseif (($char & 0b11100000) == 0b11000000) // leading + 1 byte
+            return 2;
+        elseif (($char & 0b11110000) == 0b11100000) // leading + 2 bytes
+            return 3;
+        elseif (($char & 0b11111000) == 0b11110000) // leading + 3 bytes
+            return 4;
+        else                                        // incorrect
+            return false;
     }
 
-    /** whether the byte code corresponds to a utf-8 following byte
+    /** whether the byte code corresponds to a utf-8 continuation byte
      * @param int $char
      * @return bool
      */
-    public static function utf8Next($char)
+    public static function utf8Trailing($char)
     {
         return ($char & 0b11000000) == 0b10000000;
     }
