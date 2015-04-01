@@ -106,6 +106,20 @@ class Request
      */
     public static function getHttpHeaders()
     {
-        return \array_change_key_case(\apache_request_headers() + array('remote-addr'=>Http::remoteAddr()), \CASE_LOWER);
+        if (\function_exists('apache_request_headers'))
+            $headers = \apache_request_headers();
+        else
+        {
+            foreach ($_SERVER as $k=>$v)
+            {
+                if (\strncmp($k, 'HTTP_', 5) == 0)
+                    $headers[\strtr(\substr($k, 5), '_', '-')] = $v;
+            }
+        }
+
+        return \array_change_key_case(
+            $headers + array('remote-addr'=>Http::remoteAddr()),
+            \CASE_LOWER
+        );
     }
 }
