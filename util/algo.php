@@ -47,4 +47,27 @@ class Algo
 
         return $sum % 97;
     }
+
+    /** creates a unique random code. the first 5 bytes of code is time-based
+     * value allowing to produce incremental values and ease insertion
+     * into database as a unique index. the resulting format is the following
+     * (spaces added for readability, $bytes = 16):<pre>
+     * TtTtTtTt Ff OoOoOoOoOoOoOoOoOoOoOo</pre>
+     * where<br>
+     * Tt-part is 4-byte unix time value,<br>
+     * Ff-part is 1-byte fraction of a second value,<br>
+     * Oo-part is an openssl-generated random value.
+     * @param int $bytes    length of resulting code in bytes (greater than 5)
+     * @return string hexadecimal representation of a random code
+     */
+    public static function uniqueCode($bytes)
+    {
+        list ($frac, $tm) = \explode(' ', \microtime());
+
+        return
+            // 5-byte prefix
+            \dechex((($tm & 0xffffffff) << 8) + (int)($frac*256)).
+            // openssl-generated value
+            \bin2hex(\openssl_random_pseudo_bytes($bytes-5));
+    }
 }
