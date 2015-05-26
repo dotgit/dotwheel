@@ -23,97 +23,60 @@ use Dotwheel\Util\Params;
 class BootstrapUi
 {
     // font-awesome support classes
-    const ICN_BASE      = 'fa';         // lib
-    const ICN_2X        = 'fa-2x';      // lib
-    const ICN_LG        = 'fa-lg';      // 9ts
-    const ICN_FIXED     = 'fa-fw';      // 20ts
-    const ICN_STACK     = 'fa-stack';   // lib
-    const ICN_STACK_1X  = 'fa-stack-1x';// 0ts
-    const ICN_STACK_2X  = 'fa-stack-2x';// 0ts
-    const ICN_INVERSE   = 'fa-inverse'; // 0ts
-    const ICN_CIRCLE    = 'fa-circle';  // 0ts
-    const ICN_CIRCLE_O  = 'fa-circle-o';// 0ts
-    const ICN_SQUARE    = 'fa-square';  // 0ts
-    const ICN_SQUARE_O  = 'fa-square-o';// 0ts
+    const ICN_BASE      = 'fa';
+    const ICN_2X        = 'fa-2x';
+    const ICN_LG        = 'fa-lg';
+    const ICN_FIXED     = 'fa-fw';
+    const ICN_STACK     = 'fa-stack';
 
     // font-awesome icon classes
-    const ICN_BAN               = 'fa-ban';         // 8ts
-    const ICN_DASHBOARD         = 'fa-tachometer';  // 6ts
-    const ICN_BRIEFCASE         = 'fa-briefcase';   // 0ts
+    const ICN_BAN               = 'fa-ban';         // 8ts;0cx
+    const ICN_DASHBOARD         = 'fa-tachometer';  // 6ts;0cx
     const ICN_CALENDAR          = 'fa-calendar';    // lib
-    const ICN_CERTIFICATE       = 'fa-certificate'; // 0ts
-    const ICN_CHECK_OFF         = 'fa-square';      // 4ts
-    const ICN_CHECK_ON          = 'fa-check-square';// 4ts
-    const ICN_COGS              = 'fa-cogs';        // 0ts
-    const ICN_EDIT              = 'fa-pencil-square-o';// 5ts
-    const ICN_ENVELOPE          = 'fa-envelope-o';  // 1 ts
-    const ICN_ERASER            = 'fa-eraser';      // 1 ts
-    const ICN_FFORWARD          = 'fa-forward';     // 0ts
-    const ICN_HOME              = 'fa-home';        // 0ts
-    const ICN_INFO              = 'fa-info-circle'; // 3ts
-    const ICN_LIGHTBULB         = 'fa-lightbulb-o'; // 1ts
-    const ICN_LOCK              = 'fa-lock';        // 0ts
-    const ICN_PLUS              = 'fa-plus';        // 5ts
-    const ICN_POWER_OFF         = 'fa-power-off';   // 1ts
-    const ICN_RADIO_OFF         = 'fa-circle-o';    // 0ts
-    const ICN_RADIO_ON          = 'fa-circle';      // 0ts
-    const ICN_SAVE              = 'fa-floppy-o';    // 2ts
-    const ICN_SIGN_IN           = 'fa-sign-in';     // 1ts
-    const ICN_SIGN_OUT          = 'fa-sign-out';    // 0ts
-    const ICN_SORT_CHAR         = 'fa-sort-alpha-asc';// 0ts
-    const ICN_SORT_CHAR_DESC    = 'fa-sort-alpha-desc';// 0ts
-    const ICN_SORT_NUM          = 'fa-sort-numeric-asc';// 0ts
-    const ICN_SORT_NUM_DESC     = 'fa-sort-numeric-desc';// 0ts
-    const ICN_SORT_VAL          = 'fa-sort-amount-asc';// 0ts
-    const ICN_SORT_VAL_DESC     = 'fa-sort-amount-desc';// 0ts
-    const ICN_TIME              = 'fa-clock-o';     // 1ts
-    const ICN_TRASH             = 'fa-trash-o';     // 1ts
-    const ICN_UNLOCK            = 'fa-unlock-alt';  // 0ts
-    const ICN_USER              = 'fa-user';        // 1ts
-    const ICN_WARNING           = 'fa-exclamation-triangle';// 6ts, lib
+    const ICN_CHECK_OFF         = 'fa-square';      // 4ts;0cx
+    const ICN_CHECK_ON          = 'fa-check-square';// 4ts;0cx
+    const ICN_EDIT              = 'fa-pencil-square-o';// 5ts;0cx
+    const ICN_ENVELOPE          = 'fa-envelope-o';  // 1ts;4cx
+    const ICN_ERASER            = 'fa-eraser';      // 1ts;2cx
+    const ICN_INFO              = 'fa-info-circle'; // 3ts;1cx
+    const ICN_LIGHTBULB         = 'fa-lightbulb-o'; // 1ts;1cx
+    const ICN_PLUS              = 'fa-plus';        // 5ts;14cx
+    const ICN_POWER_OFF         = 'fa-power-off';   // 1ts;4cx
+    const ICN_SAVE              = 'fa-floppy-o';    // 2ts;10cx
+    const ICN_SIGN_IN           = 'fa-sign-in';     // 1ts;3cx
+    const ICN_WARNING           = 'fa-exclamation-triangle';
 
-    const PGN_CLASS     = 'pagination pagination-centered'; // 0ts
-    const PGN_ACTIVE    = 1;    // lib
-    const PGN_LAST      = 2;    // lib
-    const PGN_LIST      = 3;    // lib
-    const PGN_LINK_1    = 4;    // lib
+    const PGN_ACTIVE    = 1;
+    const PGN_LAST      = 2;
+    const PGN_LIST      = 3;
+    const PGN_LINK_1    = 4;
 
-    const FORM_COMMENT_BLOCK_FMT = '<span class="help-block">%s</span>'; // 0ts
-    const FORM_COMMENT_INLINE_FMT = '<span class="help-inline">%s</span>'; // 0ts
+    const MDL_FOCUS_FN  = 'focusModalBtn';
 
-    const MDL_FOCUS_FN  = 'focusModalBtn';  // lib
-
-    const P_WIDTH           = 1; // lib
-    const P_CONTENT         = 2; // lib
-    const P_CONTENT_ATTR    = 3; // lib
-    const P_HEADER          = 4; // lib
-    const P_HEADER_ATTR     = 5; // lib
-    const P_FOOTER          = 6; // lib
-    const P_FORM_TYPE       = 7; // lib
-    const P_TARGET          = 8; // lib
-    const P_ACTIVE          = 9; // lib
-    const P_CLOSE           = 10;// lib
-    const P_WRAP_FMT        = 11;// lib
-    const P_HIDDEN          = 12;// lib
-    const P_READONLY        = 13;// lib
-    const P_STATIC          = 14;// lib
-    const P_PREFIX          = 15;// lib
-    const P_SUFFIX          = 16;// lib
-    const P_ADDON_BTN       = 17;// lib
-    const P_ALIGN           = 18;// lib
-    const P_REQUIRED        = 19;// lib
+    const P_WIDTH           = 1;
+    const P_CONTENT         = 2;
+    const P_CONTENT_ATTR    = 3;
+    const P_HEADER          = 4;
+    const P_HEADER_ATTR     = 5;
+    const P_FOOTER          = 6;
+    const P_FORM_TYPE       = 7;
+    const P_TARGET          = 8;
+    const P_ACTIVE          = 9;
+    const P_CLOSE           = 10;
+    const P_WRAP_FMT        = 11;
+    const P_HIDDEN          = 12;
+    const P_READONLY        = 13;
+    const P_STATIC          = 14;
+    const P_PREFIX          = 15;
+    const P_SUFFIX          = 16;
+    const P_ADDON_BTN       = 17;
+    const P_ALIGN           = 18;
+    const P_REQUIRED        = 19;
 
     // for P_FORM_TYPE
-    const FT_HORIZONTAL  = 1;   // lib
-
-    // for P_ALIGN
-    const A_TOP     = 'top';    // 0ts
-    const A_RIGHT   = 'right';  // 0ts
-    const A_BOTTOM  = 'bottom'; // 0ts
-    const A_LEFT    = 'left';   // 0ts
+    const FT_HORIZONTAL  = 1;
 
     // for P_WIDTH
-    // lib
     const W_XSMALL          = 'xs';
     const W_SMALL           = 'sm';
     const W_MIDDLE          = 'md';
