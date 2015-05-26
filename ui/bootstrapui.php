@@ -30,12 +30,7 @@ class BootstrapUi
     const ICN_STACK     = 'fa-stack';
 
     // font-awesome icon classes
-    const ICN_BAN               = 'fa-ban';         // 8ts;0cx
-    const ICN_DASHBOARD         = 'fa-tachometer';  // 6ts;0cx
     const ICN_CALENDAR          = 'fa-calendar';    // lib
-    const ICN_CHECK_OFF         = 'fa-square';      // 4ts;0cx
-    const ICN_CHECK_ON          = 'fa-check-square';// 4ts;0cx
-    const ICN_EDIT              = 'fa-pencil-square-o';// 5ts;0cx
     const ICN_ENVELOPE          = 'fa-envelope-o';  // 1ts;4cx
     const ICN_ERASER            = 'fa-eraser';      // 1ts;2cx
     const ICN_INFO              = 'fa-info-circle'; // 3ts;1cx
