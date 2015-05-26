@@ -23,23 +23,15 @@ use Dotwheel\Util\Params;
 class BootstrapUi
 {
     // font-awesome support classes
-    const ICN_BASE      = 'fa';
-    const ICN_2X        = 'fa-2x';
-    const ICN_LG        = 'fa-lg';
-    const ICN_FIXED     = 'fa-fw';
-    const ICN_STACK     = 'fa-stack';
+    const ICN_BASE  = 'fa';
+    const ICN_2X    = 'fa-2x';
+    const ICN_LG    = 'fa-lg';
+    const ICN_FIXED = 'fa-fw';
+    const ICN_STACK = 'fa-stack';
 
     // font-awesome icon classes
-    const ICN_CALENDAR          = 'fa-calendar';    // lib
-    const ICN_ENVELOPE          = 'fa-envelope-o';  // 1ts;4cx
-    const ICN_ERASER            = 'fa-eraser';      // 1ts;2cx
-    const ICN_INFO              = 'fa-info-circle'; // 3ts;1cx
-    const ICN_LIGHTBULB         = 'fa-lightbulb-o'; // 1ts;1cx
-    const ICN_PLUS              = 'fa-plus';        // 5ts;14cx
-    const ICN_POWER_OFF         = 'fa-power-off';   // 1ts;4cx
-    const ICN_SAVE              = 'fa-floppy-o';    // 2ts;10cx
-    const ICN_SIGN_IN           = 'fa-sign-in';     // 1ts;3cx
-    const ICN_WARNING           = 'fa-exclamation-triangle';
+    const ICN_CALENDAR  = 'fa-calendar';
+    const ICN_WARNING   = 'fa-exclamation-triangle';
 
     const PGN_ACTIVE    = 1;
     const PGN_LAST      = 2;
