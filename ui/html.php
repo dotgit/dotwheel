@@ -610,6 +610,31 @@ class Html
             return '';
     }
 
+    /** month / year representation in current Nls format, like 'January 2015' for '2015-01-01'.
+     * @param string $date      YYYY-MM-DD or YYYY-MM representation of a date
+     * @param int $param_month  Nls::P_MONTHS for "January 2015" or Nls::P_MONTHS_SHORT for "Jan '15"
+     * @return string Month representation of a date
+     */
+    public static function asMonth($date, $param_month=Nls::P_MONTHS)
+    {
+        if (\preg_match('/^(\d{4})-(\d{2})\b/', $date, $m)
+            and isset(Nls::$formats[$param_month][(int)$m[2]])
+        )
+            return $param_month == Nls::P_MONTHS
+                ? \sprintf(
+                    Nls::$formats[Nls::P_DATEMON_FMT],
+                    Nls::$formats[$param_month][(int)$m[2]],
+                    $m[1]
+                )
+                : \sprintf(
+                    Nls::$formats[Nls::P_DATEMON_SHORT_FMT],
+                    Nls::$formats[$param_month][(int)$m[2]],
+                    $m[1] % 100
+                );
+        else
+            return '';
+    }
+
     /** returns an ABBR tag with short string tooltipped with a longer description
      * @param string $short short string
      * @param string $long  longer description

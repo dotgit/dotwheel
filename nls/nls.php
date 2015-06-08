@@ -30,14 +30,17 @@ class Nls
     const P_DATETIMESEC_FMT     = 14;
     const P_DATEREV_FMT         = 15;
     const P_DATEREV_RE          = 16;
-    const P_LIST_DELIM          = 17;
-    const P_LIST_DELIM_HTML     = 18;
-    const P_COLON               = 19;
-    const P_COLON_HTML          = 20;
-    const P_MONTHS              = 21;
-    const P_WDAYS_SHORT         = 22;
-    const P_GMAPS_FMT           = 23;
-    const P_DATEPICKER          = 24;
+    const P_DATEMON_FMT         = 17;
+    const P_DATEMON_SHORT_FMT   = 18;
+    const P_LIST_DELIM          = 19;
+    const P_LIST_DELIM_HTML     = 20;
+    const P_COLON               = 21;
+    const P_COLON_HTML          = 22;
+    const P_MONTHS              = 23;
+    const P_MONTHS_SHORT        = 24;
+    const P_WDAYS_SHORT         = 25;
+    const P_GMAPS_FMT           = 26;
+    const P_DATEPICKER          = 27;
 
     /** @var array $store list of available nls-settings */
     public static $store = array(
@@ -50,7 +53,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>',',
             self::P_MON_CODE=>'USD',
             self::P_MON_CHAR=>'$',
-            self::P_MON_FMT=>'%2$s %1$s',    // value / currency
+            self::P_MON_FMT=>'%2$s %1$s',        // value / currency
             self::P_DATE_DT=>'m/d/y',
             self::P_DATEFULL_DT=>'m/d/Y',
             self::P_DATETIME_DT=>'m/d/y H:i',
@@ -58,11 +61,14 @@ class Nls
             self::P_DATETIMESEC_FMT=>'%u/%u/%u %2u:%2u:%2u',
             self::P_DATEREV_FMT=>'%3$u-%1$u-%2$u',
             self::P_DATEREV_RE=>'$3-$1-$2',
+            self::P_DATEMON_FMT=>'%s %u',        // month / year
+            self::P_DATEMON_SHORT_FMT=>"%s '%u", // month / year
             self::P_LIST_DELIM=>',',
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
             self::P_MONTHS=>array(1=>'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
+            self::P_MONTHS_SHORT=>array(1=>'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'),
             self::P_WDAYS_SHORT=>array('Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.com/?q=%s',
             self::P_DATEPICKER=>array('language'=>'en')
@@ -76,7 +82,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>' ',
             self::P_MON_CODE=>'EUR',
             self::P_MON_CHAR=>'€',
-            self::P_MON_FMT=>'%s %s',        // value / currency
+            self::P_MON_FMT=>'%s %s',            // value / currency
             self::P_DATE_DT=>'d/m/y',
             self::P_DATEFULL_DT=>'d/m/Y',
             self::P_DATETIME_DT=>'d/m/y H:i',
@@ -84,11 +90,14 @@ class Nls
             self::P_DATETIMESEC_FMT=>'%u/%u/%u %2u:%2u:%2u',
             self::P_DATEREV_FMT=>'%3$u-%2$u-%1$u',
             self::P_DATEREV_RE=>'$3-$2-$1',
+            self::P_DATEMON_FMT=>'%s %u',        // month / year
+            self::P_DATEMON_SHORT_FMT=>"%s '%u", // month / year
             self::P_LIST_DELIM=>' ;',
             self::P_LIST_DELIM_HTML=>'&nbsp;;',
             self::P_COLON=>' :',
             self::P_COLON_HTML=>'&nbsp;:',
             self::P_MONTHS=>array(1=>'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'),
+            self::P_MONTHS_SHORT=>array(1=>'janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'),
             self::P_WDAYS_SHORT=>array('Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'),
             self::P_GMAPS_FMT=>'http://maps.google.fr/?q=%s',
             self::P_DATEPICKER=>array('language'=>'fr', 'format'=>'dd/mm/yy', 'weekStart'=>1),
@@ -102,7 +111,7 @@ class Nls
             self::P_MON_THOUSANDS_CHAR=>' ',
             self::P_MON_CODE=>'RUR',
             self::P_MON_CHAR=>'R',
-            self::P_MON_FMT=>'%s %s',        // value / currency
+            self::P_MON_FMT=>'%s %s',            // value / currency
             self::P_DATE_DT=>'d.m.y',
             self::P_DATEFULL_DT=>'d.m.Y',
             self::P_DATETIME_DT=>'d.m.y H:i',
@@ -110,11 +119,14 @@ class Nls
             self::P_DATETIMESEC_FMT=>'%u.%u.%u %2u:%2u:%2u',
             self::P_DATEREV_FMT=>'%3$u-%2$u-%1$u',
             self::P_DATEREV_RE=>'$3-$2-$1',
+            self::P_DATEMON_FMT=>'%s %u',        // month / year
+            self::P_DATEMON_SHORT_FMT=>"%s '%u", // month / year
             self::P_LIST_DELIM=>',',
             self::P_LIST_DELIM_HTML=>',',
             self::P_COLON=>':',
             self::P_COLON_HTML=>':',
             self::P_MONTHS=>array(1=>'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'),
+            self::P_MONTHS_SHORT=>array(1=>'янв.', 'февр.', 'март', 'апр.', 'май', 'июнь', 'июль', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'),
             self::P_WDAYS_SHORT=>array('Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'),
             self::P_GMAPS_FMT=>'http://maps.google.ru/?q=%s',
             self::P_DATEPICKER=>array('language'=>'ru', 'format'=>'dd.mm.yy', 'weekStart'=>1),
@@ -261,21 +273,21 @@ class Nls
                 : \sprintf('%04d-%02d-%02d', $year, $month, $day);
     }
 
-    public static function asFloat($val)
+    public static function asFloat($value)
     {
-        $v = \round($val, 2);
+        $v = \round($value, 2);
 
         return (\strpos($v, '.') and self::$formats[self::P_DECIMAL_CHAR] != '.')
             ? \str_replace('.', self::$formats[self::P_DECIMAL_CHAR], $v)
             : $v;
     }
 
-    public static function asNumber($val)
+    public static function asNumber($value)
     {
-        $v = \round($val, 2);
+        $v = \round($value, 2);
 
         return \number_format(
-            $val,
+            $value,
             \max(0, \strlen(\strrchr($v, '.')) - 1),
             self::$formats[self::P_DECIMAL_CHAR],
             self::$formats[self::P_THOUSANDS_CHAR]
