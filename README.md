@@ -12,7 +12,7 @@ Dotwheel is a PHP framework of useful performance-tuned code for professional de
 - **UI module** with [handling output][] via named buffers, Twitter Bootstrap integration, easy HTML table generation using information from DB fields repository
 - additional utility classes helping with [handling ACL][], [NLS support][] based on gettext `.po` files, password hashing, etc.
 
-Fully namespaced, framework facilitates the use of advanced development technics such as data caching, database sharding, high-speed user interfaces when creating modern web-based applications.
+Fully namespaced, framework facilitates the use of advanced development technics when creating modern high-speed web-based applications.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ The following extensions are addressed:
 
 ## Installation
 
-Clone the repository into the `/vendors` directory of your project, update `set_include_path()` in your autoloader, go! For more instructions refer to [Dotwheel adoption strategy][].
+Clone the repository into the `vendors` directory of your project, update `set_include_path()` in your autoloader, go! For more instructions refer to [Dotwheel adoption strategy][].
 
 [request format]: /doc/request_format.md
 [response architecture]: /doc/http_response_introduction.md
