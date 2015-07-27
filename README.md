@@ -1,28 +1,37 @@
-dotwheel
-====
+# Dotwheel
 
-Introduction
-----
+## Introduction
 
-dotwheel is a performance-oriented, minimalistic php framework. Based on a Model-View-Controller architecture it helps with code organization and contains the following functionality:
+Dotwheel is a PHP framework of useful performance-tuned code for professional developers. It provides lightweight solutions for most frequent development tasks and may be freely integrated with any architecture, be it a complex Model-View-Controller application or just a bunch of CLI scripts.
 
-- database access (including fields repository handling, advanced sharding technics, mysql handler interface, blob compression)
-- cache handling (including memcache and APC wrappers)
-- http-related module (auto-definition of request type, clean response architecture)
-- UI module (including Twitter Bootstrap integration, easy html table generation using information from fields repository)
-- additional utility classes helping with ACL handling, password hashing, NLS support based on gettext .po files, etc.
+## Features
+
+- **HTTP-related module** with auto-definition of [request format][], special object-oriented [response architecture][]
+- **advanced technics of database access** including centralized [DB repository][], sharding implementation, blob compression, MySQL handler interface
+- **cache handling** including memcache and APCu wrappers
+- **UI module** with [handling output][] via named buffers, Twitter Bootstrap integration, easy HTML table generation using information from DB fields repository
+- additional utility classes helping with [handling ACL][], [NLS support][] based on gettext `.po` files, password hashing, etc.
 
 Fully namespaced, framework facilitates the use of advanced development technics such as data caching, database sharding, high-speed user interfaces when creating modern web-based applications.
 
-Requirements
-----
-Runs on PHP 5.3, latest PHP version recommended. The following extensions are addressed:
+## Requirements
 
-- [caching] apc, memcached
-- [database] mysqli, zlib
-- [input] filter, pcre
-- [output] gettext, json
+Runs on PHP 5.3, latest PHP version recommended.
 
-Installation
-----
-Clone the repository into the Vendors directory of your project, update set_include_path() in your autoloader, go!
+The following extensions are addressed:
+
+- `apcu` or `memcached` for caching module
+- `mysqli` for database module (`zlib`, `json` for blob compression)
+- `filter` for input filtering
+
+## Installation
+
+Clone the repository into the `/vendors` directory of your project, update `set_include_path()` in your autoloader, go! For more instructions refer to [Dotwheel adoption strategy][].
+
+[request format]: /doc/request_format.md
+[response architecture]: /doc/http_response_introduction.md
+[db repository]: /doc/db_repository.md
+[handling output]: /doc/handling_output.md
+[handling acl]: /doc/handling_acl.md
+[nls support]: /doc/nls_support.md
+[dotwheel adoption strategy]: /doc/adoption_strategy.md
