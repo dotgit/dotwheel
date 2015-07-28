@@ -26,12 +26,14 @@ The following extensions are addressed:
 
 ## Installation
 
-Clone the repository into the `vendors` directory of your project, update `set_include_path()` in your autoloader, go! For more instructions refer to [Dotwheel adoption strategy][].
+Clone the repository into the `/vendors` directory of your project, update `set_include_path()` in your autoloader, go!
 
-[request format]: /doc/request_format.md
-[response architecture]: /doc/http_response_introduction.md
+For the instructions on starting a new project refer to [Starter][].
+
+[request format]: /doc/http_request.md
+[response architecture]: /doc/http_response.md
 [db repository]: /doc/db_repository.md
 [handling output]: /doc/handling_output.md
 [handling acl]: /doc/handling_acl.md
 [nls support]: /doc/nls_support.md
-[dotwheel adoption strategy]: /doc/adoption_strategy.md
+[starter]: /doc/starter.md
