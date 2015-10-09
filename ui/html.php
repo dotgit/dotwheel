@@ -88,26 +88,39 @@ class Html
         $caption_attr = Params::extract($params, self::P_CAPTION_ATTR);
         if ($caption = Params::extract($params, self::P_CAPTION))
             $caption = "<caption$caption_attr>$caption</caption>";
+        $colgroup_html = null;
         if ($colgroup = Params::extract($params, self::P_COLGROUP))
         {
             $k = 0;
+            $extra = 0;
             foreach ($colgroup as &$col)
             {
+                $style = [];
                 if ($align = Params::extract($col, 'align'))
+                    $style[] = "text-align:$align;";
+                if ($width = Params::extract($col, 'width'))
+                    $style[] = "width:$width;";
+                if ($style)
+                {
+                    $style_html = implode('', $style);
                     HtmlPage::add(array(
                         HtmlPage::STYLE=>array(
                             __METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k).
-                                "{text-align:$align;}".
+                                "{{$style_html}}".
                                 "table#$id th:first-child".\str_repeat(' + th', $k).
-                                "{text-align:$align;}"
+                                "{{$style_html}}"
                         )
                     ));
+                }
                 ++$k;
+                if ($col)
+                    ++$extra;
             }
-            $colgroup = self::colgroup($colgroup);
+            if ($extra)
+                $colgroup_html = self::colgroup($colgroup);
         }
 
-        return '<table'.self::attr(array('id'=>$id) + $params).">$caption$colgroup";
+        return '<table'.self::attr(array('id'=>$id) + $params).">$caption$colgroup_html";
     }
 
     /** returns table closing tag
