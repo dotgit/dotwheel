@@ -711,11 +711,16 @@ EObt
         Params::add($body_attr, 'modal-body');
 
         if (\is_array($close))
+        {
             Params::add($close, 'modal', 'data-dismiss');
+            $close_html = self::close($close);
+        }
+        elseif ($close === false)
+            $close_html = null;
         else
-            $close = array('data-dismiss'=>'modal');
+            $close_html = self::close(array('data-dismiss'=>'modal'));
         if (isset($header))
-            $header = "<div class=\"modal-header\">".self::close($close)."<h4 class=\"modal-title\">$header</h4></div>";
+            $header = "<div class=\"modal-header\">$close_html<h4 class=\"modal-title\">$header</h4></div>";
         if (isset($body))
             $body = "<div".Html::attr($body_attr).">$body</div>";
         if (isset($footer))
