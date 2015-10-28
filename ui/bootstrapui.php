@@ -160,25 +160,35 @@ class BootstrapUi
             return null;
     }
 
-    /** formats the control to be displayed as horizontal form row
-     * @param array|string $control {P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
+    /** format as form group
+     * @param array|string $control {P_CONTENT:'form group content'
      *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
+     *                              , P_TARGET:'label tag for attribute target'
+     *                              , P_HEADER:'label content'
+     *                              , P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , d.t.a.
      *                              }
      *                              | 'content to format as form group'
      * @return string
      */
-    public static function asFormGroupHorizontalRow($control)
+    public static function asFormGroup($control)
     {
-        if (isset($control))
+        if (\is_array($control))
         {
-            if (!\is_array($control))
-                $control = array(self::P_CONTENT=>$control);
+            $content = self::fldToHtml($control);
+            unset(
+                $control[self::P_HEADER],
+                $control[self::P_HEADER_ATTR],
+                $control[self::P_CONTENT],
+                $control[self::P_CONTENT_ATTR],
+                $control[self::P_TARGET]
+            );
+            Params::add($control, 'form-group');
 
-            Params::add($control, 'row');
-
-            return self::asFormGroupHorizontal($control);
+            return "<div".Html::attr($control).">$content</div>";
         }
+        elseif (isset($control))
+            return "<div class=\"form-group\">$control</div>";
         else
             return null;
     }
@@ -222,76 +232,27 @@ class BootstrapUi
             return null;
     }
 
-    /** format as form group
-     * @param array|string $control {P_CONTENT:'form group content'
+    /** formats the control to be displayed as horizontal form row
+     * @param array|string $control {P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
-     *                              , P_TARGET:'label tag for attribute target'
-     *                              , P_HEADER:'label content'
-     *                              , P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
      *                              , d.t.a.
      *                              }
      *                              | 'content to format as form group'
      * @return string
      */
-    public static function asFormGroup($control)
+    public static function asFormGroupHorizontalRow($control)
     {
-        if (\is_array($control))
+        if (isset($control))
         {
-            $content = self::fldToHtml($control);
-            unset(
-                $control[self::P_HEADER],
-                $control[self::P_HEADER_ATTR],
-                $control[self::P_CONTENT],
-                $control[self::P_CONTENT_ATTR],
-                $control[self::P_TARGET]
-            );
-            Params::add($control, 'form-group');
+            if (!\is_array($control))
+                $control = array(self::P_CONTENT=>$control);
 
-            return "<div".Html::attr($control).">$content</div>";
+            Params::add($control, 'row');
+
+            return self::asFormGroupHorizontal($control);
         }
-        elseif (isset($control))
-            return "<div class=\"form-group\">$control</div>";
         else
             return null;
-    }
-
-    /** format as form group
-     * @param array|string $control {P_CONTENT:'form group content'
-     *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
-     *                              , P_TARGET:'label tag for attribute target'
-     *                              , P_HEADER:'label content'
-     *                              , P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
-     *                              , d.t.a.
-     *                              }
-     *                              | 'content to format as form group'
-     * @return string
-     */
-    public static function fldToHtml($control)
-    {
-        if (!\is_array($control))
-            return $control;
-
-        $h = Params::extract($control, self::P_HEADER);
-        $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
-        if ($w = Params::extract($h_attr, self::P_WIDTH))
-            $h_attr = static::width2Attr($w, $h_attr);
-
-        if ($t = Params::extract($control, self::P_TARGET))
-            Params::add($h_attr, $t, 'for');
-
-        if (isset($h))
-            $label = '<label'.Html::attr($h_attr).">$h</label>";
-        else
-            $label = null;
-
-        $content = Params::extract($control, self::P_CONTENT);
-        $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
-        if ($w = Params::extract($content_attr, self::P_WIDTH))
-            $content_attr = static::width2Attr($w, $content_attr);
-        if ($content_attr)
-            $content = "<div".Html::attr($content_attr).">$content</div>";
-
-        return "$label$content";
     }
 
     /** get button element
@@ -538,6 +499,45 @@ EObt
         );
     }
 
+    /** format as form group
+     * @param array|string $control {P_CONTENT:'form group content'
+     *                              , P_CONTENT_ATTR:{P_WIDTH:2, content d.t.a.}
+     *                              , P_TARGET:'label tag for attribute target'
+     *                              , P_HEADER:'label content'
+     *                              , P_HEADER_ATTR:{P_WIDTH:2, label tag attributes}
+     *                              , d.t.a.
+     *                              }
+     *                              | 'content to format as form group'
+     * @return string
+     */
+    public static function fldToHtml($control)
+    {
+        if (!\is_array($control))
+            return $control;
+
+        $h = Params::extract($control, self::P_HEADER);
+        $h_attr = Params::extract($control, self::P_HEADER_ATTR, array());
+        if ($w = Params::extract($h_attr, self::P_WIDTH))
+            $h_attr = static::width2Attr($w, $h_attr);
+
+        if ($t = Params::extract($control, self::P_TARGET))
+            Params::add($h_attr, $t, 'for');
+
+        if (isset($h))
+            $label = '<label'.Html::attr($h_attr).">$h</label>";
+        else
+            $label = null;
+
+        $content = Params::extract($control, self::P_CONTENT);
+        $content_attr = Params::extract($control, self::P_CONTENT_ATTR, array());
+        if ($w = Params::extract($content_attr, self::P_WIDTH))
+            $content_attr = static::width2Attr($w, $content_attr);
+        if ($content_attr)
+            $content = "<div".Html::attr($content_attr).">$content</div>";
+
+        return "$label$content";
+    }
+
     /** extracts prefix / suffix addons from the Ui parameters and returns sprintf
      * format to wrap the field html
      * @param array $ui {P_PREFIX:'input prefix addon'
@@ -677,6 +677,42 @@ EObt
         Params::add($attr, self::ICN_STACK);
 
         return '<span'.Html::attr($attr).'>'.implode('', $icns).'</span>';
+    }
+
+    /** returns a div of list-group class
+     * @param array $items  array of strings representing list items
+     * @param array $attr   list-group attributes
+     * @return string
+     */
+    public static function listGroup($items, $attr=array())
+    {
+        Params::add($attr, 'list-group');
+
+        return '<div'.Html::attr($attr).'>'.implode('', $items).'</div>';
+    }
+
+    /** returns a BUTTON, A or LI element of list-group-item class based on
+     * whether the $attr contains:
+     *
+     * for BUTTON: type="button",
+     * for A: href,
+     * for LI: none of the above.
+     *
+     * @param string $content   html content of the item
+     * @param array $attr       list-group-item attributes
+     * @return string
+     */
+    public static function listGroupItem($content, $attr=array())
+    {
+        Params::add($attr, 'list-group-item');
+        $tag = isset($attr['href'])
+            ? 'a'
+            : ((isset($attr['type']) && $attr['type'] == 'button')
+                ? 'button'
+                : 'li'
+            );
+
+        return "<$tag".Html::attr($attr).">$content</$tag>";
     }
 
     /** returns a modal dialog window with specified header, body and buttons
@@ -848,28 +884,6 @@ EOfmt
     }
 
     /** html-formatted pagination based on butons
-     * @param array $params {P_CONTENT: content visible inside the bar
-     *                      , P_WIDTH: width of the bar
-     *                      , P_HEADER_ATTR: div tag arguments of the progress outer container
-     *                      , div tag arguments of the bar container
-     *                      }
-     * @return string buttons representing pages
-     */
-    public static function progress($params)
-    {
-        $content = Params::extract($params, self::P_CONTENT);
-        $width = Params::extract($params, self::P_WIDTH);
-        Params::add($params, 'progress-bar');
-        Params::add($params, 'progressbar', 'role');
-        $attr = Html::attr(self::width2Attr($width, $params));
-        $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
-        Params::add($header_attr, 'progress');
-        $h_attr = Html::attr($header_attr);
-
-        return "<div$h_attr><div$attr>$content</div></div>";
-    }
-
-    /** html-formatted pagination based on butons
      * @param array $params {PGN_ACTIVE:current page number
      *                      , PGN_LAST: last page number
      *                      , PGN_LIST: array of pages to display
@@ -990,6 +1004,58 @@ EOfmt
             '</div>';
     }
 
+    /** html-formatted pagination based on butons
+     * @param array $params {P_CONTENT: content visible inside the bar
+     *                      , P_WIDTH: width of the bar
+     *                      , P_HEADER_ATTR: div tag arguments of the progress outer container
+     *                      , div tag arguments of the bar container
+     *                      }
+     * @return string buttons representing pages
+     */
+    public static function progress($params)
+    {
+        $content = Params::extract($params, self::P_CONTENT);
+        $width = Params::extract($params, self::P_WIDTH);
+        Params::add($params, 'progress-bar');
+        Params::add($params, 'progressbar', 'role');
+        $attr = Html::attr(self::width2Attr($width, $params));
+        $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+        Params::add($header_attr, 'progress');
+        $h_attr = Html::attr($header_attr);
+
+        return "<div$h_attr><div$attr>$content</div></div>";
+    }
+
+    /** register alerts js */
+    public static function registerAlert()
+    {
+    }
+
+    /** register breadcrumb js */
+    public static function registerBreadcrumbs()
+    {
+    }
+
+    /** register button js */
+    public static function registerButton()
+    {
+    }
+
+    /** register collapse js */
+    public static function registerCollapse()
+    {
+    }
+
+    /** register dropdown js */
+    public static function registerDropdown()
+    {
+    }
+
+    /** register modal js */
+    public static function registerModal()
+    {
+    }
+
     /** returns the popover html code
      * @param array $params {P_HEADER:'popover heading'
      *                      , P_CONTENT:'popover content'
@@ -1028,36 +1094,6 @@ EOfmt
         ));
 
         return $params;
-    }
-
-    /** register alerts js */
-    public static function registerAlert()
-    {
-    }
-
-    /** register breadcrumb js */
-    public static function registerBreadcrumbs()
-    {
-    }
-
-    /** register button js */
-    public static function registerButton()
-    {
-    }
-
-    /** register collapse js */
-    public static function registerCollapse()
-    {
-    }
-
-    /** register dropdown js */
-    public static function registerDropdown()
-    {
-    }
-
-    /** register modal js */
-    public static function registerModal()
-    {
     }
 
     /** register tab js */
