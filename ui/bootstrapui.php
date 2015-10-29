@@ -691,12 +691,12 @@ EObt
         return '<div'.Html::attr($attr).'>'.implode('', $items).'</div>';
     }
 
-    /** returns a BUTTON, A or LI element of list-group-item class based on
+    /** returns a BUTTON, A or DIV element of list-group-item class based on
      * whether the $attr contains:
      *
      * for BUTTON: type="button",
      * for A: href,
-     * for LI: none of the above.
+     * for DIV: none of the above.
      *
      * @param string $content   html content of the item
      * @param array $attr       list-group-item attributes
@@ -709,7 +709,7 @@ EObt
             ? 'a'
             : ((isset($attr['type']) && $attr['type'] == 'button')
                 ? 'button'
-                : 'li'
+                : 'div'
             );
 
         return "<$tag".Html::attr($attr).">$content</$tag>";
