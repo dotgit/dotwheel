@@ -23,11 +23,29 @@ use Dotwheel\Util\Params;
 class BootstrapUi
 {
     // font-awesome support classes
-    const ICN_BASE  = 'fa';
-    const ICN_2X    = 'fa-2x';
-    const ICN_LG    = 'fa-lg';
-    const ICN_FIXED = 'fa-fw';
-    const ICN_STACK = 'fa-stack';
+    const ICN_BASE              = 'fa';
+    const ICN_LG                = 'fa-lg';
+    const ICN_2X                = 'fa-2x';
+    const ICN_3X                = 'fa-3x';
+    const ICN_4X                = 'fa-4x';
+    const ICN_5X                = 'fa-5x';
+    const ICN_FIXED             = 'fa-fw';
+    const ICN_UL                = 'fa-ul';
+    const ICN_LI                = 'fa-li';
+    const ICN_BORDER            = 'fa-border';
+    const ICN_PULL_LEFT         = 'fa-pull-left';
+    const ICN_PULL_RIGHT        = 'fa-pull-right';
+    const ICN_SPIN              = 'fa-spin';
+    const ICN_PULSE             = 'fa-pulse';
+    const ICN_ROTATE_90         = 'fa-rotate-90';
+    const ICN_ROTATE_180        = 'fa-rotate-180';
+    const ICN_ROTATE_270        = 'fa-rotate-270';
+    const ICN_FLIP_HORIZONTAL   = 'fa-flip-horizontal';
+    const ICN_FLIP_VERTICAL     = 'fa-flip-vertical';
+    const ICN_STACK             = 'fa-stack';
+    const ICN_STACK_1X          = 'fa-stack-1x';
+    const ICN_STACK_2X          = 'fa-stack-2x';
+    const ICN_INVERSE           = 'fa-inverse';
 
     // font-awesome icon classes
     const ICN_CALENDAR  = 'fa-calendar';
