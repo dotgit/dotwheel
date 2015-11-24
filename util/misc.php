@@ -248,10 +248,10 @@ class Misc
         }
     }
 
-    /** returns human-readable number of bytes with appropriate suffix (T,G,M,K).
+    /** returns human-readable number of bytes with appropriate suffix (P,T,G,M,K).
      * rounded up to a higher integer
      * @param int $bytes    number of bytes to convert
-     * @param string $order an order to use, one of (T,G,M,K). if provided, no
+     * @param string $order an order to use, one of (P,T,G,M,K). if provided, no
      *                      suffix is appended
      * @return string value like '150', '9K', '15M', '374G'
      * @assert(20) == '20'
@@ -284,8 +284,14 @@ class Misc
         case 'T':
             return \ceil($bytes/1099511627776);
 
+        case 'p':
+        case 'P':
+            return \ceil($bytes/1125899906842624);
+
         default:
-            if ($bytes >= 1099511627776)
+            if ($bytes >= 1125899906842624)
+                return \ceil($bytes/1125899906842624).'P';
+            elseif ($bytes >= 1099511627776)
                 return \ceil($bytes/1099511627776).'T';
             elseif ($bytes >= 1073741824)
                 return \ceil($bytes/1073741824).'G';
