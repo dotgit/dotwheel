@@ -85,6 +85,11 @@ class Misc
      * @param type $city    address city
      * @param type $country address country
      * @return string       standard address representation
+     * @assert('Street', 'Postal', 'City', 'Country') == "Street\nPostal City Country"
+     * @assert('Street', 'Postal', 'City', null) == "Street\nPostal City"
+     * @assert('Street', null, 'City', null) == "Street\nCity"
+     * @assert('Street', null, null, null) == "Street"
+     * @assert(null, null, 'City', null) == "City"
      */
     public static function formatAddress($street, $postal, $city, $country)
     {
@@ -96,6 +101,11 @@ class Misc
      *                      ---header lines---, lines started with dash are bulleted)
      * @return string
      * @see Snippets::preview_txt()
+     * @assert("line") == "<p>line</p>"
+     * @assert("line *bold* line") == "<p>line <b>bold</b> line</p>"
+     * @assert("line *bold* /italic/ line") == "<p>line <b>bold</b> <i>italic</i> line</p>"
+     * @assert("---heading line---\nline") == "<h5>heading line</h5>\n<p>line</p>"
+     * @assert("-line 1\n-line 2") == "<li>line 1</li>\n<li>line 2</li>"
      */
     public static function formatPreview($text)
     {
@@ -119,6 +129,9 @@ class Misc
     /** return the formatted tel number or the original string
      * @param string $tel
      * @return string
+     * @assert("01.23.45.67.89") == "01 23 45 67 89"
+     * @assert("+33-1-23-45-67-89") == "+33 1 23 45 67 89"
+     * @assert("T.+33-1-23-45-67-89") == "T.+33-1-23-45-67-89"
      */
     public static function formatTel($tel)
     {
@@ -132,6 +145,9 @@ class Misc
             return $tel;
     }
 
+    /** return maximum allowed size for uploaded file in bytes
+     * @return int
+     */
     public static function getMaxUploadSize()
     {
         return \min(
@@ -312,6 +328,12 @@ class Misc
      *                      separator may be a string or array ['prefix', 'separator', 'suffix']
      *                      partN may be a string or array [separatorN, partN1, partN2, ...]
      * @return string
+     * @assert(array()) == null
+     * @assert(array(' ', 'First', 'Second')) == 'First Second'
+     * @assert(array("\n", 'Street', array(' ', 'Postal', 'City'))) == "Street\nPostal City"
+     * @assert(array("\n", 'Street', array(' ', 'Postal', null, 'Country'))) == "Street\nPostal Country"
+     * @assert(array(array('[', ', ', ']'), 'First', 'Second')) == "[First, Second]"
+     * @assert(array("\n", null, null)) == null
      */
     public static function joinWs($params=array())
     {
@@ -343,8 +365,10 @@ class Misc
 
     /** compacts $values by removing all null values from the array and adding the
      * corresponding keys to a new 'N' field
-     * @param array $values hash of values to compact
+     * @param array $values hash of values to compact, like {key1:value1, key2:null, key3:value3, key4:null}
      * @return array resulting array like {key1:value1, key3:value3, N:[key2,key4]}
+     * @assert(array(1, 2, 3)) == array(1, 2, 3)
+     * @assert(array('a'=>1, 'b'=>null, 'c'=>3, 'd'=>null, 'e'=>5)) == array('a'=>1, 'c'=>3, 'e'=>5, 'N'=>array('b', 'd'))
      */
     public static function nullCompact($values)
     {
@@ -359,10 +383,12 @@ class Misc
             return $values;
     }
 
-    /** restores null values in the array from the 'N' field and removes the
+    /** restores null values in the array compacted with nullCompact() from the 'N' field and removes the
      * 'N' field afterwards
-     * @param array $values hash, compacted with hash_compact()
-     * @return array restored array like {key1:value1, key2:null, key3:value3, key4:null}
+     * @param array $values hash like {key1:value1, key3:value3, N:[key2,key4]}
+     * @return array restored array like {key1:value1, key3:value3, key2:null, key4:null}
+     * @assert(array(1, 2, 3)) == array(1, 2, 3)
+     * @assert(array('a'=>1, 'c'=>3, 'e'=>5, 'N'=>array('b', 'd'))) == array('a'=>1, 'c'=>3, 'e'=>5, 'b'=>null, 'd'=>null)
      */
     public static function nullRestore($values)
     {
@@ -393,6 +419,9 @@ class Misc
      * ex: 'Very Common Name, Inc...' becomes 'very-common-name-inc'
      * @param string $line
      * @return string
+     * @assert('simple') == 'simple'
+     * @assert('simple string') == 'simple-string'
+     * @assert('Very Common Name, Inc...') == 'very-common-name-inc'
      */
     public static function simplifyLine($line)
     {
@@ -406,6 +435,8 @@ class Misc
     /** escapes a string to be used in sprintf by doubling the % characters
      * @param string $str   string to escape
      * @return string
+     * @assert('simple') == 'simple'
+     * @assert('line with % sign') == 'line with %% sign'
      */
     public static function sprintfEscape($str)
     {
@@ -417,11 +448,14 @@ class Misc
      * @param int $len          maximal trimmed string lenth
      * @param string $suffix    suffix to add
      * @return string           trimmed string
+     * @assert('line') == 'line'
+     * @assert('longer line', 8) == 'longe...'
+     * @assert('длинная строка', 10, '.') == 'длинная с.'
      */
     public static function trim($str, $len=0, $suffix='...')
     {
         return ($len && \mb_strlen($str, Nls::$charset) > $len)
-            ? \mb_substr($str, 0, $len - \max(0, \mb_strlen($suffix, Nls::$charset) - 1), Nls::$charset).$suffix
+            ? \mb_substr($str, 0, $len - \max(0, \mb_strlen($suffix, Nls::$charset)), Nls::$charset).$suffix
             : $str;
     }
 
@@ -430,13 +464,15 @@ class Misc
      * @param int $len          maximal trimmed string lenth
      * @param string $suffix    suffix to add
      * @return string           trimmed string
+     * @assert('much longer line', 15) == 'much longer...'
+     * @assert('гораздо более длинная строка', 23) == 'гораздо более...'
      */
     public static function trimWord($str, $len=100, $suffix='...')
     {
         return \mb_substr($str,
             0,
-            $len - \mb_strlen(
-                \mb_strrchr(\mb_substr($str, 0, $len, Nls::$charset), ' ', false, Nls::$charset),
+            \mb_strlen(
+                \mb_strrchr(\mb_substr($str, 0, $len - \mb_strlen($suffix, Nls::$charset) + 1, Nls::$charset), ' ', true, Nls::$charset),
                 Nls::$charset
             ),
             Nls::$charset
@@ -449,6 +485,16 @@ class Misc
      * <i>0</i> if trailing byte, <i>null</i> if US-ASCII byte,
      * <i>false</i> if incorrect UTF-8 byte (0xC0, 0xC1, 0xF5 .. 0xFF)
      * @see http://tools.ietf.org/html/rfc3629
+     * @assert(0x29) === null
+     * @assert(0xE2) == 3
+     * @assert(0x89) == 0
+     * @assert(0xA2) == 0
+     * @assert(0xCE) == 2
+     * @assert(0xF0) == 4
+     * @assert(0xC0) === false
+     * @assert(0xC1) === false
+     * @assert(0xF5) === false
+     * @assert(0xFF) === false
      */
     public static function utf8Leading($char)
     {
@@ -471,6 +517,9 @@ class Misc
     /** whether the byte code corresponds to a utf-8 continuation byte
      * @param int $char
      * @return bool
+     * @assert(0xA2) === true
+     * @assert(0xE2) === false
+     * @assert(0x29) === false
      */
     public static function utf8Trailing($char)
     {
