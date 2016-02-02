@@ -64,10 +64,21 @@ class Algo
     {
         list ($frac, $tm) = \explode(' ', \microtime());
 
+        $suffix_len = $bytes - 5;
+
+        $random_str = \function_exists('random_bytes')
+            ? \random_bytes($suffix_len)
+            : (\function_exists('openssl_random_pseudo_bytes')
+                ? \openssl_random_pseudo_bytes($suffix_len)
+                : function() use ($suffix_len) {
+                    for ($str='';$suffix_len;--$suffix_len)
+                        $str .= \chr(\mt_rand(0, 255));
+                    return $str;
+                });
+
         return
             // 5-byte prefix
             \dechex((($tm & 0xffffffff) << 8) + (int)($frac*256)).
-            // openssl-generated value
-            \bin2hex(\openssl_random_pseudo_bytes($bytes-5));
+            \bin2hex($random_str);
     }
 }

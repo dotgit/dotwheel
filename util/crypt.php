@@ -25,7 +25,7 @@ class Crypt
     {
         return \CRYPT_BLOWFISH == 1
             ? \sprintf(
-                '$2a$%02u$%s$',
+                '$2y$%02u$%s$',
                 $cost,
 // faster, small memory footprint
                 \substr(
@@ -35,10 +35,10 @@ class Crypt
                 )
 // stronger, large memory footprint
 // 64 is a length of SALT_ALPHABET
-// 64<<6 == 64*64
+// 4096 == 64*64
 //              \substr(
 //                  \str_shuffle(\str_repeat(self::SALT_ALPHABET, 64)),
-//                  \rand(0, (64<<6) - self::SALT_LEN_BLOWFISH),
+//                  \mt_rand(0, 4096 - self::SALT_LEN_BLOWFISH),
 //                  self::SALT_LEN_BLOWFISH
 //              )
             )
