@@ -410,7 +410,7 @@ class Repo
                     case self::C_ENUM:
                         if (\is_scalar($value))
                             $val = isset($repo[self::P_ITEMS])
-                                ? (isset($repo[self::P_ITEMS][$value]) ? $value : null)
+                                ? (isset($repo[self::P_ITEMS][$value]) ? $value : false)
                                 : $value;
                         else
                             $val = false;
