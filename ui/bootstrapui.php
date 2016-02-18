@@ -114,8 +114,9 @@ class BootstrapUi
 
 
     /** returns a div formatted as alert block
-     * @param array $params {P_HEADER:'header', P_HEADER_ATTR:{header tag attributes}
-     *                      , P_CLOSE:true // show close btn?
+     * @param array $params {P_HEADER:'header'
+     *                      , P_CLOSE:true|{close button tag arguments} // show close btn?
+     *                      , P_PREFIX:'icon code'
      *                      , P_CONTENT:'alert body'
      *                      , div tag arguments
      *                      }
@@ -127,10 +128,9 @@ class BootstrapUi
         {
             $body = Params::extract($params, self::P_CONTENT);
             if ($header = Params::extract($params, self::P_HEADER))
-            {
-                $header_attr = Params::extract($params, self::P_HEADER_ATTR, array());
-                $body = '<h4'.Html::attr($header_attr).'>'.$header.'</h4>'.$body;
-            }
+                $body = "<strong>$header</strong>&nbsp; $body";
+            if ($prefix = Params::extract($params, self::P_PREFIX))
+                $body = "$prefix$body";
             if ($close = Params::extract($params, self::P_CLOSE))
             {
                 if (\is_array($close))
@@ -140,24 +140,14 @@ class BootstrapUi
                 $body = self::close($close) . $body;
                 Params::add($params, 'alert-dismissable');
             }
+            Params::add($params, 'alert', 'role');
             Params::add($params, 'alert');
+            Params::add($params, 'clearfix');
 
             return '<div'.Html::attr($params).">$body</div>";
         }
         else
             return "<div class=\"alert\">$params</div>";
-    }
-
-    public static function alertWithIcon($params)
-    {
-        $body = Params::extract($params, self::P_CONTENT);
-        Params::add($params, 'clearfix');
-        $icon = self::icon(array(
-            self::P_HEADER=>self::ICN_WARNING.' '.self::ICN_2X.' pull-left',
-            'style'=>'margin:0.25em 0.5em 0 0;'
-        ));
-
-        return "<div".Html::attr($params).">$icon$body</div>";
     }
 
     /** format as comment line
@@ -335,7 +325,7 @@ class BootstrapUi
         Params::add($params, 'close');
         Params::add($params, 'button', 'type');
 
-        return '<button'.Html::attr($params).">&times;</button>";
+        return '<button'.Html::attr($params).'><span aria-hidden="true">&times;</span></button>';
     }
 
     /** returns collapsed container (hidden by default)
