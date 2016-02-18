@@ -64,19 +64,20 @@ class BootstrapUi
     const P_HEADER          = 4;
     const P_HEADER_ATTR     = 5;
     const P_FOOTER          = 6;
-    const P_FORM_TYPE       = 7;
-    const P_TARGET          = 8;
-    const P_ACTIVE          = 9;
-    const P_CLOSE           = 10;
-    const P_WRAP_FMT        = 11;
-    const P_HIDDEN          = 12;
-    const P_READONLY        = 13;
-    const P_STATIC          = 14;
-    const P_PREFIX          = 15;
-    const P_SUFFIX          = 16;
-    const P_ADDON_BTN       = 17;
-    const P_ALIGN           = 18;
-    const P_REQUIRED        = 19;
+    const P_FOOTER_ATTR     = 7;
+    const P_FORM_TYPE       = 8;
+    const P_TARGET          = 9;
+    const P_ACTIVE          = 10;
+    const P_CLOSE           = 11;
+    const P_WRAP_FMT        = 12;
+    const P_HIDDEN          = 13;
+    const P_READONLY        = 14;
+    const P_STATIC          = 15;
+    const P_PREFIX          = 16;
+    const P_SUFFIX          = 17;
+    const P_ADDON_BTN       = 18;
+    const P_ALIGN           = 19;
+    const P_REQUIRED        = 20;
 
     // for P_FORM_TYPE
     const FT_HORIZONTAL  = 1;
@@ -392,6 +393,7 @@ EOco
      *                      , P_CONTENT:'collapsible content'
      *                      , P_CONTENT_ATTR:{additional content div attributes}
      *                      , P_FOOTER:'panel footer'
+     *                      , P_FOOTER_ATTR:{additional footer div attributes}
      *                      , 'id':'content div id'
      *                      , additional content div attributes
      *                      }
@@ -412,6 +414,7 @@ EOco
         $addon_prefix = Params::extract($params, self::P_PREFIX);
         $addon_suffix = Params::extract($params, self::P_SUFFIX);
         $footer = Params::extract($params, self::P_FOOTER);
+        $footer_attr = Params::extract($params, self::P_FOOTER_ATTR);
         $wrap_fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
 
         Params::add($params, 'panel-collapse');
@@ -424,6 +427,7 @@ EOco
             self::P_PREFIX=>$addon_prefix,
             self::P_SUFFIX=>$addon_suffix,
             self::P_FOOTER=>$footer,
+            self::P_FOOTER_ATTR=>$footer_attr,
             self::P_WRAP_FMT=>Misc::sprintfEscape('<div'.Html::attr($params).'>')."$wrap_fmt</div>"
         ));
     }
@@ -979,7 +983,9 @@ EOfmt
 
     /** returns the panel html code
      * @param array $params {P_HEADER:'panel heading'
+     *                      , P_HEADER_ATTR:panel heading div attributes
      *                      , P_FOOTER:'panel footer'
+     *                      , P_FOOTER_ATTR:panel footer div attributes
      *                      , P_PREFIX:'panel content prefix'
      *                      , P_SUFFIX:'panel content suffix'
      *                      , P_CONTENT:'panel content'
@@ -992,9 +998,20 @@ EOfmt
     public static function panel($params)
     {
         if ($heading = Params::extract($params, self::P_HEADER))
-            $heading = "<div class=\"panel-heading\">$heading</div>";
+        {
+            $title_attr = Params::extract($params, self::P_HEADER_ATTR, array());
+            Params::add($title_attr, 'panel-heading');
+            $heading = \sprintf('<div%s>%s</div>', Html::attr($title_attr), $heading);
+        }
         if ($footer = Params::extract($params, self::P_FOOTER))
-            $footer = "<div class=\"panel-footer clearfix text-right\">$footer</div>";
+        {
+            $footer_attr = Params::extract($params, self::P_FOOTER_ATTR, array());
+            if (empty($footer_attr) or \strpos($footer_attr, 'text-left') === false)
+                Params::add($footer_attr, 'text-right');
+            Params::add($footer_attr, 'panel-footer');
+            Params::add($footer_attr, 'clearfix');
+            $footer = \sprintf('<div%s>%s</div>', Html::attr($footer_attr), $footer);
+        }
         $fmt = Params::extract($params, self::P_WRAP_FMT, '%s');
         $content_attr = Params::extract($params, self::P_CONTENT_ATTR, array());
         Params::add($content_attr, 'panel-body');
