@@ -21,48 +21,57 @@ class CacheMemcache extends CacheBase
     const P_LOGIN   = 4;
     const P_PASS    = 5;
 
+    public static $params;
     public static $conn;
 
 
 
-    /** establishes a permanent memcache connection and set initial options. connects
-     * to servers if needed
-     * @param array $params parameters {P_PREFIX:'dev'
-     *                      , P_SERVERS:['123.45.67.89', '123.45.67.90']
-     *                      , P_OPTIONS:{\Memcached::OPT_SERIALIZER: \Memcached::SERIALIZER_JSON_ARRAY}
-     *                      }
-     * @return bool
-     */
     public static function init($params)
     {
-        if (isset($params[self::P_SERVERS]) and empty(self::$conn))
+        self::$params = $params;
+        return parent::init($params);
+    }
+
+    /** establishes a permanent memcache server(s) connection and sets initial connection options
+     * @param array $params parameters {P_PREFIX:'Dev',
+     *      P_SERVERS:['123.45.67.89', '123.45.67.90'],
+     *      P_OPTIONS:{Memcached::OPT_SERIALIZER:'', ...}
+     *  }
+     * @return Object self::$conn
+     */
+    public static function connect()
+    {
+        if (isset(self::$params[self::P_SERVERS]) and empty(self::$conn))
         {
-            self::$conn = new Memcached(__METHOD__.$params[self::P_PREFIX]);
-
-            $options = isset($params[self::P_OPTIONS]) ? $params[self::P_OPTIONS] : array();
-            self::$conn->setOptions($options + array(
-                Memcached::OPT_PREFIX_KEY=>$params[self::P_PREFIX].'.',
-            ));
-            if (isset($params[self::P_LOGIN]))
-                self::$conn->setSaslAuthData($params[self::P_LOGIN], $params[self::P_PASS]);
-            self::$conn->addServers($params[self::P_SERVERS]);
-
-            return parent::init($params[self::P_PREFIX]);
+            // create Memcached object
+            if (self::$conn = new Memcached(__METHOD__.self::$prefix))
+            {
+                // set options
+                $options = isset(self::$params[self::P_OPTIONS]) ? self::$params[self::P_OPTIONS] : array();
+                self::$conn->setOptions($options + array(
+                    Memcached::OPT_PREFIX_KEY=>self::$params[self::P_PREFIX].'.',
+                ));
+                // login if needed
+                if (isset(self::$params[self::P_LOGIN]))
+                    self::$conn->setSaslAuthData(self::$params[self::P_LOGIN], self::$params[self::P_PASS]);
+                // connect to servers
+                self::$conn->addServers(self::$params[self::P_SERVERS]);
+            }
         }
 
-        parent::init(isset($params[self::P_PREFIX]) ? $params[self::P_PREFIX] : null);
+        return self::$conn;
     }
 
     public static function store($name, $value, $ttl=null)
     {
-        return self::$conn
+        return (self::$conn or self::connect())
             ? self::$conn->set($name, $value, isset($ttl) ? $ttl : 86400)   // 24 hours
             : parent::store($name, $value, $ttl);
     }
 
     public static function storeMulti($values, $ttl=null)
     {
-        return self::$conn
+        return (self::$conn or self::connect())
             ? self::$conn->setMulti($values, isset($ttl) ? $ttl : 86400)    // 24 hours
             : parent::storeMulti($values, $ttl);
     }
@@ -79,7 +88,7 @@ class CacheMemcache extends CacheBase
      */
     public static function fetch($name, $callback=null)
     {
-        if (self::$conn)
+        if (self::$conn or self::connect())
             $value = self::$conn->get($name, $callback);
         elseif ($callback)
             $callback(null, $name, $value);
@@ -91,7 +100,7 @@ class CacheMemcache extends CacheBase
 
     public static function fetchMulti($names)
     {
-        $values = self::$conn
+        $values = (self::$conn or self::connect())
             ? self::$conn->getMulti($names)
             : parent::fetchMulti($names);
 
@@ -104,7 +113,7 @@ class CacheMemcache extends CacheBase
      */
     public static function delete($name)
     {
-        if (self::$conn)
+        if (self::$conn or self::connect())
         {
             if (\is_array($name))
                 return self::$conn->deleteMulti($name);

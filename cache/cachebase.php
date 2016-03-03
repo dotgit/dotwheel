@@ -23,9 +23,14 @@ class CacheBase
 
 
 
+    /** initializes cache by defining self::$prefix
+     * @param array $params parameters {P_PREFIX:'Dev'}
+     * @return bool whether the initialization is successful
+     */
     public static function init($params)
     {
         self::$prefix = $params[self::P_PREFIX].':';
+        return true;
     }
 
     /** stores the value in the cache under the specified name using TTL
