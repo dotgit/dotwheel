@@ -1,0 +1,48 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: dotwheel-tests\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-04-05 19:22+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: stas trefilov <stas@vertilia.com>\n"
+"Language-Team:  <stas.trefilov@gmail.com>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ../../../\n"
+"X-Generator: Poedit 1.7.1\n"
+"X-Poedit-KeywordsList: dget:2;pget:1c,2;dpget:2c,3;nget:1,2;dnget:2,3;"
+"pnget:1c,2,3;dpnget:2c,3,4\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: nls/textTest.php:67 nls/textTest.php:69 nls/textTest.php:77
+#: nls/textTest.php:88 nls/textTest.php:89
+msgid "Next"
+msgstr "Next"
+
+#: nls/textTest.php:98 nls/textTest.php:108 nls/textTest.php:109
+msgctxt "grass"
+msgid "Green"
+msgstr "Green"
+
+#: nls/textTest.php:118 nls/textTest.php:128
+#, php-format
+msgid "%u line"
+msgid_plural "%u lines"
+msgstr[0] "%u line"
+msgstr[1] "%u lines"
+
+#: nls/textTest.php:148
+#, php-format
+msgctxt "line"
+msgid "%u sent"
+msgid_plural "%u sent"
+msgstr[0] "%u sent"
+msgstr[1] "%u sent"
+
+#~ msgctxt "context"
+#~ msgid "Another"
+#~ msgstr "Another"

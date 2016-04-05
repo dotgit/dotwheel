@@ -144,7 +144,8 @@ class Nls
 
 
 
-    /** gets the user preferred language code and stores it in a cookie
+    /** gets the user preferred language code and stores it in a cookie. checks
+     * $_GET and $_COOKIE globals for presence of $cookie_lang entry
      * @param string $cookie_lang   cookie variable name to store user language
      * @param array $languages      list of languages that the application understands, ex: ['en', 'fr']
      * @param string $default_lang default language if cannot guess from user agent
