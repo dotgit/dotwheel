@@ -70,8 +70,8 @@ class TextTest extends \PHPUnit_Framework_TestCase
     public function test_()
     {
         $this->assertEquals('Suivant', Text::_('Next'), 'existing translation');
-        $unknown = 'non-existant '.rand(100, 999);
-        $this->assertEquals($unknown, Text::_($unknown), 'non-existant translation');
+        $unknown = 'non-existent '.rand(100, 999);
+        $this->assertEquals($unknown, Text::_($unknown), 'non-existent translation');
     }
 
     /**
@@ -91,8 +91,8 @@ class TextTest extends \PHPUnit_Framework_TestCase
     public function testPget()
     {
         $this->assertEquals('Verte', Text::pget('grass', 'Green'), 'existing translation using context');
-        $unknown = 'non-existant '.rand(100, 999);
-        $this->assertEquals($unknown, Text::pget('grass', $unknown), 'non-existant translation using context');
+        $unknown = 'non-existent '.rand(100, 999);
+        $this->assertEquals($unknown, Text::pget('grass', $unknown), 'non-existent translation using context');
     }
 
     /**

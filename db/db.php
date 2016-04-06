@@ -318,18 +318,20 @@ class Db
      */
     public static function dmlBind($sql, $types, $params)
     {
-        if ($stmt = \mysqli_prepare(self::$conn, $sql)
-            and \call_user_func_array(
-                'mysqli_stmt_bind_param',
-                \array_merge(array($stmt, $types), $params)
-            )
-            and \mysqli_stmt_execute($stmt)
-        )
+        if ($stmt = \mysqli_prepare(self::$conn, $sql))
         {
-            $res = \mysqli_stmt_affected_rows($stmt);
-            \mysqli_stmt_close($stmt);
+            $bind_params = array ($stmt, $types);
+            foreach ($params as &$p)
+                $bind_params[] = &$p;
+            if (\call_user_func_array('mysqli_stmt_bind_param', $bind_params)
+                and \mysqli_stmt_execute($stmt)
+            )
+            {
+                $res = \mysqli_stmt_affected_rows($stmt);
+                \mysqli_stmt_close($stmt);
 
-            return $res;
+                return $res;
+            }
         }
         else
         {
