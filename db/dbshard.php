@@ -15,47 +15,49 @@ use Dotwheel\Util\Params;
 class DbShard extends Db
 {
     /** connection params */
-    const CNX_HOST          = 1;
-    const CNX_USERNAME      = 2;
-    const CNX_PASSWORD      = 3;
-    const CNX_DATABASE      = 4;
-    const CNX_CHARSET       = 5;
+    const CNX_HOST     = 1;
+    const CNX_USERNAME = 2;
+    const CNX_PASSWORD = 3;
+    const CNX_DATABASE = 4;
+    const CNX_CHARSET  = 5;
 
     /** shard modes */
-    const MODE_READ     = 1;
-    const MODE_WRITE    = 2;
+    const MODE_READ    = 1;
+    const MODE_WRITE   = 2;
 
     /** internal connection enum */
-    const ENUM_HOST = 1;
-    const ENUM_CNX  = 2;
+    const ENUM_HOST    = 1;
+    const ENUM_CNX     = 2;
 
     /** @var array list of all available application shards by shard name */
-    public static $shards = array();
+    public static $shards       = array();
+
     /** @var array list of current db connections by shard name / access mode */
-    public static $connections = array();
+    public static $connections  = array();
+
     /** @var string current host */
     public static $current_host = array();
 
-
-
     /** initialize application shards
      * @param array $shards list of available shards in format
-     *  {'shard1':{MODE_READ:[{CNX_HOST:'localhost'
-     *              , CNX_USERNAME:'root'
-     *              , CNX_PASSWORD:null
-     *              , CNX_DATABASE:null
-     *              , CNX_CHARSET:'UTF8'
-     *              }
-     *          ,{<server 2>}
-     *          ,{<server 3>}
-     *          ]
-     *      , MODE_WRITE:[{<server 1>},...]
-     *      }
-     *  , 'shard2':{MODE_READ:[{<server 1>},...]
-     *      , MODE_WRITE:[{<server 1>},...]
-     *      }
-     *  , ...
-     *  }
+     *  {'shard1':{
+     *      MODE_READ:[
+     *          {
+     *              CNX_HOST:'localhost',
+     *              CNX_USERNAME:'root',
+     *              CNX_PASSWORD:null,
+     *              CNX_DATABASE:null,
+     *              CNX_CHARSET:'UTF8',
+     *          },
+     *          {<server 2>},
+     *          {<server 3>},
+     *      ],
+     *      MODE_WRITE:[{<server 1>},...]
+     *  },
+     *  'shard2':{
+     *      MODE_READ:[{<server 1>},...],
+     *      MODE_WRITE:[{<server 1>},...],
+     *  }, ...}
      */
     public static function init($shards)
     {
@@ -67,16 +69,16 @@ class DbShard extends Db
      * @param integer $access_mode  MODE_READ | MODE_WRITE | null
      * @return
      */
-    public static function open($shard_name, $access_mode=null)
+    public static function open($shard_name, $access_mode = null)
     {
         // select access mode
-        if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ)
+        if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ) {
             $access_mode = isset(self::$connections[$shard_name][self::MODE_WRITE])
                 ? self::MODE_WRITE
                 : self::MODE_READ;
+        }
 
-        if (empty(self::$connections[$shard_name][$access_mode]))
-        {
+        if (empty(self::$connections[$shard_name][$access_mode])) {
             $host = self::selectHost(self::$shards[$shard_name][$access_mode]);
             self::$connections[$shard_name][$access_mode] = array(self::ENUM_HOST=>$host);
             self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($host == self::$current_host)
@@ -89,8 +91,8 @@ class DbShard extends Db
                     Params::extract($host, self::CNX_CHARSET, 'UTF8')
                 );
         }
-
         self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
+
         return parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
     }
 

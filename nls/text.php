@@ -29,11 +29,9 @@ namespace Dotwheel\Nls;
 
 class Text
 {
-    public static $pluralForms = 0;
+    public static $pluralForms        = 0;
     public static $domainTranslations = array();
-    public static $domain = 'messages'; // default gettext domain
-
-
+    public static $domain             = 'messages'; // default gettext domain
 
     /** fetches an existing string from $domainTranslations by its hash and
      * message name (in case of collision)
@@ -65,10 +63,12 @@ class Text
     {
         include ("$dir/$lang/$domain.php");
 
-        if (isset($PLURALFORMS))
+        if (isset($PLURALFORMS)) {
             self::$pluralForms = $PLURALFORMS;
-        if (isset($TRANSLATIONS))
+        }
+        if (isset($TRANSLATIONS)) {
             self::$domainTranslations[$domain] = $TRANSLATIONS;
+        }
         self::$domain = $domain;
     }
 
@@ -118,7 +118,7 @@ class Text
 
     public static function nget($message1, $message2, $count)
     {
-        $n = (int)$count;
+        $n   = (int)$count;
         eval('$num = '.self::$pluralForms.';');
         $idn = "$message1\f$message2\f".(int)$num;
         $crc = \crc32($idn);
@@ -130,7 +130,7 @@ class Text
 
     public static function dnget($domain, $message1, $message2, $count)
     {
-        $n = (int)$count;
+        $n   = (int)$count;
         eval('$num = '.self::$pluralForms.';');
         $idn = "$message1\f$message2\f".(int)$num;
         $crc = \crc32($idn);
@@ -142,7 +142,7 @@ class Text
 
     public static function pnget($context, $message1, $message2, $count)
     {
-        $n = (int)$count;
+        $n   = (int)$count;
         eval('$num = '.self::$pluralForms.';');
         $idn = "$message1\f$context\f$message2\f".(int)$num;
         $crc = \crc32($idn);
@@ -154,7 +154,7 @@ class Text
 
     public static function dpnget($domain, $context, $message1, $message2, $count)
     {
-        $n = (int)$count;
+        $n   = (int)$count;
         eval('$num = '.self::$pluralForms.';');
         $idn = "$message1\f$context\f$message2\f".(int)$num;
         $crc = \crc32($idn);
