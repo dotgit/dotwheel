@@ -15,30 +15,31 @@ use Dotwheel\Util\Params;
 class DbShard extends Db
 {
     /** connection params */
-    const CNX_HOST     = 1;
-    const CNX_USERNAME = 2;
-    const CNX_PASSWORD = 3;
-    const CNX_DATABASE = 4;
-    const CNX_CHARSET  = 5;
+    const CNX_HOST      = 1;
+    const CNX_USERNAME  = 2;
+    const CNX_PASSWORD  = 3;
+    const CNX_DATABASE  = 4;
+    const CNX_CHARSET   = 5;
 
     /** shard modes */
-    const MODE_READ    = 1;
-    const MODE_WRITE   = 2;
+    const MODE_READ     = 1;
+    const MODE_WRITE    = 2;
 
     /** internal connection enum */
-    const ENUM_HOST    = 1;
-    const ENUM_CNX     = 2;
+    const ENUM_HOST = 1;
+    const ENUM_CNX  = 2;
 
     /** @var array list of all available application shards by shard name */
-    public static $shards       = array();
+    public static $shards = array();
 
     /** @var array list of current db connections by shard name / access mode */
-    public static $connections  = array();
+    public static $connections = array();
 
     /** @var string current host */
     public static $current_host = array();
 
-    /** initialize application shards
+    /** initializes application shards
+     *
      * @param array $shards list of available shards in format
      *  {'shard1':{
      *      MODE_READ:[
@@ -64,10 +65,12 @@ class DbShard extends Db
         self::$shards = $shards;
     }
 
-    /** switch to specified shard, connect if selected host parameters differ from currently used
+    /** switches to specified shard, connects if selected host parameters differ
+     * from currently used
+     *
      * @param string $shard_name    shard name
      * @param integer $access_mode  MODE_READ | MODE_WRITE | null
-     * @return
+     * @return mixed connection ressource or <i>false</i> on error
      */
     public static function open($shard_name, $access_mode = null)
     {
@@ -78,27 +81,40 @@ class DbShard extends Db
                 : self::MODE_READ;
         }
 
+        // check shard configured
+        if (empty(self::$shards[$shard_name][$access_mode])) {
+            return false;
+        }
+
+        // open new connection if needed and store in connections array
         if (empty(self::$connections[$shard_name][$access_mode])) {
-            $host = self::selectHost(self::$shards[$shard_name][$access_mode]);
+            $shard = self::selectHost(self::$shards[$shard_name][$access_mode]);
+            $host = Params::extract($shard, self::CNX_HOST);
             self::$connections[$shard_name][$access_mode] = array(self::ENUM_HOST=>$host);
             self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($host == self::$current_host)
                 ? parent::$conn
                 : self::connect(
-                    Params::extract($host, self::CNX_HOST, 'localhost'),
-                    Params::extract($host, self::CNX_USERNAME, 'root'),
-                    Params::extract($host, self::CNX_PASSWORD, null),
-                    Params::extract($host, self::CNX_DATABASE, null),
-                    Params::extract($host, self::CNX_CHARSET, 'UTF8')
+                    $host,
+                    Params::extract($shard, self::CNX_USERNAME),
+                    Params::extract($shard, self::CNX_PASSWORD),
+                    Params::extract($shard, self::CNX_DATABASE),
+                    Params::extract($shard, self::CNX_CHARSET, 'UTF8')
                 );
         }
+
+        // remember current connection host
         self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
 
-        return parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
+        // set Db::$conn
+        parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
+
+        return parent::$conn;
     }
 
-    /** given the list of available hosts select one to connect to
+    /** given the list of available host structures selects one to connect to
+     *
      * @param array $hosts  array of available hosts
-     * @return array        selected host
+     * @return array        selected host structure
      */
     public static function selectHost($hosts)
     {

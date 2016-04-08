@@ -10,7 +10,11 @@ use Dotwheel\Db\Db;
  */
 class DbBeforeClass extends PHPUnit_Framework_TestCase
 {
-    const DB        = 'test';
+    const HOST  = null;
+    const USER  = null;
+    const PASS  = null;
+    const DB    = 'test';
+
     const TABLE     = 'test';
     const IDX_ID    = 'idx_id';
     const C_SECTION = 'tt_section';
@@ -25,8 +29,7 @@ class DbBeforeClass extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         // connect
-        $conn = Db::connect(null, null, null, self::DB);
-        self::assertNotEmpty($conn);
+        self::assertNotEmpty(Db::connect(self::HOST, self::USER, self::PASS, self::DB));
 
         // create temporary table
         Db::dml(sprintf(
