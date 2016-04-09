@@ -2,6 +2,9 @@
 
 namespace Dotwheel\Db;
 
+use DbBeforeClass;
+use Dotwheel\Nls\Nls;
+use Dotwheel\Nls\TextTest;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -11,99 +14,268 @@ use PHPUnit_Framework_TestCase;
  */
 class RepoTest extends PHPUnit_Framework_TestCase
 {
+    const PKG_NAME = __CLASS__;
+
+    /**
+     * @coversNothing
+     * @uses ::registerPackage
+     */
+    public static function setUpBeforeClass()
+    {
+        self::assertEquals(
+            'fr',
+            Nls::init(TextTest::DOMAIN, __DIR__.'/locale', 'fr'),
+            'initialize english env'
+        );
+        self::assertTrue(
+            Repo::registerPackage(self::PKG_NAME, [
+                DbBeforeClass::C_SECTION=>[
+                    Repo::P_CLASS=>Repo::C_ID,
+                    Repo::P_LABEL=>'Section id',
+                ],
+                DbBeforeClass::C_ID=>[
+                    Repo::P_CLASS=>Repo::C_ID,
+                    Repo::P_LABEL=>'Item id',
+                ],
+                DbBeforeClass::C_NAME=>[
+                    Repo::P_CLASS=>Repo::C_TEXT,
+                    Repo::P_WIDTH=>255,
+                    Repo::P_LABEL=>'Name',
+                    Repo::P_LABEL_LONG=>'Full name',
+                ],
+            ]),
+            'register package'
+        );
+    }
+
     /**
      * @covers ::registerPackage
-     * @todo   Implement testRegisterPackage().
+     * @covers ::getParam
      */
     public function testRegisterPackage()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertArrayHasKey(
+            DbBeforeClass::C_SECTION,
+            Repo::$store,
+            'initial fields were registered'
+        );
+
+        $this->assertFalse(
+            Repo::registerPackage(self::PKG_NAME, [
+                'another_field'=>[
+                    Repo::P_CLASS=>Repo::C_ID,
+                    Repo::P_LABEL=>'Id'
+                ],
+            ]),
+            'error since package already registered'
+        );
+
+        $this->assertTrue(
+            Repo::registerPackage(self::PKG_NAME.'_'.rand(100, 999), [
+                'section_alias'=>[
+                    Repo::P_ALIAS=>DbBeforeClass::C_SECTION,
+                ],
+                'new_alias'=>[
+                    Repo::P_ALIAS=>'new_field',
+                ],
+            ]),
+            'symlinks resolution'
+        );
+        $section_alias_class = Repo::getParam('section_alias', Repo::P_CLASS);
+        $this->assertEquals(
+            Repo::C_ID,
+            $section_alias_class,
+            'symlink resolved to existing target'
+        );
+        $new_alias_class = Repo::getParam('new_alias', Repo::P_CLASS);
+        $this->assertEmpty(
+            $new_alias_class,
+            'forwarded symlink unresolved for now'
+        );
+
+        $this->assertTrue(
+            Repo::registerPackage(self::PKG_NAME.'_2_'.rand(100, 999), [
+                'new_field'=>[
+                    Repo::P_CLASS=>Repo::C_TEXT,
+                    Repo::P_WIDTH=>255,
+                    Repo::P_LABEL=>'New name'
+                ],
+            ]),
+            'forwarded symlinks resolution'
+        );
+        $new_alias_class = Repo::getParam('new_alias', Repo::P_CLASS);
+        $this->assertEquals(
+            Repo::C_TEXT,
+            $new_alias_class,
+            'forwarded symlink resolved to target'
         );
     }
 
     /**
      * @covers ::getParam
-     * @todo   Implement testGetParam().
      */
     public function testGetParam()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertEquals(
+            Repo::C_DATE,
+            Repo::getParam(DbBeforeClass::C_NAME, Repo::P_CLASS, [Repo::P_CLASS=>Repo::C_DATE]),
+            'passed repository entry overwrites registered one'
+        );
+        $this->assertNull(
+            Repo::getParam(DbBeforeClass::C_NAME, Repo::P_ITEMS),
+            'null for non-existent parameters'
         );
     }
 
     /**
      * @covers ::getLabel
-     * @todo   Implement testGetLabel().
      */
     public function testGetLabel()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertEquals(
+            'Name',
+            Repo::getLabel(DbBeforeClass::C_NAME),
+            'registered name'
+        );
+        $this->assertEquals(
+            'The name',
+            Repo::getLabel(DbBeforeClass::C_NAME, null, [Repo::P_LABEL=>'The name']),
+            'passed repository entry overwrites registered one'
+        );
+        $this->assertNull(
+            Repo::getLabel('unknown_field'),
+            'null for non-existent fields'
+        );
+        $this->assertEquals(
+            'Full name',
+            Repo::getLabel(DbBeforeClass::C_NAME, Repo::P_LABEL_LONG),
+            'P_LABEL_LONG parameter'
+        );
+        $this->assertEquals(
+            'Name',
+            Repo::getLabel(DbBeforeClass::C_NAME, Repo::P_LABEL_SHORT),
+            'missing P_LABEL_SHORT parameter falls back to P_LABEL'
+        );
+        $this->assertEquals(
+            'Nm',
+            Repo::getLabel(DbBeforeClass::C_NAME, Repo::P_LABEL_SHORT, [Repo::P_LABEL_SHORT=>'Nm']),
+            'passed repository entry overwrites missing P_LABEL_SHORT parameter'
         );
     }
 
     /**
      * @covers ::getList
-     * @todo   Implement testGetList().
      */
     public function testGetList()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $repo = [
+            Repo::P_CLASS=>Repo::C_ENUM,
+            Repo::P_LABEL=>'Numbers',
+            Repo::P_ITEMS=>[
+                1=>'first',
+                2=>'second',
+                3=>'third',
+            ],
+            Repo::P_ITEMS_SHORT=>[
+                1=>'one',
+                2=>'two',
+                3=>'three',
+            ],
+        ];
+        $this->assertEquals(
+            'third',
+            Repo::getList('unknown', null, $repo)[3],
+            'P_ITEMS returned from passed repository entry'
+        );
+        $this->assertEquals(
+            'two',
+            Repo::getList('unknown', Repo::P_ITEMS_SHORT, $repo)[2],
+            'P_ITEMS_SHORT returned from passed repository entry'
         );
     }
 
     /**
      * @covers ::get
-     * @todo   Implement testGet().
      */
     public function testGet()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $fld_name = Repo::get(DbBeforeClass::C_NAME);
+        $this->assertArrayHasKey(
+            Repo::P_CLASS,
+            $fld_name,
+            'get registered entry'
+        );
+        $this->assertEquals(
+            Repo::C_TEXT,
+            $fld_name[Repo::P_CLASS],
+            'get registered entry'
+        );
+        $fld_name2 = Repo::get(DbBeforeClass::C_NAME, [Repo::P_CLASS=>Repo::C_ENUM]);
+        $this->assertEquals(
+            Repo::C_ENUM,
+            $fld_name2[Repo::P_CLASS],
+            'get passed entry'
+        );
+        $this->assertEquals(
+            255,
+            $fld_name2[Repo::P_WIDTH],
+            'does not overwrite non-passed attributes'
         );
     }
 
     /**
      * @covers ::isArithmetical
-     * @todo   Implement testIsArithmetical().
+     * @uses ::get
      */
     public function testIsArithmetical()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertFalse(
+            Repo::isArithmetical(Repo::get(DbBeforeClass::C_SECTION)),
+            'P_CLASS:C_ID arithmetical?'
+        );
+        $this->assertFalse(
+            Repo::isArithmetical(Repo::get(DbBeforeClass::C_NAME)),
+            'P_CLASS:C_TEXT arithmetical?'
+        );
+        $this->assertTrue(
+            Repo::isArithmetical(Repo::get('price', [Repo::P_CLASS=>Repo::C_CENTS])),
+            'P_CLASS:C_CENTS arithmetical?'
+        );
+        $this->assertTrue(
+            Repo::isArithmetical(Repo::get('qty', [Repo::P_CLASS=>Repo::C_INT])),
+            'P_CLASS:C_INT arithmetical?'
         );
     }
 
     /**
      * @covers ::isDate
-     * @todo   Implement testIsDate().
+     * @uses ::get
      */
     public function testIsDate()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertFalse(
+            Repo::isDate(Repo::get(DbBeforeClass::C_NAME)),
+            'P_CLASS:C_TEXT date?'
+        );
+        $this->assertTrue(
+            Repo::isDate(Repo::get('queued', [Repo::P_CLASS=>Repo::C_DATE])),
+            'P_CLASS:C_DATE date?'
         );
     }
 
     /**
      * @covers ::isTextual
-     * @todo   Implement testIsTextual().
+     * @uses ::get
      */
     public function testIsTextual()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $this->assertFalse(
+            Repo::isTextual(Repo::get(DbBeforeClass::C_SECTION)),
+            'P_CLASS:C_ID textual?'
+        );
+        $this->assertTrue(
+            Repo::isTextual(Repo::get(DbBeforeClass::C_NAME)),
+            'P_CLASS:C_TEXT textual?'
         );
     }
 
@@ -112,30 +284,6 @@ class RepoTest extends PHPUnit_Framework_TestCase
      * @todo   Implement testValidateInput().
      */
     public function testValidateInput()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers ::validatePct
-     * @todo   Implement testValidatePct().
-     */
-    public function testValidatePct()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers ::validatePct100
-     * @todo   Implement testValidatePct100().
-     */
-    public function testValidatePct100()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -168,74 +316,142 @@ class RepoTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::validatePct100
+     */
+    public function testValidatePct100()
+    {
+        // correct values
+        $this->assertTrue(Repo::validatePct100(0, 'Name'));
+        $this->assertTrue(Repo::validatePct100(1, 'Name'));
+        $this->assertTrue(Repo::validatePct100(99, 'Name'));
+        $this->assertTrue(Repo::validatePct100(100, 'Name'));
+        $this->assertTrue(Repo::validatePct100('0', 'Name'));
+        $this->assertTrue(Repo::validatePct100('100', 'Name'));
+
+        // incorrect values
+        $this->assertContains('Name', Repo::validatePct100(-1, 'Name'), 'under 0');
+        $this->assertContains('Name', Repo::validatePct100(101, 'Name'), 'over 100');
+        $this->assertContains('Name', Repo::validatePct100('x', 'Name'), 'not numeric');
+        $this->assertContains('Name', Repo::validatePct100('', 'Name'), 'empty');
+    }
+
+    /**
      * @covers ::asSql
-     * @todo   Implement testAsSql().
      */
     public function testAsSql()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        // P_CLASS:C_ID|C_INT
+        $this->assertEquals(DbBeforeClass::C_SECTION.'=1', Repo::asSql(DbBeforeClass::C_SECTION, 1));
+        $this->assertNull(Repo::asSql(DbBeforeClass::C_SECTION, null));
+        $this->assertFalse(Repo::asSql(DbBeforeClass::C_SECTION, 'x'));
+        $this->assertNull(Repo::asSql(DbBeforeClass::C_SECTION, ''));
+
+        // P_CLASS:C_CENTS
+        $this->assertEquals("price=123", Repo::asSql('price', 1.23, [Repo::P_CLASS=>Repo::C_CENTS]));
+        $this->assertNull(Repo::asSql('price', null, [Repo::P_CLASS=>Repo::C_CENTS]));
+        $this->assertFalse(Repo::asSql('price', 'x', [Repo::P_CLASS=>Repo::C_CENTS]));
+        $this->assertNull(Repo::asSql('price', '', [Repo::P_CLASS=>Repo::C_CENTS]));
+
+        // P_CLASS:C_BOOL
+        $this->assertEquals('is_open', Repo::asSql('is_open', true, [Repo::P_CLASS=>Repo::C_BOOL]));
+        $this->assertEquals('not is_open', Repo::asSql('is_open', false, [Repo::P_CLASS=>Repo::C_BOOL]));
+        $this->assertNull(Repo::asSql('is_open', null, [Repo::P_CLASS=>Repo::C_BOOL]));
+        $this->assertEquals('is_open', Repo::asSql('is_open', 'x', [Repo::P_CLASS=>Repo::C_BOOL]));
+        $this->assertEquals('not is_open', Repo::asSql('is_open', '', [Repo::P_CLASS=>Repo::C_BOOL]));
+
+        // P_CLASS:C_DATE
+        $this->assertEquals("queued='2016-12-31'", Repo::asSql('queued', '31/12/2016', [Repo::P_CLASS=>Repo::C_DATE]));
+        $this->assertEquals("queued='2016-12-31 00:00:00'", Repo::asSql('queued', '31/12/2016', [Repo::P_CLASS=>Repo::C_DATE, Repo::P_FLAGS=>Repo::F_DATETIME]));
+        $this->assertNull(Repo::asSql('queued', null, [Repo::P_CLASS=>Repo::C_DATE]));
+        $this->assertFalse(Repo::asSql('queued', 'x', [Repo::P_CLASS=>Repo::C_DATE]));
+        $this->assertNull(Repo::asSql('queued', '', [Repo::P_CLASS=>Repo::C_DATE]));
+
+        // P_CLASS:C_SET
+        $this->assertEquals("find_in_set('wed',dow)", Repo::asSql('dow', 'wed', [Repo::P_CLASS=>Repo::C_SET]));
+        $this->assertNull(Repo::asSql('dow', null, [Repo::P_CLASS=>Repo::C_SET]));
+        $this->assertEquals("find_in_set('',dow)", Repo::asSql('dow', '', [Repo::P_CLASS=>Repo::C_SET]));
+
+        // P_CLASS:C_TEXT
+        $this->assertEquals(DbBeforeClass::C_NAME."='1'", Repo::asSql(DbBeforeClass::C_NAME, 1));
+        $this->assertNull(Repo::asSql(DbBeforeClass::C_NAME, null));
+        $this->assertEquals(DbBeforeClass::C_NAME."='x'", Repo::asSql(DbBeforeClass::C_NAME, 'x'));
+        $this->assertEquals(DbBeforeClass::C_NAME."=''", Repo::asSql(DbBeforeClass::C_NAME, ''));
     }
 
     /**
      * @covers ::asSqlInt
-     * @todo   Implement testAsSqlInt().
      */
     public function testAsSqlInt()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->assertEquals('num=-1', Repo::asSqlInt('num', -1));
+        $this->assertEquals('num=0', Repo::asSqlInt('num', 0));
+        $this->assertEquals('num=1', Repo::asSqlInt('num', 1));
+        $this->assertNull(Repo::asSqlInt('num', null));
+        $this->assertFalse(Repo::asSqlInt('num', 'x'));
+        $this->assertNull(Repo::asSqlInt('num', ''));
     }
 
     /**
      * @covers ::asSqlBool
-     * @todo   Implement testAsSqlBool().
      */
     public function testAsSqlBool()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->assertEquals('is_open', Repo::asSqlBool('is_open', true));
+        $this->assertEquals('not is_open', Repo::asSqlBool('is_open', false));
+        $this->assertNull(Repo::asSqlBool('is_open', null));
+        $this->assertEquals('is_open', Repo::asSqlBool('is_open', 'x'));
+        $this->assertEquals('not is_open', Repo::asSqlBool('is_open', ''));
     }
 
     /**
      * @covers ::asSqlText
-     * @todo   Implement testAsSqlText().
      */
     public function testAsSqlText()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->assertEquals("description='term'", Repo::asSqlText('description', 'term'));
+        $this->assertEquals("description=''", Repo::asSqlText('description', ''));
+        $this->assertNull(Repo::asSqlText('description', null));
     }
 
     /**
      * @covers ::asSqlSet
-     * @todo   Implement testAsSqlSet().
      */
     public function testAsSqlSet()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $this->assertEquals("find_in_set('wed',dow)", Repo::asSqlSet('dow', 'wed'));
+        $this->assertEquals("(find_in_set('sat',dow)or find_in_set('sun',dow))", Repo::asSqlSet('dow', ['sat','sun']));
+        $this->assertEquals("(find_in_set('sat',dow)and find_in_set('sun',dow))", Repo::asSqlSet('dow', ['sat','sun'], true));
+        $this->assertNull(Repo::asSqlSet('dow', null));
     }
 
     /**
      * @covers ::asSqlDate
-     * @todo   Implement testAsSqlDate().
      */
     public function testAsSqlDate()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $repo = [
+            Repo::P_CLASS=>Repo::C_DATE,
+            Repo::P_LABEL=>'Date queued',
+        ];
+
+        // date value
+        $this->assertEquals("queued='2016-12-31'", Repo::asSqlDate('queued', '31/12/2016', $repo));
+        $this->assertEquals("queued>'2016-12-31'", Repo::asSqlDate('queued', '>31/12/2016', $repo));
+        $this->assertEquals("queued<'2016-12-31'", Repo::asSqlDate('queued', '< 31/12/2016', $repo));
+        $this->assertEquals("queued between'2016-01-01'and'2016-12-31'", Repo::asSqlDate('queued', '1/1/2016 - 31/12/2016', $repo));
+
+        // datetime value
+        $this->assertEquals("queued='2016-12-31 00:00:00'", Repo::asSqlDate('queued', '31/12/2016', $repo+[Repo::P_FLAGS=>Repo::F_DATETIME]));
+        $this->assertEquals("queued>'2016-12-31 00:00:00'", Repo::asSqlDate('queued', '> 31/12/2016', $repo+[Repo::P_FLAGS=>Repo::F_DATETIME]));
+        $this->assertEquals("queued<'2016-12-31 00:00:00'", Repo::asSqlDate('queued', '<31/12/2016', $repo+[Repo::P_FLAGS=>Repo::F_DATETIME]));
+        $this->assertEquals("queued between'2016-01-01 00:00:00'and'2016-12-31 23:59:59'", Repo::asSqlDate('queued', '1/1/2016 - 31/12/2016', $repo+[Repo::P_FLAGS=>Repo::F_DATETIME]));
+
+        // empty value
+        $this->assertNull(Repo::asSqlDate('queued', null, $repo));
+        $this->assertNull(Repo::asSqlDate('queued', '0', $repo));
+        $this->assertNull(Repo::asSqlDate('queued', '', $repo));
+
+        // not a date value
+        $this->assertFalse(Repo::asSqlDate('queued', 'not a date', $repo));
     }
 }

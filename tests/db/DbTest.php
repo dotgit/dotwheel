@@ -298,7 +298,7 @@ EOsql
      */
     public function testEscapeInt()
     {
-        $this->assertEquals('NULL', Db::escapeInt(null));
+        $this->assertEquals('null', Db::escapeInt(null));
         $this->assertEquals(0, Db::escapeInt(0));
         $this->assertEquals(4, Db::escapeInt(4));
         $this->assertEquals(0, Db::escapeInt('not-integer'));
@@ -309,11 +309,11 @@ EOsql
      */
     public function testEscapeIntCsv()
     {
-        $this->assertEquals('NULL', Db::escapeIntCsv(null));
+        $this->assertEquals('null', Db::escapeIntCsv(null));
         $this->assertEquals(0, Db::escapeIntCsv(0));
         $this->assertEquals('1,2,3', Db::escapeIntCsv([1, 2, 3]));
         $this->assertEquals('1,3', Db::escapeIntCsv([1, null, 3, 'xxx']));
-        $this->assertEquals('NULL', Db::escapeIntCsv(['xxx']));
+        $this->assertEquals('null', Db::escapeIntCsv(['xxx']));
         $this->assertEquals(0, Db::escapeIntCsv('xxx'));
     }
 
@@ -322,7 +322,7 @@ EOsql
      */
     public function testWrapChar()
     {
-        $this->assertEquals('NULL', Db::wrapChar(null));
+        $this->assertEquals('null', Db::wrapChar(null));
         $this->assertEquals("'value'", Db::wrapChar('value'));
         $this->assertEquals("'o\\'value'", Db::wrapChar("o'value"));
         $this->assertEquals("'o\\nvalue'", Db::wrapChar("o\nvalue"));
@@ -333,11 +333,15 @@ EOsql
      */
     public function testWrapCharCsv()
     {
-        $this->assertEquals('NULL', Db::wrapCharCsv(null));
+        $this->assertEquals('null', Db::wrapCharCsv(null));
         $this->assertEquals("'value'", Db::wrapCharCsv('value'));
         $this->assertEquals(
             "'value','o\\'value','o\\nvalue'",
             Db::wrapCharCsv(['value', "o'value", "o\nvalue"])
+        );
+        $this->assertEquals(
+            'null',
+            Db::wrapCharCsv([])
         );
     }
 }

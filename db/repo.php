@@ -189,14 +189,18 @@ class Repo
         }
         switch ($param) {
             case self::P_ITEMS_SHORT:
-                return isset($repo[self::P_ITEMS_SHORT]) ? $repo[self::P_ITEMS_SHORT] : $repo[self::P_ITEMS];
+                return isset($repo[self::P_ITEMS_SHORT])
+                    ? $repo[self::P_ITEMS_SHORT]
+                    : (isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array());
             case self::P_ITEMS_LONG:
-                return isset($repo[self::P_ITEMS_LONG]) ? $repo[self::P_ITEMS_LONG] : $repo[self::P_ITEMS];
+                return isset($repo[self::P_ITEMS_LONG])
+                    ? $repo[self::P_ITEMS_LONG]
+                    : (isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array());
             default:
-                return $repo[self::P_ITEMS];
+                return isset($repo[self::P_ITEMS])
+                    ? $repo[self::P_ITEMS]
+                    : array();
         }
-
-        return array();
     }
 
     /** returns field repository attributes
@@ -502,32 +506,6 @@ class Repo
         return empty(self::$input_errors);
     }
 
-    /** validates value to represent a number between 0 and 100
-     *
-     * @param int $value    field value
-     * @param string $label field name to use in error message
-     * @return bool|string <i>true</i> on success, error message on validation error
-     */
-    public static function validatePct($value, $label)
-    {
-        return (0 <= $value and $value <= 100)
-            ? true
-            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
-    }
-
-    /** validates cents value to represent a number between 0 and 100
-     *
-     * @param int $value    field value
-     * @param string $label field name to use in error message
-     * @return bool|string <i>true</i> on success, error message on validation error
-     */
-    public static function validatePct100($value, $label)
-    {
-        return (0 <= $value and $value <= 10000)
-            ? true
-            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
-    }
-
     /** returns html representation of the field
      *
      * @param string $name  field name
@@ -778,12 +756,25 @@ class Repo
         }
     }
 
+    /** validates cents value to represent a number between 0 and 100
+     *
+     * @param int $value    field value
+     * @param string $label field name to use in error message
+     * @return bool|string <i>true</i> on success, error message on validation error
+     */
+    public static function validatePct100($value, $label)
+    {
+        return (is_numeric($value) and 0 <= $value and $value <= 100)
+            ? true
+            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
+    }
+
     /** return value for use in sql where clause
      *
      * @param string $name  field name
      * @param mixed $value  field value
      * @param array $repo   {field repository attributes}
-     * @return string
+     * @return string|null|false
      */
     public static function asSql($name, $value, $repo = array())
     {
@@ -795,11 +786,11 @@ class Repo
             switch (isset($Rep[self::P_CLASS]) ? $Rep[self::P_CLASS] : self::C_TEXT) {
                 case self::C_ID:
                 case self::C_INT:
-                    return self::asSqlInt($name, (int)$value);
+                    return self::asSqlInt($name, $value);
                 case self::C_CENTS:
-                    return self::asSqlInt($name, (int)$value * 100);
+                    return self::asSqlInt($name, is_numeric($value) ? $value * 100 : $value);
                 case self::C_BOOL:
-                    return self::asSqlBool($name, (bool)$value);
+                    return self::asSqlBool($name, $value);
                 case self::C_DATE:
                     return self::asSqlDate($name, $value, $Rep);
                 case self::C_SET:
@@ -814,40 +805,45 @@ class Repo
      *
      * @param string $name  field name
      * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
-     * @return string
+     * @return string|null|false
      */
-    public static function asSqlInt($name, $value, $repo = array())
+    public static function asSqlInt($name, $value)
     {
-        return isset($value)
-            ? "$name = ".Db::escapeInt($value)
-            : "$name is null";
+        if (is_numeric($value)) {
+            return "$name=".Db::escapeInt($value);
+        } else {
+            return empty($value) ? null : false;
+        }
     }
 
     /** returns sql condition for the boolean field value
      *
      * @param string $name  field name
      * @param mixed $value  field value
-     * @return string
+     * @return string|null
      */
     public static function asSqlBool($name, $value)
     {
-        return !empty($value)
-            ? $name
-            : "not $name";
+        if (isset($value)) {
+            return !empty($value)
+                ? $name
+                : "not $name";
+        } else {
+            return null;
+        }
     }
 
     /** returns sql condition for the text field value
      *
      * @param string $name  field name
      * @param mixed $value  field value
-     * @return string
+     * @return string|null
      */
     public static function asSqlText($name, $value)
     {
         return isset($value)
-            ? "$name = ".Db::wrapChar($value)
-            : "$name is null";
+            ? "$name=".Db::wrapChar($value)
+            : null;
     }
 
     /** returns sql condition for the set field where all (or some) values from
@@ -862,15 +858,20 @@ class Repo
     {
         $cond = array();
 
-        if (\is_array($value)) {
-            foreach ($value as $v) {
+        foreach ((array)$value as $v) {
+            if (isset($v)) {
                 $cond[] = 'find_in_set('.Db::wrapChar($v).",$name)";
             }
-        } else {
-            $cond[] = 'find_in_set('.Db::wrapChar($value).",$name)";
         }
 
-        return '('.\implode($all ? ' and ' : ' or ', $cond).')';
+        switch (count($cond)) {
+            case 0:
+                return null;
+            case 1:
+                return $cond[0];
+            default:
+                return '('.\implode($all ? 'and ' : 'or ', $cond).')';
+        }
     }
 
     /** returns sql condition for the date field value
@@ -882,7 +883,7 @@ class Repo
      *                      || '> 31/12/2012'
      *                      )
      * @param array $repo   {field repository attributes}
-     * @return string
+     * @return string|null|false
      */
     public static function asSqlDate($name, $value, $repo = array())
     {
@@ -890,7 +891,7 @@ class Repo
         $matches = array();
 
         if (empty($value)) {
-            return "$name is null";
+            return null;
         } elseif (\preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
             and $d1 = Nls::toDate($matches[1], $datetime)
             and $d2 = Nls::toDate($matches[2], $datetime)
@@ -898,19 +899,19 @@ class Repo
             if ($datetime and \substr($d2, -8) == '00:00:00') {
                 $d2 = \substr_replace($d2, '23:59:59', -8);
             }
-            return "$name between ".Db::wrapChar($d1).' and '.Db::wrapChar($d2);
+            return "$name between".Db::wrapChar($d1).'and'.Db::wrapChar($d2);
         } elseif (\preg_match('/^<\s*(\S+)$/', $value, $matches)
             and $d = Nls::toDate($matches[1], $datetime)
         ) {
-            return "$name < ".Db::wrapChar($d);
+            return "$name<".Db::wrapChar($d);
         } elseif (\preg_match('/^>\s*(\S+)$/', $value, $matches)
             and $d = Nls::toDate($matches[1], $datetime)
         ) {
-            return "$name > ".Db::wrapChar($d);
-        } elseif ($d = Nls::toDate($matches[1], $datetime)) {
-            return "$name = ".Db::wrapChar($d);
+            return "$name>".Db::wrapChar($d);
+        } elseif ($d = Nls::toDate($value, $datetime)) {
+            return "$name=".Db::wrapChar($d);
         } else {
-            return null;
+            return false;
         }
     }
 }

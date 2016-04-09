@@ -347,18 +347,18 @@ class Db
      * escape numbers)
      *
      * @param string $value number to escape
-     * @return string escaped value or <i>'NULL'</i> if the value is not set
+     * @return string escaped value or <i>'null'</i> if the value is not set
      */
     public static function escapeInt($value)
     {
-        return isset($value) ? (int)$value : 'NULL';
+        return isset($value) ? (int)$value : 'null';
     }
 
     /** produces a CSV string from an array of passed non-zero integers
      *
      * @param array|int $values array of int values to concatenate (if a scalar
      * is passed then it is converted to int and returned)
-     * @return string concatenated CSV string or <i>'NULL'</i> if the value is
+     * @return string concatenated CSV string or <i>'null'</i> if the value is
      * unset or empty list
      */
     public static function escapeIntCsv($values)
@@ -370,11 +370,11 @@ class Db
                     $vals[] = (int)$v;
                 }
             }
-            return $vals ? \implode(',', $vals) : 'NULL';
+            return $vals ? \implode(',', $vals) : 'null';
         } elseif (isset($values)) {
             return (int)$values;
         } else {
-            return 'NULL';
+            return 'null';
         }
     }
 
@@ -382,14 +382,14 @@ class Db
      * (normally used to escape strings)
      *
      * @param string $value string to escape
-     * @return string wrapped value or <i>'NULL'</i> if the value is unset
+     * @return string wrapped value or <i>'null'</i> if the value is unset
      */
     public static function wrapChar($value)
     {
         if (isset($value)) {
             return "'".\mysqli_real_escape_string(self::$conn, $value)."'";
         } else {
-            return 'NULL';
+            return 'null';
         }
     }
 
@@ -398,7 +398,7 @@ class Db
      *
      * @param array $values  array of strings to escape
      * @return string comma separated wrapped values <i>"'a','b','c'"</i> or
-     * <i>'NULL'</i> if value unset
+     * <i>'null'</i> if value unset
      */
     public static function wrapCharCsv($values)
     {
@@ -409,11 +409,11 @@ class Db
                     $vals[] = "'".\mysqli_real_escape_string(self::$conn, $v)."'";
                 }
             }
-            return $vals ? \implode(',', $vals) : 'NULL';
+            return $vals ? \implode(',', $vals) : 'null';
         } elseif (isset($values)) {
             return "'".\mysqli_real_escape_string(self::$conn, $values)."'";
         } else {
-            return 'NULL';
+            return 'null';
         }
     }
 }

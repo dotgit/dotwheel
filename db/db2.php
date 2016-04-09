@@ -56,7 +56,7 @@ class Db2
                         $ins[$name] = $params[self::P_VALUES][$name];
                 }
             } else {
-                $ins[$name] = 'NULL';
+                $ins[$name] = 'null';
             }
             if (isset($params[self::P_DUPLICATES][$name])) {
                 $dupl[$name] = $params[self::P_DUPLICATES][$name] === true
@@ -111,7 +111,7 @@ class Db2
                 'update %s set %s where %s',
                 $params[self::P_TABLE],
                 \implode(', ', $upd),
-                isset($params[self::P_WHERE]) ? $params[self::P_WHERE] : 'NULL'
+                isset($params[self::P_WHERE]) ? $params[self::P_WHERE] : 'null'
             )) : 0;
     }
 
