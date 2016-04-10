@@ -130,7 +130,7 @@ class HtmlTable
 
         $sort_fld = isset(self::$details[self::CGI_SORT][$element_id])
             ? self::$details[self::CGI_SORT][$element_id]
-            : null;
+            : $sort_default;
         if (isset($sort_cols[$sort_fld]))
             $sort_rev = false;
         elseif (isset($sort_cols[\substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)]))
