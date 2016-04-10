@@ -82,6 +82,7 @@ class DbShardTest extends DbBeforeClass
         ];
         DbShard::init($shards);
         $this->assertArrayHasKey(self::$shard_storage, DbShard::$shards, 'shards list initialized');
+        DbShard::$current_shard = $shards[self::$shard_users][DbShard::MODE_READ][0];
     }
 
     /**

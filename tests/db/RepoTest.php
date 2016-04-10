@@ -24,7 +24,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
     {
         self::assertEquals(
             'fr',
-            Nls::init(TextTest::DOMAIN, __DIR__.'/locale', 'fr'),
+            Nls::init(TextTest::DOMAIN, __DIR__.'/../nls/locale', 'fr'),
             'initialize english env'
         );
         self::assertTrue(

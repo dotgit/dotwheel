@@ -26,8 +26,8 @@ class DbShard extends Db
     const MODE_WRITE    = 2;
 
     /** internal connection enum */
-    const ENUM_HOST = 1;
-    const ENUM_CNX  = 2;
+    const ENUM_SHARD    = 1;
+    const ENUM_CNX      = 2;
 
     /** @var array list of all available application shards by shard name */
     public static $shards = array();
@@ -36,7 +36,7 @@ class DbShard extends Db
     public static $connections = array();
 
     /** @var string current host */
-    public static $current_host = array();
+    public static $current_shard = array();
 
     /** initializes application shards
      *
@@ -89,21 +89,20 @@ class DbShard extends Db
         // open new connection if needed and store in connections array
         if (empty(self::$connections[$shard_name][$access_mode])) {
             $shard = self::selectHost(self::$shards[$shard_name][$access_mode]);
-            $host = Params::extract($shard, self::CNX_HOST);
-            self::$connections[$shard_name][$access_mode] = array(self::ENUM_HOST=>$host);
-            self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($host == self::$current_host)
+            self::$connections[$shard_name][$access_mode] = array(self::ENUM_SHARD=>$shard);
+            self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($shard == self::$current_shard)
                 ? parent::$conn
                 : self::connect(
-                    $host,
+                    Params::extract($shard, self::CNX_HOST),
                     Params::extract($shard, self::CNX_USERNAME),
                     Params::extract($shard, self::CNX_PASSWORD),
                     Params::extract($shard, self::CNX_DATABASE),
-                    Params::extract($shard, self::CNX_CHARSET, 'UTF8')
+                    Params::extract($shard, self::CNX_CHARSET)
                 );
         }
 
         // remember current connection host
-        self::$current_host = self::$connections[$shard_name][$access_mode][self::ENUM_HOST];
+        self::$current_shard = self::$connections[$shard_name][$access_mode][self::ENUM_SHARD];
 
         // set Db::$conn
         parent::$conn = self::$connections[$shard_name][$access_mode][self::ENUM_CNX];
