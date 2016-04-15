@@ -38,8 +38,6 @@ class Html
     const P_HEADER          = 15;
     const P_HEADER_ATTR     = 16;
 
-    const T_ARRAY   = 1;
-
 
 
     /** Html attributes */
@@ -275,7 +273,6 @@ class Html
 
     /**
      * @param array $params {P_ITEMS:{a:'Active',i:'Inactive'}
-     *                      , P_TYPE:'array'|null
      *                      , P_BLANK:'First line message'
      *                      , value:'a'
      *                      , select tag attributes
@@ -295,25 +292,11 @@ class Html
                 ? ('<option value="">'.self::encode($blank)."</option>")
                 : "<option></option>";
 
-        switch (Params::extract($params, self::P_TYPE))
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
         {
-        case self::T_ARRAY:
-            foreach (Params::extract($params, self::P_ITEMS, array()) as $arr)
-            {
-                list($k, $v) = $arr;
-                $items[] = ($k == $value && ! empty($k))
-                    ? "<option value=\"$k\" selected=\"on\">$v</option>"
-                    : "<option value=\"$k\">$v</option>";
-            }
-            break;
-
-        default:
-            foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
-            {
-                $items[] = ($k == $value && ! empty($k))
-                    ? "<option value=\"$k\" selected=\"on\">$v</option>"
-                    : "<option value=\"$k\">$v</option>";
-            }
+            $items[] = ($k == $value && ! empty($k))
+                ? "<option value=\"$k\" selected=\"on\">$v</option>"
+                : "<option value=\"$k\">$v</option>";
         }
         $attr = self::attr($params);
 
@@ -373,7 +356,6 @@ class Html
      *                      , name:'field_name'
      *                      , value:'a'
      *                      , P_ITEMS:{a:'Active',i:'Inactive'}
-     *                      , P_TYPE:TYPE_ARRAY|null
      *                      , P_DELIM:'&lt;br&gt;'
      *                      , P_FMT:'%s'
      *                      , P_PREFIX:''
@@ -397,37 +379,17 @@ class Html
             $label_attr = Html::attr($label_attr);
 
         $items = array();
-        switch (Params::extract($params, self::P_TYPE))
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
         {
-        case self::T_ARRAY:
-            foreach (Params::extract($params, self::P_ITEMS, array()) as $line)
-            {
-                list($k, $v) = $line;
-                $item = "<label$label_attr><input".
-                    self::attr(array(
-                        'type'=>'radio',
-                        'name'=>$name,
-                        'value'=>$k,
-                        'checked'=>($k == $value and ! empty($k)) ? 'on' : null
-                    ) + $params).
-                    ">$v</label>";
-                $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
-            }
-            break;
-
-        default:
-            foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
-            {
-                $item = "<label$label_attr><input".
-                    self::attr(array(
-                        'type'=>'radio',
-                        'name'=>$name,
-                        'value'=>$k,
-                        'checked'=>($k == $value and ! empty($k)) ? 'on' : null
-                    ) + $params).
-                    ">$v</label>";
-                $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
-            }
+            $item = "<label$label_attr><input".
+                self::attr(array(
+                    'type'=>'radio',
+                    'name'=>$name,
+                    'value'=>$k,
+                    'checked'=>($k == $value and ! empty($k)) ? 'on' : null
+                ) + $params).
+                ">$v</label>";
+            $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
         }
 
         return $item_prefix.\implode($delim, $items).$item_suffix;
@@ -544,7 +506,8 @@ class Html
     }
 
     /** integer value using specified thousands separator or Nls format if empty
-     * @param int $i    value to convert
+     * @param int $i        value to convert
+     * @param string $sep   thousands separator
      * @return string
      */
     public static function asInt($i, $sep=null)
@@ -554,16 +517,6 @@ class Html
         return $sep === ' '
             ? \str_replace(' ', '&nbsp;', \number_format($i, 0, '', ' '))
             : \number_format($i, 0, '', $sep);
-    }
-
-    /** numeric value with decimal places displayed only if they exist. before conversion
-     * value is divided by 100
-     * @param int $num  value to convert
-     * @return string
-     */
-    public static function asNumCompact($num)
-    {
-        return \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $num/100);
     }
 
     /** value with thousands/decimal separators and 2 decimal places.
@@ -656,43 +609,5 @@ class Html
     public static function asAbbr($short, $long)
     {
         return '<abbr title="'.\htmlspecialchars($long, \ENT_COMPAT, Nls::$charset).'">'.$short.'</abbr>';
-    }
-
-    /** html representation of a list: 'On'
-     * @param string $value         'x'
-     * @param array $items          {'x':'On', '':'Off'}
-     * @param string $flat_array    if set the $items array is as follows: [['x','On'], ['','Off']]
-     * @return string
-    */
-    public static function asEnum($value, $items, $flat_array=null)
-    {
-        if ($flat_array)
-        {
-            foreach ($items as $item)
-            {
-                list($k, $v) = $item;
-                if ($value == $k)
-                    return $v;
-            }
-            return '';
-        }
-        else
-            return isset($items[$value]) ? $items[$value] : '';
-    }
-
-    /** html representation of set: 'High, Low'
-     * @param string $value 'a,c'
-     * @param array $items  {a:High, b:Normal, c:Low} (array values will be html-escaped)
-     * @param string $delim value to use as delimiter, defaults to Nls format
-     * @return string
-     */
-    public static function asSet($value, $items, $delim=null)
-    {
-        return ($set = \array_flip(\explode(',', $value)))
-            ? \implode(
-                (isset($delim) ? $delim : Nls::$formats[Nls::P_LIST_DELIM_HTML]).' ',
-                \array_intersect_key($items, $set)
-            )
-            : '';
     }
 }

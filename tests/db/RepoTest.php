@@ -281,26 +281,414 @@ class RepoTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers ::validateInput
-     * @todo   Implement testValidateInput().
      */
     public function testValidateInput()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        // invalid input validation
+        $this->assertFalse(Repo::validateInput([
+            'op'=>[
+                Repo::P_LABEL=>'Operation',
+                Repo::P_REQUIRED=>true,
+                Repo::P_CLASS=>Repo::C_ENUM,
+                Repo::P_ITEMS=>[
+                    'user-ins'=>'insert user',
+                    'user-upd'=>'update user',
+                    'user-del'=>'delete user',
+                ],
+            ],
+            DbBeforeClass::C_SECTION=>[Repo::P_REQUIRED=>true],
+            DbBeforeClass::C_ID=>[Repo::P_REQUIRED=>true],
+            DbBeforeClass::C_NAME=>[Repo::P_REQUIRED=>true],
+            'user_email'=>[Repo::P_LABEL=>'Email', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_EMAIL],
+            'user_profile'=>[Repo::P_LABEL=>'User profile', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_URL],
+            'user_tel'=>[Repo::P_LABEL=>'User tel', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_WIDTH=>20],
+            'price'=>[Repo::P_LABEL=>'Price', Repo::P_CLASS=>Repo::C_CENTS],
+            'is_due'=>[Repo::P_LABEL=>'Is due', Repo::P_CLASS=>Repo::C_BOOL],
+            'postal'=>[Repo::P_LABEL=>'Postal', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_VALIDATE_REGEXP=>'/^\d{5}$/'],
+            'color'=>[Repo::P_LABEL=>'Color', Repo::P_VALIDATE_CALLBACK=>
+                function($val, $label){return $val=='red'?true:"value in '$label' is not a color";}
+            ],
+            'flags'=>[Repo::P_LABEL=>'Flags', Repo::P_REQUIRED=>true, Repo::P_CLASS=>Repo::C_SET, Repo::P_ITEMS=>[1=>'one', 2=>'two']],
+            'code'=>[Repo::P_LABEL=>'Code', Repo::P_CLASS=>Repo::C_TEXT],
+        ], [
+            'op'=>'insert',
+            DbBeforeClass::C_SECTION=>1,
+            DbBeforeClass::C_ID=>-1,
+            'user_email'=>'not.an/email',
+            'user_profile'=>'not.an/url',
+            'user_tel'=>'12345678901234567890123',
+            'price'=>'123x45',
+            'is_due'=>'unspecified',
+            'postal'=>'12-345',
+            'color'=>'strong',
+            'flags'=>3,
+            'code'=>[1=>2],
+        ]), 'validation errors for each field');
+        $errors = implode(' ', Repo::$input_errors);
+        $this->assertContains(
+            'Operation',
+            $errors,
+            'C_ENUM item not an option'
+        );
+        $this->assertContains(
+            Repo::getLabel(DbBeforeClass::C_ID),
+            $errors,
+            'ID value can only be positive'
+        );
+        $this->assertContains(
+            Repo::getLabel(DbBeforeClass::C_NAME),
+            $errors,
+            'invalid field label is present in error messages list'
+        );
+        $this->assertContains(
+            'Email',
+            $errors,
+            'malformed email'
+        );
+        $this->assertContains(
+            'User profile',
+            $errors,
+            'malformed url'
+        );
+        $this->assertContains(
+            'User tel',
+            $errors,
+            'the field is too long'
+        );
+        $this->assertContains(
+            'Price',
+            $errors,
+            'P_CENTS field must be numeric'
+        );
+        $this->assertContains(
+            'Is due',
+            $errors,
+            'C_BOOL field must be boolean'
+        );
+        $this->assertContains(
+            'Postal',
+            $errors,
+            'P_VALIDATE_REGEXP field must match regexp'
+        );
+        $this->assertContains(
+            'Color',
+            $errors,
+            'P_VALIDATE_CALLBACK field must pass callback validation'
+        );
+        $this->assertContains(
+            'Flags',
+            $errors,
+            'P_SET field must match P_ITEMS key(s)'
+        );
+        $this->assertContains(
+            'Code',
+            $errors,
+            'C_TEXT field must be scalar'
+        );
+
+        // valid input validation
+        $_FILES = [
+            'upload'=>[
+                'name'=>'test.png',
+                'type'=>'image/png',
+                'size'=>32,
+                'tmp_name'=>'/tmp/uploaded-test.png',
+                'error'=>0,
+            ],
+        ];
+
+        $this->assertTrue(Repo::validateInput([
+            'op'=>[
+                Repo::P_REQUIRED=>true,
+                Repo::P_CLASS=>Repo::C_ENUM,
+                Repo::P_ITEMS=>[
+                    'user-ins'=>'insert user',
+                    'user-upd'=>'update user',
+                    'user-del'=>'delete user',
+                ],
+            ],
+            'user_initials'=>[Repo::P_CLASS=>Repo::C_TEXT, Repo::P_WIDTH=>10],
+            'user_fullname'=>[Repo::P_FLAGS=>Repo::F_UCFIRST, Repo::P_WIDTH=>200],
+            'user_email'=>[Repo::P_FLAGS=>Repo::F_EMAIL, Repo::P_WIDTH=>255],
+            'user_profile'=>[Repo::P_FLAGS=>Repo::F_URL, Repo::P_WIDTH=>255],
+            'user_tel'=>[Repo::P_FLAGS=>Repo::F_TEL, Repo::P_WIDTH=>20],
+            'user_address'=>[Repo::P_FLAGS=>Repo::F_TEXTAREA|Repo::F_UPPERCASE, Repo::P_WIDTH=>2000],
+            'user_birthday'=>[Repo::P_CLASS=>Repo::C_DATE],
+            'price'=>[Repo::P_CLASS=>Repo::C_CENTS],
+            'is_due'=>[Repo::P_CLASS=>Repo::C_BOOL],
+            'postal'=>[Repo::P_VALIDATE_REGEXP=>'/^\d{5}$/'],
+            'color'=>[Repo::P_VALIDATE_CALLBACK=>
+                function($val, $label){return $val=='red'?true:"value in '$label' is not a color";}
+            ],
+            'flags_string'=>[
+                Repo::P_CLASS=>Repo::C_SET,
+                Repo::P_ITEMS=>[
+                    'one'=>'insert user',
+                    'two'=>'update user',
+                    'three'=>'delete user',
+                ],
+            ],
+            'flags_array'=>[
+                Repo::P_CLASS=>Repo::C_SET,
+                Repo::P_ITEMS=>[
+                    'one'=>'insert user',
+                    'two'=>'update user',
+                    'three'=>'delete user',
+                ],
+            ],
+            'upload'=>[Repo::P_CLASS=>Repo::C_FILE],
+        ], [
+            'op'=>'user-ins',
+            'user_initials'=>'',
+            'user_fullname'=>'stas trefilov',
+            'user_email'=>'email+filter@domain.tld',
+            'user_profile'=>'http://www.linkedin.com/me?maybe#not',
+            'user_tel'=>'   0  12345678    9 ',
+            'user_address'=>" some text on\r\n   - multiple lines, padded with whitespaces \t\r\n",
+            'user_birthday'=>'1/1/16',
+            'price'=>'123,45',
+            'is_due'=>'no',
+            'postal'=>'75001',
+            'color'=>'red',
+            'flags_string'=>'one,three',
+            'flags_array'=>['two','three'],
+        ]), 'all fields must pass');
+        $this->assertNull(
+            Repo::$validated['user_initials'],
+            'empty string in optional C_TEXT field formatted as null'
+        );
+        $this->assertEquals(
+            'Stas Trefilov',
+            Repo::$validated['user_fullname'],
+            'C_TEXT field formatted Uppercased First Chars'
+        );
+        $this->assertEquals(
+            'email+filter@domain.tld',
+            Repo::$validated['user_email'],
+            'C_TEXT field validated as email'
+        );
+        $this->assertEquals(
+            'http://www.linkedin.com/me?maybe#not',
+            Repo::$validated['user_profile'],
+            'C_TEXT field validated as email'
+        );
+        $this->assertEquals(
+            '01 23 45 67 89',
+            Repo::$validated['user_tel'],
+            'C_TEXT field formatted as telephone'
+        );
+        $this->assertEquals(
+            "SOME TEXT ON\r\n   - MULTIPLE LINES, PADDED WITH WHITESPACES",
+            Repo::$validated['user_address'],
+            'F_TEXTAREA field kept inner whitespace formatting, formatted to F_UPPERCASE'
+        );
+        $this->assertEquals(
+            '2016-01-01',
+            Repo::$validated['user_birthday'],
+            'C_DATE field formatted'
+        );
+        $this->assertEquals(
+            '12345',
+            Repo::$validated['price'],
+            'C_CENTS field formatted'
+        );
+        $this->assertEquals(
+            0,
+            Repo::$validated['is_due'],
+            'C_BOOL field is valid'
+        );
+        $this->assertEquals(
+            '75001',
+            Repo::$validated['postal'],
+            'P_VALIDATE_REGEXP field is valid'
+        );
+        $this->assertEquals(
+            'red',
+            Repo::$validated['color'],
+            'P_VALIDATE_CALLBACK field is valid'
+        );
+        $this->assertEquals(
+            'one,three',
+            Repo::$validated['flags_string'],
+            'C_SET field formatted from string'
+        );
+        $this->assertEquals(
+            'two,three',
+            Repo::$validated['flags_array'],
+            'C_SET field formatted from array'
+        );
+        $this->assertEquals(
+            $_FILES['upload'],
+            Repo::$validated['upload'],
+            'C_FILE field corresponds to _FILES'
         );
     }
 
     /**
      * @covers ::asHtmlStatic
-     * @todo   Implement testAsHtmlStatic().
      */
     public function testAsHtmlStatic()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $text = "<Line1>\n<Line2>";
+        $datetime = '2016-12-31 12:34:56';
+
+        // unset value
+        $this->assertEquals('', Repo::asHtmlStatic(
+            'op',
+            null
+        ), 'NULL values: empty string');
+
+        // no P_CLASS
+        $this->assertEquals('<Text>', Repo::asHtmlStatic(
+            'op',
+            '<Text>'
+        ), 'P_CLASS not provided: return value as is');
+
+        // C_TEXT
+        $this->assertEquals("&lt;Line1&gt;\n&lt;Line2&gt;", Repo::asHtmlStatic(
+            'op',
+            $text,
+            [Repo::P_CLASS=>Repo::C_TEXT]
+        ), 'C_TEXT: html encode');
+        $this->assertEquals("&lt;Line1&gt;<br />\n&lt;Line2&gt;", Repo::asHtmlStatic(
+            'op',
+            $text,
+            [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_TEXTAREA]
+        ), 'C_TEXT + F_TEXTAREA: html encode + convert NL to BR');
+
+        // C_DATE
+        $this->assertEquals('31/12/16', Repo::asHtmlStatic(
+            'op',
+            $datetime,
+            [Repo::P_CLASS=>Repo::C_DATE]
+        ), 'C_DATE: NLS converted');
+        $this->assertEquals('31/12/16 12:34', Repo::asHtmlStatic(
+            'op',
+            $datetime,
+            [Repo::P_CLASS=>Repo::C_DATE, Repo::P_FLAGS=>Repo::F_DATETIME]
+        ), 'C_DATE + F_DATETIME: NLS converted + time');
+
+        // C_ENUM
+        $this->assertEquals('', Repo::asHtmlStatic(
+            'op',
+            'ins',
+            [Repo::P_CLASS=>Repo::C_ENUM]
+        ), 'C_ENUM: empty string if no P_ITEMS');
+        $this->assertEquals('', Repo::asHtmlStatic(
+            'op',
+            'upd',
+            [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_ITEMS=>['ins'=>'<Insert>']]
+        ), 'C_ENUM: empty string if value not in P_ITEMS');
+        $this->assertEquals('&lt;Insert&gt;', Repo::asHtmlStatic(
+            'op',
+            'ins',
+            [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_ITEMS=>['ins'=>'<Insert>']]
+        ), 'C_ENUM: html encode item value');
+        $this->assertEquals('<Insert>', Repo::asHtmlStatic(
+            'op',
+            'ins',
+            [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_FLAGS=>Repo::F_ASIS, Repo::P_ITEMS=>['ins'=>'<Insert>']]
+        ), 'C_ENUM + F_ASIS: item value as is');
+        $this->assertEquals('<abbr title="Insert item">&lt;I&gt;</abbr>', Repo::asHtmlStatic(
+            'op',
+            'ins',
+            [
+                Repo::P_CLASS=>Repo::C_ENUM,
+                Repo::P_FLAGS=>Repo::F_ABBR,
+                Repo::P_ITEMS_SHORT=>['ins'=>'<I>'],
+                Repo::P_ITEMS=>['ins'=>'Insert'],
+                Repo::P_ITEMS_LONG=>['ins'=>'Insert item'],
+            ]
+        ), 'C_ENUM + F_ABBR: item value as abbreviation');
+
+        // C_SET
+        $this->assertEquals('&lt;I&gt;&nbsp;; &lt;D&gt;', Repo::asHtmlStatic(
+            'op',
+            'i,d',
+            [Repo::P_CLASS=>Repo::C_SET, Repo::P_ITEMS=>['i'=>'<I>', 'u'=>'<U>', 'd'=>'<D>']]
+        ), 'C_SET: html encode values and delimiters');
+        $this->assertEquals('<I> ; <D>', Repo::asHtmlStatic(
+            'op',
+            'i,d',
+            [Repo::P_CLASS=>Repo::C_SET, Repo::P_FLAGS=>Repo::F_ASIS, Repo::P_ITEMS=>['i'=>'<I>', 'u'=>'<U>', 'd'=>'<D>']]
+        ), 'C_SET: item values and delimiters as is');
+
+        // C_ID, C_INT
+        $this->assertEquals('1&nbsp;000', Repo::asHtmlStatic(
+            'id',
+            '1000',
+            [Repo::P_CLASS=>Repo::C_ID]
+        ), 'C_ID: integer');
+        $this->assertEquals('1 000', Repo::asHtmlStatic(
+            'id',
+            '1000',
+            [Repo::P_CLASS=>Repo::C_INT, Repo::P_FLAGS=>Repo::F_ASIS]
+        ), 'C_INT: integer');
+        $this->assertEquals('', Repo::asHtmlStatic(
+            'id',
+            'abc',
+            [Repo::P_CLASS=>Repo::C_INT]
+        ), 'C_INT: non-integer as empty string');
+
+        // C_CENTS
+        $this->assertEquals('1&nbsp;234,56', Repo::asHtmlStatic(
+            'price',
+            '123456',
+            [Repo::P_CLASS=>Repo::C_CENTS]
+        ), 'C_CENTS: html integer with 2 decimals');
+        $this->assertEquals('1&nbsp;234,5', Repo::asHtmlStatic(
+            'price',
+            '123450',
+            [Repo::P_CLASS=>Repo::C_CENTS, Repo::P_FLAGS=>Repo::F_SHOW_COMPACT]
+        ), 'C_CENTS: html integer with as much as 2 decimals');
+        $this->assertEquals('1 235', Repo::asHtmlStatic(
+            'price',
+            '123456',
+            [Repo::P_CLASS=>Repo::C_CENTS, Repo::P_FLAGS=>Repo::F_HIDE_DECIMAL|Repo::F_ASIS]
+        ), 'C_CENTS:  non-encoded integer without decimals');
+        $this->assertEquals('', Repo::asHtmlStatic(
+            'price',
+            'abc',
+            [Repo::P_CLASS=>Repo::C_CENTS]
+        ), 'C_CENTS: integer');
+
+        // C_BOOL
+        $this->assertEquals('oui', Repo::asHtmlStatic(
+            'is_due',
+            true,
+            [Repo::P_CLASS=>Repo::C_BOOL]
+        ), 'C_BOOL: true value');
+        $this->assertEquals('&lt;off&gt;', Repo::asHtmlStatic(
+            'is_due',
+            false,
+            [Repo::P_CLASS=>Repo::C_BOOL, Repo::P_ITEMS=>['<off>', '<on>']]
+        ), 'C_BOOL: false value with custom labels');
+
+        // C_FILE
+        $file = [
+            'name'=>'test&check.png',
+            'type'=>'image/png',
+            'size'=>32,
+            'tmp_name'=>'/tmp/uploaded-test.png',
+            'error'=>0,
+        ];
+        $this->assertEquals('test&amp;check.png', Repo::asHtmlStatic(
+            'upload',
+            $file,
+            [Repo::P_CLASS=>Repo::C_FILE]
+        ), 'C_FILE: html filename');
+        $this->assertEquals('test&check.png', Repo::asHtmlStatic(
+            'upload',
+            $file,
+            [Repo::P_CLASS=>Repo::C_FILE, Repo::P_FLAGS=>Repo::F_ASIS]
+        ), 'C_FILE: non-encoded filename');
+
+        // default
+        $this->assertEquals('U&I', Repo::asHtmlStatic(
+            'unknown',
+            'U&I',
+            [Repo::P_CLASS=>'unknown']
+        ), 'unknown P_CLASS: as is');
     }
 
     /**
@@ -312,6 +700,38 @@ class RepoTest extends PHPUnit_Framework_TestCase
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
             'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers ::enumToString
+     */
+    public function testEnumToString()
+    {
+        $this->assertEquals('&lt;Insert&gt;', Repo::enumToString('i', ['i'=>'<Insert>']), 'item encoded');
+        $this->assertEquals('<Insert>', Repo::enumToString('i', ['i'=>'<Insert>'], false), 'item as is');
+        $this->assertEquals('', Repo::enumToString('u', ['i'=>'<Insert>'], false), 'missing item');
+    }
+
+    /**
+     * @covers ::setToString
+     */
+    public function testSetToString()
+    {
+        $this->assertEquals(
+            '&lt;I&gt;&nbsp;; &lt;D&gt;',
+            Repo::setToString('i,d', ['i'=>'<I>', 'u'=>'<U>', 'd'=>'<D>']),
+            'items encoded'
+        );
+        $this->assertEquals(
+            '<I> ; <D>',
+            Repo::setToString('i,d', ['i'=>'<I>', 'u'=>'<U>', 'd'=>'<D>'], false),
+            'items as is'
+        );
+        $this->assertEquals(
+            '<D>',
+            Repo::setToString('a,b,c,d', ['i'=>'<I>', 'u'=>'<U>', 'd'=>'<D>'], false),
+            'missing items'
         );
     }
 

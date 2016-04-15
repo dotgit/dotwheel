@@ -2,9 +2,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dotwheel\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-09-22 12:01+0100\n"
+"POT-Creation-Date: 2016-04-15 23:57+0100\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Stas Trefilov <stas.trefilov@gmail.com>\n"
+"Last-Translator: stas trefilov <stas@vertilia.com>\n"
 "Language-Team:  <stas.trefilov@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -13,88 +13,99 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-Basepath: ../../../\n"
-"X-Generator: Poedit 1.6.9\n"
+"X-Generator: Poedit 1.7.1\n"
 "X-Poedit-KeywordsList: dget:2;pget:1c,2;dpget:2c,3;nget:1,2;dnget:2,3;"
 "pnget:1c,2,3;dpnget:2c,3,4\n"
 "X-Poedit-SearchPath-0: dotwheel\n"
+"X-Poedit-SearchPathExcluded-0: dotwheel/tests\n"
 
-#: dotwheel/db/repo.php:339
+#: dotwheel/db/repo.php:288
+#, php-format
+msgid "value in '%s' is not a boolean"
+msgstr "valeur dans '%s' doit être booléenne"
+
+#: dotwheel/db/repo.php:334
 #, php-format
 msgid "value in '%s' must not exceed %u characters"
 msgstr "valeur dans '%s' ne doit pas dépasser %u caractères"
 
-#: dotwheel/db/repo.php:354
+#: dotwheel/db/repo.php:349
 #, php-format
 msgid "value in '%s' does not represent an email address"
 msgstr "valeur dans '%s' ne représente pas une adresse e-mail"
 
-#: dotwheel/db/repo.php:366
+#: dotwheel/db/repo.php:363
 #, php-format
 msgid "value in '%s' does not represent a web address"
 msgstr "valeur dans '%s' ne représente pas une adresse web"
 
-#: dotwheel/db/repo.php:378
+#: dotwheel/db/repo.php:377
 #, php-format
 msgid "value in '%s' does not match the required format"
 msgstr "valeur dans '%s' ne correspond pas au format"
 
-#: dotwheel/db/repo.php:408
+#: dotwheel/db/repo.php:413
 #, php-format
 msgid "value in '%s' is not a valid date"
 msgstr "valeur dans '%s' n'est pas une date"
 
-#: dotwheel/db/repo.php:431
+#: dotwheel/db/repo.php:429
+#, php-format
+msgid "value in '%s' is not an option"
+msgstr "valeur dans '%s' n'est pas dans la liste"
+
+#: dotwheel/db/repo.php:454
 #, php-format
 msgid "value in '%s' must be positive"
 msgstr "valeur dans '%s' doit être positif"
 
-#: dotwheel/db/repo.php:452 dotwheel/db/repo.php:466
+#: dotwheel/db/repo.php:471 dotwheel/db/repo.php:482
 #, php-format
 msgid "too big file in '%s' (maximal allowed file size: %s)"
 msgstr ""
 "fichier dans '%s' est trop volumineux (la taille maximale autorisée : %s)"
 
-#: dotwheel/db/repo.php:472
+#: dotwheel/db/repo.php:489
 #, php-format
 msgid "error uploading file from '%s'"
 msgstr "erreur de chargement du fichier dans '%s'"
 
-#: dotwheel/db/repo.php:489
+#: dotwheel/db/repo.php:506
 #, php-format
 msgid "value is required in '%s'"
 msgstr "valeur est obligatoire dans '%s'"
 
-#: dotwheel/db/repo.php:496
+#: dotwheel/db/repo.php:514
 #, php-format
 msgid "type mismatch for '%s'"
 msgstr "mauvais type de données dans '%s'"
 
-#: dotwheel/db/repo.php:511 dotwheel/db/repo.php:523
+#: dotwheel/db/repo.php:621
+msgid "no"
+msgstr "non"
+
+#: dotwheel/db/repo.php:622
+msgid "yes"
+msgstr "oui"
+
+#: dotwheel/db/repo.php:816
 #, php-format
 msgid "value in '%s' must be between 0 and 100"
 msgstr "valeur dans '%s' doit rester entre 0 et 100"
 
-#: dotwheel/db/repo.php:622
-msgid "no"
-msgstr "non"
-
-#: dotwheel/db/repo.php:623
-msgid "yes"
-msgstr "oui"
-
-#: dotwheel/http/response.php:116
+#: dotwheel/http/response.php:145
 msgid "Input verification error"
 msgstr "Erreur à la vérification des données"
 
-#: dotwheel/http/response.php:135
+#: dotwheel/http/response.php:164
 msgid "Command execution error"
 msgstr "Erreur à l'exécution de la commande"
 
-#: dotwheel/ui/htmltable.php:512
+#: dotwheel/ui/htmltable.php:524
 msgid "Prev"
 msgstr "Précédent"
 
-#: dotwheel/ui/htmltable.php:523
+#: dotwheel/ui/htmltable.php:535
 msgid "Next"
 msgstr "Suivant"
 

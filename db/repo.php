@@ -47,7 +47,7 @@ class Repo
     const C_FILE    = 9;
 
     const F_POSITIVE        = 0x00000001;
-    const F_SHOW_DECIMAL    = 0x00000002;
+    const F_HIDE_DECIMAL    = 0x00000002;
     const F_SHOW_COMPACT    = 0x00000004;
 
     const F_PASSWORD        = 0x00000010;
@@ -66,7 +66,6 @@ class Repo
     const F_RADIO           = 0x00200000;    // display as radio buttons instead of select dropdown
     const F_INLINE_ITEMS    = 0x00400000;    // display enum or set items on one line instead of stacked
     const F_ABBR            = 0x00800000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) for abbr tag
-    const F_ARRAY           = 0x01000000;    // list items are using [[k,v], [k,v], ...] form instead of {k:v, k:v, ...}
 
     const F_ASIS            = 0x10000000;
 
@@ -257,7 +256,7 @@ class Repo
      *
      * @param array $fields {field1:{repository parameters}, field2:{repository parameters}}
      * @param array $values {field1:val1, field2:val2, ...} if omitted then uses $_REQUEST
-     * @return bool whether validation is passed ok (no input errors)
+     * @return bool whether validation has passed ok (no input errors)
      */
     public static function validateInput($fields, $values = null)
     {
@@ -267,7 +266,7 @@ class Repo
 
         self::$input_errors = array();
 
-        foreach ($fields as $fld=> $params) {
+        foreach ($fields as $fld => $params) {
             if (\is_scalar($params)) {
                 $params = array($params=>true);
             }
@@ -282,7 +281,15 @@ class Repo
                 )
                 : null;
 
-            if (isset($value)) {
+            if (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_BOOL) {
+                $val = \filter_var($value, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE);
+                if ($val === null) {
+                    $val = false;
+                    $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' is not a boolean"), $label);
+                } else {
+                    $val = (int)$val;
+                }
+            } elseif (isset($value)) {
                 // convert value
                 if ($value === '') {
                     $val = null;
@@ -311,9 +318,6 @@ class Repo
                                 }
                                 $val = (int)$val;
                             }
-                            break;
-                        case self::C_BOOL:
-                            $val = $value ? 1 : 0;
                             break;
                         case self::C_TEXT:
                             if (\is_scalar($value)) {
@@ -382,8 +386,7 @@ class Repo
                                     }
 
                                     if ($flags & self::F_UCFIRST) {
-                                        $val = \mb_strtoupper(\mb_substr($val, 0, 1, Nls::$charset), Nls::$charset).
-                                            \mb_substr($val, 1, \strlen($val), Nls::$charset);
+                                        $val = \mb_convert_case($val, \MB_CASE_TITLE, Nls::$charset);
                                     }
 
                                     if ($flags & self::F_LOWERCASE) {
@@ -420,11 +423,19 @@ class Repo
                             } else {
                                 $val = false;
                             }
+
+                            if ($val === false) {
+                                $err = \sprintf(
+                                    Text::dget(Nls::FW_DOMAIN, "value in '%s' is not an option"),
+                                    $label
+                                );
+                            }
                             break;
                         case self::C_SET:
                             if (\is_scalar($value)) {
                                 $value = \explode(',', $value);
                             }
+
                             $val = \implode(
                                 ',',
                                 \array_keys(isset($repo[self::P_ITEMS])
@@ -432,6 +443,9 @@ class Repo
                                     : \array_flip($value)
                                 )
                             );
+
+                            if ($val === '')
+                                $val = null;
                             break;
                     }
 
@@ -483,8 +497,6 @@ class Repo
                 } else {
                     $val = $_FILES[$fld];
                 }
-            } elseif (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_BOOL) {
-                $val = 0;
             } else {
                 $val = null;
             }
@@ -535,83 +547,89 @@ class Repo
                         isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME
                     );
                 case self::C_ENUM:
-                    $asis = isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS);
-                    return (isset($repo[self::P_ITEMS]) && isset($repo[self::P_ITEMS][$value]))
-                        ? (isset($repo[self::P_FLAGS])
-                            ? ($repo[self::P_FLAGS] & self::F_ABBR
-                                ? Html::asAbbr(
-                                    isset($repo[self::P_ITEMS_SHORT][$value])
-                                        ? ($asis
-                                            ? $repo[self::P_ITEMS_SHORT][$value]
-                                            : Html::encode($repo[self::P_ITEMS_SHORT][$value])
-                                        )
-                                        : ($asis
-                                            ? $repo[self::P_ITEMS][$value]
-                                            : Html::encode($repo[self::P_ITEMS][$value])
-                                        ),
-                                    isset($repo[self::P_ITEMS_LONG][$value])
-                                        ? ($asis
-                                            ? $repo[self::P_ITEMS_LONG][$value]
-                                            : Html::encode($repo[self::P_ITEMS_LONG][$value])
-                                        )
-                                        : ($asis
-                                            ? $repo[self::P_ITEMS][$value]
-                                            : Html::encode($repo[self::P_ITEMS][$value])
-                                        )
+                    if (isset($repo[self::P_FLAGS])) {
+                        $asis = $repo[self::P_FLAGS] & self::F_ASIS;
+                        $abbr = $repo[self::P_FLAGS] & self::F_ABBR;
+                    } else {
+                        $asis = false;
+                        $abbr = false;
+                    }
+                    $items = isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array();
+                    return $abbr
+                        ? Html::asAbbr(
+                            isset($repo[self::P_ITEMS_SHORT][$value])
+                                ? ($asis
+                                    ? $repo[self::P_ITEMS_SHORT][$value]
+                                    : Html::encode($repo[self::P_ITEMS_SHORT][$value])
                                 )
-                                : Html::asEnum(
-                                    $value,
-                                    $asis
-                                        ? $repo[self::P_ITEMS]
-                                        : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
-                                    $repo[self::P_FLAGS] & self::F_ARRAY
+                                : ($asis
+                                    ? $repo[self::P_ITEMS][$value]
+                                    : Html::encode($repo[self::P_ITEMS][$value])
+                                ),
+                            isset($repo[self::P_ITEMS_LONG][$value])
+                                ? ($asis
+                                    ? $repo[self::P_ITEMS_LONG][$value]
+                                    : Html::encode($repo[self::P_ITEMS_LONG][$value])
                                 )
-                            )
-                            : Html::asEnum(
-                                $value,
-                                \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS])
-                            )
+                                : ($asis
+                                    ? $repo[self::P_ITEMS][$value]
+                                    : Html::encode($repo[self::P_ITEMS][$value])
+                                )
                         )
-                        : '';
+                        : self::enumToString($value, $items, !$asis);
                 case self::C_SET:
-                    return Html::asSet(
+                    return self::setToString(
                         $value,
-                        (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
-                            ? $repo[self::P_ITEMS]
-                            : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS])
+                        isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array(),
+                        empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)
                     );
                 case self::C_ID:
                 case self::C_INT:
-                    return (int)$value;
+                    if (!\is_numeric($value)) {
+                        return '';
+                    }
+                    $val = Html::asCents(
+                        $value * 100,
+                        false
+                    );
+                    return (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
+                        ? \str_replace('&nbsp;', ' ', $val)
+                        : $val;
                 case self::C_CENTS:
-                    return Html::asCents(
+                    if (!\is_numeric($value)) {
+                        return '';
+                    }
+                    $val = Html::asCents(
                         $value,
                         isset($repo[self::P_FLAGS])
                             ? (($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
                                 ? null
-                                : ($repo[self::P_FLAGS] & self::F_SHOW_DECIMAL)
+                                : ($repo[self::P_FLAGS] & self::F_HIDE_DECIMAL ? false : true)
                             )
-                            : false
+                            : true
                     );
+                    return isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
+                        ? \str_replace('&nbsp;', ' ', $val)
+                        : $val;
                 case self::C_BOOL:
                     // if P_ITEMS provided, must be array of 2 items
-                    return Html::asEnum(
+                    return self::enumToString(
                         (int)((bool)$value),
                         isset($repo[self::P_ITEMS])
-                            ? ((isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
-                                ? $repo[self::P_ITEMS]
-                                : array(
-                                    Html::encode($repo[self::P_ITEMS][0]),
-                                    Html::encode($repo[self::P_ITEMS][1]),
-                                )
-                            )
+                            ? $repo[self::P_ITEMS]
                             : array(
                                 Text::dget(Nls::FW_DOMAIN, 'no'),
                                 Text::dget(Nls::FW_DOMAIN, 'yes'),
-                            )
+                            ),
+                        empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)
                     );
                 case self::C_FILE:
-                    return isset($value['name']) ? Html::encode($value['name']) : '';
+                    return isset($value['name'])
+                        ? (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
+                            ? $value['name']
+                            : Html::encode($value['name'])
+                        )
+                        : '';
                 default:
                     return $value;
             }
@@ -692,9 +710,6 @@ class Repo
                             Html::P_ITEMS=>($repo[self::P_FLAGS] & self::F_ASIS)
                                 ? $repo[self::P_ITEMS]
                                 : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
-                            Html::P_TYPE=>isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ARRAY)
-                                ? Html::T_ARRAY
-                                : null,
                             Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM]) ? $repo[self::P_ITEM_DELIM] : null
                         ))
                         : Html::inputSelect($input + array(
@@ -703,9 +718,6 @@ class Repo
                             Html::P_ITEMS=>isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS)
                                 ? $repo[self::P_ITEMS]
                                 : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
-                            Html::P_TYPE=>isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ARRAY)
-                                ? Html::T_ARRAY
-                                : null,
                             Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK]) ? $repo[self::P_ITEM_BLANK] : null
                         ))
                     )
@@ -715,9 +727,6 @@ class Repo
                         Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                             ? $repo[self::P_ITEMS]
                             : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
-                        Html::P_TYPE=>isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ARRAY)
-                            ? Html::T_ARRAY
-                            : null,
                         Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK]) ? $repo[self::P_ITEM_BLANK] : null
                     ));
             case self::C_SET:
@@ -727,9 +736,6 @@ class Repo
                     Html::P_ITEMS=>(isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS))
                         ? $repo[self::P_ITEMS]
                         : \array_map(function ($item) {return Html::encode($item);}, $repo[self::P_ITEMS]),
-                    Html::P_TYPE=>(isset($repo[self::P_FLAGS])) && ($repo[self::P_FLAGS] & self::F_ARRAY)
-                        ? Html::T_ARRAY
-                        : null,
                     Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM]) ? $repo[self::P_ITEM_DELIM] : null
                 ));
             case self::C_ID:
@@ -756,6 +762,47 @@ class Repo
         }
     }
 
+    /** representation of a list item: 'On'
+     * @param string $value 'x'
+     * @param array $items  {'x':'On', '':'Off'}
+     * @param bool $encode  whether to html encode the result
+     * @return string
+    */
+    public static function enumToString($value, $items=array(), $encode=true)
+    {
+        return isset($items[$value])
+            ? ($encode ? Html::encode($items[$value]) : $items[$value])
+            : '';
+    }
+
+    /** html representation of set: 'High, Low'
+     * @param string $value 'a,c'
+     * @param array $items  {a:High, b:Normal, c:Low} (array values will be html-escaped)
+     * @param bool $encode  whether to html encode the result
+     * @return string
+     */
+    public static function setToString($value, $items, $encode=true)
+    {
+        if ($set = \array_flip(\explode(',', $value))) {
+            if ($encode) {
+                $res = Html::encode(\implode(
+                    Nls::$formats[Nls::P_LIST_DELIM].' ',
+                    \array_intersect_key($items, $set)
+                ));
+                return Nls::$formats[Nls::P_LIST_DELIM] == Nls::$formats[Nls::P_LIST_DELIM_HTML]
+                    ? $res
+                    : \str_replace(Nls::$formats[Nls::P_LIST_DELIM], Nls::$formats[Nls::P_LIST_DELIM_HTML], $res);
+            } else {
+                return \implode(
+                    Nls::$formats[Nls::P_LIST_DELIM].' ',
+                    \array_intersect_key($items, $set)
+                );
+            }
+        } else {
+            return '';
+        }
+    }
+
     /** validates cents value to represent a number between 0 and 100
      *
      * @param int $value    field value
@@ -764,7 +811,7 @@ class Repo
      */
     public static function validatePct100($value, $label)
     {
-        return (is_numeric($value) and 0 <= $value and $value <= 100)
+        return (\is_numeric($value) and 0 <= $value and $value <= 100)
             ? true
             : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
     }
@@ -788,7 +835,7 @@ class Repo
                 case self::C_INT:
                     return self::asSqlInt($name, $value);
                 case self::C_CENTS:
-                    return self::asSqlInt($name, is_numeric($value) ? $value * 100 : $value);
+                    return self::asSqlInt($name, \is_numeric($value) ? $value * 100 : $value);
                 case self::C_BOOL:
                     return self::asSqlBool($name, $value);
                 case self::C_DATE:
@@ -809,7 +856,7 @@ class Repo
      */
     public static function asSqlInt($name, $value)
     {
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             return "$name=".Db::escapeInt($value);
         } else {
             return empty($value) ? null : false;
