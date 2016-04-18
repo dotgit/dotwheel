@@ -49,9 +49,11 @@ class Html
     public static function attr($params)
     {
         $ret = array();
-        foreach ($params as $attr=>$value)
-            if (isset($value) and ! \is_int($attr))
+        foreach ($params as $attr=>$value) {
+            if (isset($value) and ! \is_int($attr)) {
                 $ret[] = " $attr=\"".self::encodeAttr($value).'"';
+            }
+        }
 
         return $ret ? \implode('', $ret) : '';
     }
@@ -73,49 +75,52 @@ class Html
     /** Html tables */
 
     /** returns table open tag followed by a CAPTION and COLGROUP constructs
-     * @param array $params {P_CAPTION:'My table'
-     *                      , P_CAPTION_ATTR:{style:'color:red'}
-     *                      , P_COLGROUP:[{width:"80%"},{width:"20%"}]
-     *                      , table tag attributes
-     *                      }
+     * @param array $params {
+     *  P_CAPTION:'My table',
+     *  P_CAPTION_ATTR:{style:'color:red'},
+     *  P_COLGROUP:[{width:"80%"},{width:"20%"}],
+     *  table tag attributes
+     * }
      * @return string
      */
-    public static function tableStart($params=array())
+    public static function tableStart($params = array())
     {
         $id = Params::extract($params, 'id');
         $caption_attr = Params::extract($params, self::P_CAPTION_ATTR);
-        if ($caption = Params::extract($params, self::P_CAPTION))
+        if ($caption = Params::extract($params, self::P_CAPTION)) {
             $caption = "<caption$caption_attr>$caption</caption>";
+        }
         $colgroup_html = null;
-        if ($colgroup = Params::extract($params, self::P_COLGROUP))
-        {
+        if ($colgroup = Params::extract($params, self::P_COLGROUP)) {
             $k = 0;
             $extra = 0;
-            foreach ($colgroup as &$col)
-            {
+            foreach ($colgroup as &$col) {
                 $style = [];
-                if ($align = Params::extract($col, 'align'))
+                if ($align = Params::extract($col, 'align')) {
                     $style[] = "text-align:$align;";
-                if ($width = Params::extract($col, 'width'))
+                }
+                if ($width = Params::extract($col, 'width')) {
                     $style[] = "width:$width;";
-                if ($style)
-                {
+                }
+                if ($style) {
                     $style_html = implode('', $style);
                     HtmlPage::add(array(
                         HtmlPage::STYLE=>array(
                             __METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k).
-                                "{{$style_html}}".
-                                "table#$id th:first-child".\str_repeat(' + th', $k).
-                                "{{$style_html}}"
+                            "{{$style_html}}".
+                            "table#$id th:first-child".\str_repeat(' + th', $k).
+                            "{{$style_html}}"
                         )
                     ));
                 }
                 ++$k;
-                if ($col)
+                if ($col) {
                     ++$extra;
+                }
             }
-            if ($extra)
+            if ($extra) {
                 $colgroup_html = self::colgroup($colgroup);
+            }
         }
 
         return '<table'.self::attr(array('id'=>$id) + $params).">$caption$colgroup_html";
@@ -158,11 +163,12 @@ class Html
     }
 
     /** returns table row with a set of TD or TH cells
-     * @param array $params {P_VALUES:{'cell1','cell2','cell3'}
-     *                      , P_TD_ATTR:{null,null,' style="text-align:right"'}|null
-     *                      , P_TAG:'th'|'td'|null
-     *                      , tr tag attributes
-     *                      }
+     * @param array $params {
+     *  P_VALUES:{'cell1','cell2','cell3'},
+     *  P_TD_ATTR:{null,null,' style="text-align:right"'}|null,
+     *  P_TAG:'th'|'td'|null,
+     *  tr tag attributes
+     * }
      * @return string
      */
     public static function tr($params)
@@ -171,20 +177,20 @@ class Html
         $res = '<tr'.($attr ? self::attr($attr) : '').'>';
         $tag = isset($params[self::P_TAG]) ? $params[self::P_TAG] : 'td';
 
-        if (isset($params[self::P_TD_ATTR]))
-            foreach ($params[self::P_VALUES] as $k=>$v)
+        if (isset($params[self::P_TD_ATTR])) {
+            foreach ($params[self::P_VALUES] as $k=> $v) {
                 $res .= "<$tag".
                     (isset($params[self::P_TD_ATTR][$k]) ? self::attr($params[self::P_TD_ATTR][$k]) : '').
                     ">$v</$tag>";
-        else
-            foreach ($params[self::P_VALUES] as $v)
+            }
+        } else {
+            foreach ($params[self::P_VALUES] as $v) {
                 $res .= "<$tag>$v</$tag>";
+            }
+        }
 
-        return $res . "</tr>\n";
+        return $res."</tr>\n";
     }
-
-
-
     /** Html forms input elements */
 
     /** input element(if id is set and name is omitted then name = id)
@@ -194,8 +200,9 @@ class Html
      */
     public static function input($params)
     {
-        if (isset($params['id']) and empty($params['name']))
+        if (isset($params['id']) and empty($params['name'])) {
             $params['name'] = $params['id'];
+        }
 
         return '<input'.self::attr($params).'>';
     }
@@ -206,10 +213,12 @@ class Html
      */
     public static function inputText($params)
     {
-        if (empty($params['type']))
+        if (empty($params['type'])) {
             $params['type'] = 'text';
-        if (! isset($params['maxlength']))
+        }
+        if (!isset($params['maxlength'])) {
             $params['maxlength'] = 255;
+        }
 
         return self::input($params);
     }
@@ -221,10 +230,12 @@ class Html
      */
     public static function inputTextarea($params)
     {
-        if (isset($params['id']) and empty($params['name']))
+        if (isset($params['id']) and empty($params['name'])) {
             $params['name'] = $params['id'];
-        if (! isset($params['rows']))
+        }
+        if (!isset($params['rows'])) {
             $params['rows'] = 5;
+        }
         $value = Params::extract($params, 'value');
         $attr = self::attr($params);
 
@@ -246,8 +257,9 @@ class Html
      */
     public static function inputCents($params)
     {
-        if (isset($params['value']))
-            $params['value'] = \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $params['value']/100);
+        if (isset($params['value'])) {
+            $params['value'] = \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $params['value'] / 100);
+        }
 
         return self::input($params + array('type'=>'text', 'maxlength'=>10));
     }
@@ -259,42 +271,45 @@ class Html
     public static function inputDate($params)
     {
         $datetime = Params::extract($params, self::P_DATETIME);
-        if (! empty($params['value']))
+        if (!empty($params['value'])) {
             $params['value'] = (empty($params['type'])
-                or $params['type']=='date'
-                or $params['type']=='datetime'
-                or $params['type']=='datetime-local'
+                or $params['type'] == 'date'
+                or $params['type'] == 'datetime'
+                or $params['type'] == 'datetime-local'
             )
                 ? self::asDateRfc($params['value'], $datetime)
                 : self::asDateNls($params['value'], $datetime);
+        }
 
         return self::input($params + array('type'=>'date', 'maxlength'=>20));
     }
 
     /**
-     * @param array $params {P_ITEMS:{a:'Active',i:'Inactive'}
-     *                      , P_BLANK:'First line message'
-     *                      , value:'a'
-     *                      , select tag attributes
-     *                      }
+     * @param array $params {
+     *  P_ITEMS:{a:'Active',i:'Inactive'},
+     *  P_BLANK:'First line message',
+     *  value:'a',
+     *  select tag attributes
+     * }
      * @return string
      * @see http://www.w3.org/TR/html4/interact/forms.html#h-17.6
      */
     public static function inputSelect($params)
     {
-        if (isset($params['id']) and empty($params['name']))
+        if (isset($params['id']) and empty($params['name'])) {
             $params['name'] = $params['id'];
+        }
         $value = Params::extract($params, 'value');
         $items = array();
 
-        if (($blank = Params::extract($params, self::P_BLANK)) !== null)
+        if (($blank = Params::extract($params, self::P_BLANK)) !== null) {
             $items[] = \strlen($blank)
                 ? ('<option value="">'.self::encode($blank)."</option>")
                 : "<option></option>";
+        }
 
-        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
-        {
-            $items[] = ($k == $value && ! empty($k))
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=> $v) {
+            $items[] = ($k == $value && !empty($k))
                 ? "<option value=\"$k\" selected=\"on\">$v</option>"
                 : "<option value=\"$k\">$v</option>";
         }
@@ -304,47 +319,46 @@ class Html
     }
 
     /** multiple checkboxes with labels (names are suffixed with *[k] and ids with *_k)
-     * @param array $params {id:'fld'
-     *                      , name:'field_name'
-     *                      , value:'a,i'|{a:'a',i:'i'}
-     *                      , P_ITEMS:{a:'Active',i:'Inactive'}
-     *                      , P_DELIM:'&lt;br&gt;'
-     *                      , P_PREFIX:''
-     *                      , P_SUFFIX:''
-     *                      , P_FMT:'%s'
-     *                      , P_HEADER_ATTR:{}
-     *                      }
+     * @param array $params {
+     *  id:'fld',
+     *  name:'field_name',
+     *  value:'a,i'|{a:'a',i:'i'},
+     *  P_ITEMS:{a:'Active',i:'Inactive'},
+     *  P_DELIM:'&lt;br&gt;',
+     *  P_PREFIX:'',
+     *  P_SUFFIX:'',
+     *  P_FMT:'%s',
+     *  P_HEADER_ATTR:{}
+     * }
      * @return string
      */
     public static function inputSet($params)
     {
         $id = Params::extract($params, 'id');
         $name = Params::extract($params, 'name');
-        if (isset($id) and empty($name))
+        if (isset($id) and empty($name)) {
             $name = $id;
+        }
         $value = Params::extract($params, 'value');
         $delim = Params::extract($params, self::P_DELIM, '<br>');
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
-        if (! \is_array($value))
-        {
-            if (isset($value))
-            {
+        if (!\is_array($value)) {
+            if (isset($value)) {
                 $_ = \explode(',', $value);
                 $value = \array_combine($_, $_);
-            }
-            else
+            } else {
                 $value = array();
-         }
+            }
+        }
 
         $items = array();
-        foreach (Params::extract($params, self::P_ITEMS) as $k=>$v)
-        {
+        foreach (Params::extract($params, self::P_ITEMS) as $k=>$v) {
             $items[] = self::inputCheckbox(array(
                 'name'=>"{$name}[$k]",
                 'checked'=>isset($value[$k]) ? 'on' : null,
                 'value'=>$k,
-                self::P_HEADER=>$v
+                self::P_HEADER=>$v,
             ) + $params);
         }
 
@@ -352,42 +366,44 @@ class Html
     }
 
     /** returns html radios with labels
-     * @param array $params {id:'fld'
-     *                      , name:'field_name'
-     *                      , value:'a'
-     *                      , P_ITEMS:{a:'Active',i:'Inactive'}
-     *                      , P_DELIM:'&lt;br&gt;'
-     *                      , P_FMT:'%s'
-     *                      , P_PREFIX:''
-     *                      , P_SUFFIX:''
-     *                      , P_HEADER_ATTR:{'class':'checkbox'}
-     *                      }
+     * @param array $params {
+     *  id:'fld',
+     *  name:'field_name',
+     *  value:'a',
+     *  P_ITEMS:{a:'Active',i:'Inactive'},
+     *  P_DELIM:'&lt;br&gt;',
+     *  P_FMT:'%s',
+     *  P_PREFIX:'',
+     *  P_SUFFIX:'',
+     *  P_HEADER_ATTR:{'class':'checkbox'}
+     * }
      * @return string
      */
     public static function inputRadio($params)
     {
         $id = Params::extract($params, 'id');
         $name = Params::extract($params, 'name');
-        if (isset($id) and empty($name))
+        if (isset($id) and empty($name)) {
             $name = $id;
+        }
         $item_prefix = Params::extract($params, self::P_PREFIX);
         $item_suffix = Params::extract($params, self::P_SUFFIX);
         $delim = Params::extract($params, self::P_DELIM, '<br>');
         $fmt = Params::extract($params, self::P_WRAP_FMT);
         $value = Params::extract($params, 'value');
-        if ($label_attr = Params::extract($params, self::P_HEADER_ATTR))
+        if ($label_attr = Params::extract($params, self::P_HEADER_ATTR)) {
             $label_attr = Html::attr($label_attr);
+        }
 
         $items = array();
-        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v)
-        {
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v) {
             $item = "<label$label_attr><input".
                 self::attr(array(
                     'type'=>'radio',
                     'name'=>$name,
                     'value'=>$k,
                     'checked'=>($k == $value and ! empty($k)) ? 'on' : null
-                ) + $params).
+                    ) + $params).
                 ">$v</label>";
             $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
         }
@@ -396,12 +412,13 @@ class Html
     }
 
     /** returns html checkbox element
-     * @param array $params {P_HEADER:'string'
-     *                      , P_HEADER_ATTR:{label tag attributes}
-     *                      , P_DELIM:' '
-     *                      , P_WRAP_FMT:'%s'
-     *                      , input tag attributes
-     *                      }
+     * @param array $params {
+     *  P_HEADER:'string',
+     *  P_HEADER_ATTR:{label tag attributes},
+     *  P_DELIM:' ',
+     *  P_WRAP_FMT:'%s',
+     *  input tag attributes
+     * }
      * @return string
      */
     public static function inputCheckbox($params)
@@ -417,10 +434,11 @@ class Html
         $header_attr = isset($params[self::P_HEADER_ATTR]) ? Html::attr($params[self::P_HEADER_ATTR]) : null;
         $delim = isset($params[self::P_DELIM]) ? $params[self::P_DELIM] : ' ';
         $checkbox = self::input(array('type'=>'checkbox') + $attr);
-        if (isset($header))
+        if (isset($header)) {
             $checkbox = "<label$header_attr>$checkbox$delim$header</label>";
-        elseif (isset($header_attr))
+        } elseif (isset($header_attr)) {
             $checkbox = "<div$header_attr>$checkbox</div>";
+        }
 
         return \sprintf($fmt, $checkbox);
     }
@@ -452,15 +470,17 @@ class Html
      * @param string $format    try some meta formatting
      * @return string
      */
-    public static function encodeNl($str, $format=false)
+    public static function encodeNl($str, $format = false)
     {
-        if (! $format)
+        if (!$format) {
             return \nl2br(\htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset));
-        else
-            return \nl2br(\preg_replace(array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u'),
+        } else {
+            return \nl2br(\preg_replace(
+                array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u'),
                 array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1'),
                 \htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset)
             ));
+        }
     }
 
     /** html formatted email address
@@ -468,7 +488,7 @@ class Html
      * @param int $width    max width of displayed string (0 == unrestricted)
      * @return string
      */
-    public static function asEmail($email, $width=0)
+    public static function asEmail($email, $width = 0)
     {
         return '<a href="mailto:'.\htmlspecialchars($email, \ENT_COMPAT, Nls::$charset).'">'.
             \htmlspecialchars(
@@ -484,9 +504,10 @@ class Html
      * @param int $width    max width of displayed string(0 == unrestricted)
      * @return string
      */
-    public static function asUrl($url, $width=0)
+    public static function asUrl($url, $width = 0)
     {
         $href = \strpos($url, ':') && \preg_match('/^\w+:\/\//', $url) ? $url : "http://$url";
+
         return "<a href=\"$href\" target=\"_blank\">".
             \htmlspecialchars(
                 ($width > 0 and \strlen($url) > $width) ? \substr_replace($url, '...', $width) : $url,
@@ -510,10 +531,12 @@ class Html
      * @param string $sep   thousands separator
      * @return string
      */
-    public static function asInt($i, $sep=null)
+    public static function asInt($i, $sep = null)
     {
-        if (! isset($sep))
+        if (!isset($sep)) {
             $sep = Nls::$formats[Nls::P_THOUSANDS_CHAR];
+        }
+
         return $sep === ' '
             ? \str_replace(' ', '&nbsp;', \number_format($i, 0, '', ' '))
             : \number_format($i, 0, '', $sep);
@@ -523,21 +546,21 @@ class Html
      * Before conversion value is divided by 100. Spaces converted to &nbsp;
      * @param int $cts          value to convert
      * @param bool $show_cents  whether to show the decimal part. if <i>null</i>
-     *                          passed use compact mode (decimals displayed if exist,
-     *                          up to 2)
+     *  passed use compact mode (decimals displayed if exist, up to 2)
      * @return string
      */
-    public static function asCents($cts, $show_cents=true)
+    public static function asCents($cts, $show_cents = true)
     {
-        if ($show_cents === null)
-            // minimum decimal places
+        if ($show_cents === null) {
+        // minimum decimal places
             $dec = $cts % 100 ? ($cts % 10 ? 2 : 1) : 0;
-        else
-            // 2 or 0 decimal places
+        } else {
+        // 2 or 0 decimal places
             $dec = $show_cents ? 2 : 0;
+        }
 
         $value = \number_format(
-            $cts/100,
+            $cts / 100,
             $dec,
             Nls::$formats[Nls::P_MON_DECIMAL_CHAR],
             Nls::$formats[Nls::P_MON_THOUSANDS_CHAR]
@@ -550,16 +573,17 @@ class Html
 
     /** date representation as YYYY-MM-DD
      * @param string $dt    YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS
-     *                      if $datetime set)
+     *  if $datetime set)
      * @param bool $datetime
      * @return string
      */
-    public static function asDateRfc($dt, $datetime=null)
+    public static function asDateRfc($dt, $datetime = null)
     {
-        if (\strtotime($dt))
+        if (\strtotime($dt)) {
             return $datetime ? \str_replace(' ', 'T', $dt) : \substr($dt, 0, 10);
-        else
+        } else {
             return '';
+        }
     }
 
     /** date representation in current Nls format.
@@ -568,12 +592,13 @@ class Html
      * @param bool $datetime
      * @return string
      */
-    public static function asDateNls($dt, $datetime=null)
+    public static function asDateNls($dt, $datetime = null)
     {
-        if ($tm = \strtotime($dt))
+        if ($tm = \strtotime($dt)) {
             return \date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
-        else
+        } else {
             return '';
+        }
     }
 
     /** month / year representation in current Nls format, like 'January 2015' for '2015-01-01'.
@@ -581,11 +606,11 @@ class Html
      * @param int $param_month  Nls::P_MONTHS for "January 2015" or Nls::P_MONTHS_SHORT for "Jan '15"
      * @return string Month representation of a date
      */
-    public static function asMonth($date, $param_month=Nls::P_MONTHS)
+    public static function asMonth($date, $param_month = Nls::P_MONTHS)
     {
         if (\preg_match('/^(\d{4})-(\d{2})\b/', $date, $m)
             and isset(Nls::$formats[$param_month][(int)$m[2]])
-        )
+        ) {
             return $param_month == Nls::P_MONTHS
                 ? \sprintf(
                     Nls::$formats[Nls::P_DATEMON_FMT],
@@ -597,8 +622,9 @@ class Html
                     Nls::$formats[$param_month][(int)$m[2]],
                     $m[1] % 100
                 );
-        else
+        } else {
             return '';
+        }
     }
 
     /** returns an ABBR tag with short string tooltipped with a longer description

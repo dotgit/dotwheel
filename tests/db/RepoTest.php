@@ -304,46 +304,37 @@ class RepoTest extends PHPUnit_Framework_TestCase
     public function validateInputErrorProvider()
     {
         return [
-            'C_ENUM item not an option'=>
-                [
-                    'op',
-                    'insert',
-                    [
-                        Repo::P_LABEL=>'Operation',
-                        Repo::P_REQUIRED=>true,
-                        Repo::P_CLASS=>Repo::C_ENUM,
-                        Repo::P_ITEMS=>[
-                            'user-ins'=>'insert user',
-                            'user-upd'=>'update user',
-                            'user-del'=>'delete user',
-                        ],
-                    ],
-                    'Operation',
-                ],
-            'ID value can only be positive'=>
-                [DbBeforeClass::C_ID, -1, [Repo::P_REQUIRED=>true], 'Item id'],
             'required field is empty'=>
                 [DbBeforeClass::C_NAME, null, [Repo::P_REQUIRED=>true], 'Name'],
-            'malformed email'=>
+            'C_ID: value can only be positive'=>
+                [DbBeforeClass::C_ID, -1, [Repo::P_REQUIRED=>true], 'Item id'],
+            'C_TEXT: malformed email'=>
                 [
                     'user_email',
                     'not.an/email',
                     [Repo::P_LABEL=>'Email', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_EMAIL],
                     'Email',
                 ],
-            'malformed url'=>
+            'C_TEXT: malformed url'=>
                 [
                     'user_url',
                     'not.an/url',
                     [Repo::P_LABEL=>'User profile', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_URL],
                     'User profile',
                 ],
-            'the field is too long'=>
+            'C_TEXT: the field is too long'=>
                 [
                     'user_tel',
                     '12345678901234567890123',
                     [Repo::P_LABEL=>'User tel', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_WIDTH=>20],
                     'User tel',
+                ],
+            'P_DATE field must represent a date'=>
+                [
+                    'user_birthday',
+                    'not-a-date',
+                    [Repo::P_LABEL=>'Birthday', Repo::P_CLASS=>Repo::C_DATE],
+                    'Birthday',
                 ],
             'P_CENTS field must be numeric'=>
                 [
@@ -374,6 +365,22 @@ class RepoTest extends PHPUnit_Framework_TestCase
                         function($val, $label){return $val=='red'?true:"value in '$label' is not a color";}
                     ],
                     'Color',
+                ],
+            'C_ENUM item not an option'=>
+                [
+                    'op',
+                    'insert',
+                    [
+                        Repo::P_LABEL=>'Operation',
+                        Repo::P_REQUIRED=>true,
+                        Repo::P_CLASS=>Repo::C_ENUM,
+                        Repo::P_ITEMS=>[
+                            'user-ins'=>'insert user',
+                            'user-upd'=>'update user',
+                            'user-del'=>'delete user',
+                        ],
+                    ],
+                    'Operation',
                 ],
             'P_SET field must match P_ITEMS key(s)'=>
                 [
@@ -528,14 +535,14 @@ class RepoTest extends PHPUnit_Framework_TestCase
                 ['op', '<Text>', [], '<Text>'],
 
             'C_TEXT: html encode'=>
-                ['op', $text, [Repo::P_CLASS=>Repo::C_TEXT], "&lt;Line1&gt;\n&lt;Line2&gt;"],
+                ['adress', $text, [Repo::P_CLASS=>Repo::C_TEXT], "&lt;Line1&gt;\n&lt;Line2&gt;"],
             'C_TEXT + F_TEXTAREA: html encode + convert NL to BR'=>
-                ['op', $text, [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_TEXTAREA], "&lt;Line1&gt;<br />\n&lt;Line2&gt;"],
+                ['adress', $text, [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_TEXTAREA], "&lt;Line1&gt;<br />\n&lt;Line2&gt;"],
 
             'C_DATE: NLS converted'=>
-                ['op', $datetime, [Repo::P_CLASS=>Repo::C_DATE], '31/12/16'],
+                ['user_birthday', $datetime, [Repo::P_CLASS=>Repo::C_DATE], '31/12/16'],
             'C_DATE: NLS converted + time'=>
-                ['op', $datetime, [Repo::P_CLASS=>Repo::C_DATE, Repo::P_FLAGS=>Repo::F_DATETIME], '31/12/16 12:34'],
+                ['user_birthday', $datetime, [Repo::P_CLASS=>Repo::C_DATE, Repo::P_FLAGS=>Repo::F_DATETIME], '31/12/16 12:34'],
 
             'C_ENUM: empty string if no P_ITEMS'=>
                 ['op', 'ins', [Repo::P_CLASS=>Repo::C_ENUM], ''],
@@ -625,32 +632,236 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsHtmlInput($field, $value, $input, $repo, $expected)
     {
-        $this->assertContains($expected, Repo::asHtmlInput($field, $value, $input, $repo));
+        if (is_array($expected)) {
+            $res = Repo::asHtmlInput($field, $value, $input, $repo);
+            foreach ($expected as $k=>$part) {
+                if (is_int($k)) {
+                    $this->assertContains($part, $res);
+                } else {
+                    $this->assertRegExp($part, $res);
+                }
+            }
+        } else {
+            $this->assertContains($expected, Repo::asHtmlInput($field, $value, $input, $repo));
+        }
     }
 
     public function asHtmlInputProvider()
     {
         return [
-            'C_TEXT input: name'=>[
-                'firstname',
-                '<First-Name>',
+            'class not provided: return as is'=>[
+                'comment',
+                '<comment>',
                 [],
-                [Repo::P_CLASS=>Repo::C_TEXT],
-                'name="firstname"',
+                [],
+                '<comment>',
             ],
-            'C_TEXT input: value'=>[
+            'C_TEXT input field'=>[
                 'firstname',
                 '<First-Name>',
                 [],
-                [Repo::P_CLASS=>Repo::C_TEXT],
-                'value="&lt;First-Name&gt;"',
+                [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_WIDTH=>50],
+                [
+                    'type="text"',
+                    'maxlength="50"',
+                    'name="firstname"',
+                    'value="&lt;First-Name&gt;"',
+                ],
             ],
-            'C_TEXT input: type'=>[
-                'firstname',
-                '<First-Name>',
+            'C_TEXT + F_TEXTAREA input field'=>[
+                'address',
+                "1 Infinite Loop\nCupertino, CA",
                 [],
-                [Repo::P_CLASS=>Repo::C_TEXT],
-                'type="text"',
+                [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_TEXTAREA, Repo::P_WIDTH=>250],
+                [
+                    '</textarea>',
+                    'maxlength="250"',
+                    'name="address"',
+                    "1 Infinite Loop\nCupertino, CA",
+                ],
+            ],
+            'C_TEXT + F_PASSWORD input field'=>[
+                'password',
+                '',
+                [],
+                [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_PASSWORD, Repo::P_WIDTH=>50],
+                [
+                    'type="password"',
+                    'maxlength="50"',
+                    'name="password"',
+                    'value=""',
+                ],
+            ],
+            'C_TEXT + F_EMAIL input field'=>[
+                'email',
+                'a@b.com',
+                [],
+                [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_EMAIL, Repo::P_WIDTH=>50],
+                [
+                    'type="email"',
+                    'maxlength="50"',
+                    'name="email"',
+                    'value="a@b.com"',
+                ],
+            ],
+            'C_TEXT + F_TEL input field + input tag attributes'=>[
+                'tel',
+                '0123456789',
+                ['id'=>152],
+                [Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_TEL, Repo::P_WIDTH=>50],
+                [
+                    'id="152"',
+                    'type="tel"',
+                    'maxlength="50"',
+                    'name="tel"',
+                    'value="0123456789"',
+                ],
+            ],
+            'C_DATE input field (type text)'=>[
+                'user_birthday',
+                '2016-12-31',
+                ['type'=>'text'],
+                [Repo::P_CLASS=>Repo::C_DATE],
+                [
+                    'type="text"',
+                    'name="user_birthday"',
+                    'value="31/12/16"',
+                ],
+            ],
+            'C_DATE input field (type date)'=>[
+                'user_birthday',
+                '2016-12-31',
+                [],
+                [Repo::P_CLASS=>Repo::C_DATE],
+                [
+                    'type="date"',
+                    'name="user_birthday"',
+                    'value="2016-12-31"',
+                ],
+            ],
+            'C_ENUM as select dropdown with blank line'=>[
+                'op',
+                'ins',
+                [],
+                [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_ITEM_BLANK=>'---Select item---', Repo::P_ITEMS=>['ins'=>'<Insert>', 'upd'=>'<Update>']],
+                [
+                    '<select name="op">',
+                    'rex1'=>'#<option[^>]*>---Select item---</option>#',
+                    '<option value="ins" selected="on">&lt;Insert&gt;</option>',
+                ],
+            ],
+            'C_ENUM + F_ASIS as select dropdown'=>[
+                'op',
+                'ins',
+                [],
+                [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_FLAGS=>Repo::F_ASIS, Repo::P_ITEMS=>['ins'=>'<Insert>', 'upd'=>'<Update>']],
+                [
+                    '<select name="op">',
+                    '<option value="ins" selected="on"><Insert></option>',
+                ],
+            ],
+            'C_ENUM as radio buttons with delimiter'=>[
+                'op',
+                'ins',
+                [],
+                [Repo::P_CLASS=>Repo::C_ENUM, Repo::P_ITEM_DELIM=>'#', Repo::P_FLAGS=>Repo::F_RADIO, Repo::P_ITEMS=>['ins'=>'<Insert>', 'upd'=>'<Update>']],
+                [
+                    'type="radio"',
+                    'name="op"',
+                    'value="ins" checked="on"',
+                    '>#<',
+                ],
+            ],
+            'C_SET as a collection of 2 checkboxes'=>[
+                'items',
+                '',
+                [],
+                [Repo::P_CLASS=>Repo::C_SET, Repo::P_ITEM_DELIM=>'#', Repo::P_ITEMS=>['a'=>'<A>', 'b'=>'<B>']],
+                [
+                    'type="checkbox"',
+                    'rex1'=>'/name="items\\[a]".+name="items\\[b]"/',
+                    'value="a"',
+                    '&lt;A&gt;',
+                    '>#<',
+                ],
+            ],
+            'C_SET + F_ASIS as a non-encoded checkbox'=>[
+                'items',
+                'a',
+                [],
+                [Repo::P_CLASS=>Repo::C_SET, Repo::P_FLAGS=>Repo::F_ASIS, Repo::P_ITEMS=>['a'=>'<A>']],
+                [
+                    'type="checkbox"',
+                    'name="items[a]"',
+                    'value="a"',
+                    'checked="on"',
+                    '<A>',
+                ],
+            ],
+            'C_INT input field'=>[
+                'counter',
+                '100',
+                [],
+                [Repo::P_CLASS=>Repo::C_INT],
+                [
+                    'type="text"',
+                    'name="counter"',
+                    'value="100"',
+                ],
+            ],
+            'C_CENTS input field'=>[
+                'price',
+                '12345',
+                [],
+                [Repo::P_CLASS=>Repo::C_CENTS],
+                [
+                    'type="text"',
+                    'name="price"',
+                    'value="123,45"',
+                ],
+            ],
+            'C_BOOL input checkbox (true)'=>[
+                'is_due',
+                '1',
+                [],
+                [Repo::P_CLASS=>Repo::C_BOOL],
+                [
+                    'type="checkbox"',
+                    'name="is_due"',
+                    'checked="on"',
+                ],
+            ],
+            'C_BOOL input checkbox (false) + label'=>[
+                'is_due',
+                null,
+                [],
+                [Repo::P_CLASS=>Repo::C_BOOL, Repo::P_ITEMS=>['Faux', 'Vrai']],
+                [
+                    'type="checkbox"',
+                    'name="is_due"',
+                    'Vrai',
+                ],
+            ],
+            'C_FILE input field'=>[
+                'upload',
+                null,
+                [],
+                [Repo::P_CLASS=>Repo::C_FILE],
+                [
+                    'type="file"',
+                    'name="upload"',
+                ],
+            ],
+            'unknown class: text field'=>[
+                'field',
+                'undefined',
+                [],
+                [Repo::P_CLASS=>'default'],
+                [
+                    'type="text"',
+                    'name="field"',
+                    'value="undefined"',
+                ],
             ],
         ];
     }
