@@ -43,7 +43,7 @@ class Db2
     {
         $ins  = array();
         $dupl = array();
-        foreach (\array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name=> $wrap) {
+        foreach (\array_intersect_key($params[self::P_FIELDS], $params[self::P_VALUES]) as $name => $wrap) {
             if (isset($params[self::P_VALUES][$name])) {
                 switch ($wrap) {
                     case self::FMT_ALPHA:
@@ -204,7 +204,7 @@ class Db2
             return false;
         } else {
             \sort($ids, \SORT_NUMERIC);
-            foreach ($ids as $i=> $id) {
+            foreach ($ids as $i => $id) {
                 if ($id > $i + 1) {
                     return $i + 1;
                 }

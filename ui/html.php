@@ -49,7 +49,7 @@ class Html
     public static function attr($params)
     {
         $ret = array();
-        foreach ($params as $attr=>$value) {
+        foreach ($params as $attr => $value) {
             if (isset($value) and ! \is_int($attr)) {
                 $ret[] = " $attr=\"".self::encodeAttr($value).'"';
             }
@@ -178,7 +178,7 @@ class Html
         $tag = isset($params[self::P_TAG]) ? $params[self::P_TAG] : 'td';
 
         if (isset($params[self::P_TD_ATTR])) {
-            foreach ($params[self::P_VALUES] as $k=> $v) {
+            foreach ($params[self::P_VALUES] as $k => $v) {
                 $res .= "<$tag".
                     (isset($params[self::P_TD_ATTR][$k]) ? self::attr($params[self::P_TD_ATTR][$k]) : '').
                     ">$v</$tag>";
@@ -308,7 +308,7 @@ class Html
                 : "<option></option>";
         }
 
-        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=> $v) {
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k => $v) {
             $items[] = ($k == $value && !empty($k))
                 ? "<option value=\"$k\" selected=\"on\">$v</option>"
                 : "<option value=\"$k\">$v</option>";
@@ -353,7 +353,7 @@ class Html
         }
 
         $items = array();
-        foreach (Params::extract($params, self::P_ITEMS) as $k=>$v) {
+        foreach (Params::extract($params, self::P_ITEMS) as $k => $v) {
             $items[] = self::inputCheckbox(array(
                 'name'=>"{$name}[$k]",
                 'checked'=>isset($value[$k]) ? 'on' : null,
@@ -396,7 +396,7 @@ class Html
         }
 
         $items = array();
-        foreach (Params::extract($params, self::P_ITEMS, array()) as $k=>$v) {
+        foreach (Params::extract($params, self::P_ITEMS, array()) as $k => $v) {
             $item = "<label$label_attr><input".
                 self::attr(array(
                     'type'=>'radio',

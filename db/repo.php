@@ -115,7 +115,7 @@ class Repo
         // check unresolved links
         foreach (self::$unresolved as $ref => $names) {
             if (isset(self::$store[$ref])) {
-                foreach ($names as $name=> $_) {
+                foreach ($names as $name => $_) {
                     self::$store[$name] += self::$store[$ref];
                 }
                 unset(self::$unresolved[$ref]);
