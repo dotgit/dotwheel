@@ -14,15 +14,9 @@ use PHPUnit_Framework_TestCase;
  */
 class RepoTest extends PHPUnit_Framework_TestCase
 {
-    const PKG_NAME = __CLASS__;
+    use \Dotwheel\Tests\Checker;
 
-    public static $upload = [
-        'name'=>'test.png',
-        'type'=>'image/png',
-        'size'=>32,
-        'tmp_name'=>'/tmp/uploaded-test.png',
-        'error'=>0,
-    ];
+    const PKG_NAME = __CLASS__;
 
     /**
      * @coversNothing
@@ -298,68 +292,69 @@ class RepoTest extends PHPUnit_Framework_TestCase
         ], [
             $field=>$value,
         ]));
-        $this->assertContains($expected, implode(' ', Repo::$input_errors));
+
+        $this->assertResult($expected, implode(' ', Repo::$input_errors));
     }
 
     public function validateInputErrorProvider()
     {
         return [
             'required field is empty'=>
-                ['Name', DbBeforeClass::C_NAME, null, [Repo::P_REQUIRED=>true]],
+                ['*Name*', DbBeforeClass::C_NAME, null, [Repo::P_REQUIRED=>true]],
             'C_ID: value can only be positive'=>
-                ['Item id', DbBeforeClass::C_ID, -1, [Repo::P_REQUIRED=>true]],
+                ['*Item id*', DbBeforeClass::C_ID, -1, [Repo::P_REQUIRED=>true]],
             'C_TEXT: malformed email'=>
                 [
-                    'Email',
+                    '*Email*',
                     'user_email',
                     'not.an/email',
                     [Repo::P_LABEL=>'Email', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_EMAIL],
                 ],
             'C_TEXT: malformed url'=>
                 [
-                    'User profile',
+                    '*User profile*',
                     'user_url',
                     'not.an/url',
                     [Repo::P_LABEL=>'User profile', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_FLAGS=>Repo::F_URL],
                 ],
             'C_TEXT: the field is too long'=>
                 [
-                    'User tel',
+                    '*User tel*',
                     'user_tel',
                     '12345678901234567890123',
                     [Repo::P_LABEL=>'User tel', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_WIDTH=>20],
                 ],
             'P_DATE field must represent a date'=>
                 [
-                    'Birthday',
+                    '*Birthday*',
                     'user_birthday',
                     'not-a-date',
                     [Repo::P_LABEL=>'Birthday', Repo::P_CLASS=>Repo::C_DATE],
                 ],
             'P_CENTS field must be numeric'=>
                 [
-                    'Price',
+                    '*Price*',
                     'price',
                     '123x45',
                     [Repo::P_LABEL=>'Price', Repo::P_CLASS=>Repo::C_CENTS],
                 ],
             'C_BOOL field must be boolean'=>
                 [
-                    'Is due',
+                    '*Is due*',
                     'is_due',
                     'unspecified',
                     [Repo::P_LABEL=>'Is due', Repo::P_CLASS=>Repo::C_BOOL],
                 ],
             'P_VALIDATE_REGEXP field must match regexp'=>
                 [
-                    'Postal',
+                    '*Postal*',
                     'postal',
                     '12-345',
                     [Repo::P_LABEL=>'Postal', Repo::P_CLASS=>Repo::C_TEXT, Repo::P_VALIDATE_REGEXP=>'/^\d{5}$/'],
                 ],
             'P_VALIDATE_CALLBACK field must pass callback validation'=>
                 [
-                    'Color',
+                    '*Color*',
                     'color',
                     'strong',
                     [Repo::P_LABEL=>'Color', Repo::P_VALIDATE_CALLBACK=>
@@ -368,7 +363,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
                 ],
             'C_ENUM item not an option'=>
                 [
-                    'Operation',
+                    '*Operation*',
                     'op',
                     'insert',
                     [
@@ -384,7 +379,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
                 ],
             'P_SET field must match P_ITEMS key(s)'=>
                 [
-                    'Flags',
+                    '*Flags*',
                     'flags',
                     3,
                     [
@@ -396,7 +391,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
                 ],
             'C_TEXT field must be scalar'=>
                 [
-                    'Code',
+                    '*Code*',
                     'code',
                     [1=>2],
                     [Repo::P_LABEL=>'Code', Repo::P_CLASS=>Repo::C_TEXT],
@@ -410,16 +405,13 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testValidateInputSuccess($expected, $field, $value, $repo)
     {
-        $_FILES = [
-            'upload'=>self::$upload,
-        ];
-
         $this->assertTrue(Repo::validateInput([
             $field=>$repo,
         ], [
             $field=>$value,
         ]));
-        $this->assertEquals($expected, Repo::$validated[$field]);
+
+        $this->assertResult($expected, Repo::$validated[$field]);
     }
 
     public function validateInputSuccessProvider()
@@ -485,7 +477,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
             'C_DATE field formatted'=>
                 ['2016-01-01', 'user_birthday', '1/1/16', [Repo::P_CLASS=>Repo::C_DATE]],
             'C_CENTS field formatted'=>
-                ['12345', 'price', '123,45', [Repo::P_CLASS=>Repo::C_CENTS]],
+                [12345, 'price', '123,45', [Repo::P_CLASS=>Repo::C_CENTS]],
             'C_BOOL field is valid'=>
                 [0, 'is_due', 'no', [Repo::P_CLASS=>Repo::C_BOOL]],
             'P_VALIDATE_REGEXP field is valid'=>
@@ -527,9 +519,36 @@ class RepoTest extends PHPUnit_Framework_TestCase
                         ],
                     ],
                 ],
-            'C_FILE field corresponds to _FILES'=>
-                [self::$upload, 'upload', null, [Repo::P_CLASS=>Repo::C_FILE]],
         ];
+    }
+
+    /**
+     * @covers ::validateInput
+     * @covers ::asHtmlStatic
+     */
+    public function testValidateInputFile()
+    {
+        $upload = [
+            'name'=>'test.png',
+            'type'=>'image/png',
+            'size'=>32,
+            'tmp_name'=>'/tmp/uploaded-test.png',
+            'error'=>0,
+        ];
+        $_FILES = [
+            'upload'=>$upload,
+        ];
+
+        $this->assertTrue(Repo::validateInput([
+            'upload'=>[Repo::P_CLASS=>Repo::C_FILE],
+        ], [
+        ]));
+
+        $this->assertEquals(
+            $upload,
+            Repo::$validated['upload'],
+            'C_FILE field corresponds to _FILES'
+        );
     }
 
     /**
@@ -662,18 +681,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsHtmlInput($expected, $field, $value, $input, $repo)
     {
-        if (is_array($expected)) {
-            $res = Repo::asHtmlInput($field, $value, $input, $repo);
-            foreach ($expected as $k=>$part) {
-                if (is_int($k)) {
-                    $this->assertContains($part, $res);
-                } else {
-                    $this->assertRegExp($part, $res);
-                }
-            }
-        } else {
-            $this->assertContains($expected, Repo::asHtmlInput($field, $value, $input, $repo));
-        }
+        $this->assertResult($expected, Repo::asHtmlInput($field, $value, $input, $repo));
     }
 
     public function asHtmlInputProvider()
@@ -688,10 +696,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_TEXT input field'=>[
                 [
-                    'type="text"',
-                    'maxlength="50"',
-                    'name="firstname"',
-                    'value="&lt;First-Name&gt;"',
+                    '*type="text"*',
+                    '*maxlength="50"*',
+                    '*name="firstname"*',
+                    '*value="&lt;First-Name&gt;"*',
                 ],
                 'firstname',
                 '<First-Name>',
@@ -700,10 +708,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_TEXT + F_TEXTAREA input field'=>[
                 [
-                    '</textarea>',
-                    'maxlength="250"',
-                    'name="address"',
-                    "1 Infinite Loop\nCupertino, CA",
+                    '*</textarea>*',
+                    '*maxlength="250"*',
+                    '*name="address"*',
+                    "*1 Infinite Loop\nCupertino, CA*",
                 ],
                 'address',
                 "1 Infinite Loop\nCupertino, CA",
@@ -712,10 +720,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_TEXT + F_PASSWORD input field'=>[
                 [
-                    'type="password"',
-                    'maxlength="50"',
-                    'name="password"',
-                    'value=""',
+                    '*type="password"*',
+                    '*maxlength="50"*',
+                    '*name="password"*',
+                    '*value=""*',
                 ],
                 'password',
                 '',
@@ -724,10 +732,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_TEXT + F_EMAIL input field'=>[
                 [
-                    'type="email"',
-                    'maxlength="50"',
-                    'name="email"',
-                    'value="a@b.com"',
+                    '*type="email"*',
+                    '*maxlength="50"*',
+                    '*name="email"*',
+                    '*value="a@b.com"*',
                 ],
                 'email',
                 'a@b.com',
@@ -736,11 +744,11 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_TEXT + F_TEL input field + input tag attributes'=>[
                 [
-                    'id="152"',
-                    'type="tel"',
-                    'maxlength="50"',
-                    'name="tel"',
-                    'value="0123456789"',
+                    '*id="152"*',
+                    '*type="tel"*',
+                    '*maxlength="50"*',
+                    '*name="tel"*',
+                    '*value="0123456789"*',
                 ],
                 'tel',
                 '0123456789',
@@ -749,9 +757,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_DATE input field (type text)'=>[
                 [
-                    'type="text"',
-                    'name="user_birthday"',
-                    'value="31/12/16"',
+                    '*type="text"*',
+                    '*name="user_birthday"*',
+                    '*value="31/12/16"*',
                 ],
                 'user_birthday',
                 '2016-12-31',
@@ -760,9 +768,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_DATE input field (type date)'=>[
                 [
-                    'type="date"',
-                    'name="user_birthday"',
-                    'value="2016-12-31"',
+                    '*type="date"*',
+                    '*name="user_birthday"*',
+                    '*value="2016-12-31"*',
                 ],
                 'user_birthday',
                 '2016-12-31',
@@ -771,9 +779,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_ENUM as select dropdown with blank line'=>[
                 [
-                    '<select name="op">',
-                    'rex1'=>'#<option[^>]*>---Select item---</option>#',
-                    '<option value="ins" selected="on">&lt;Insert&gt;</option>',
+                    '*<select name="op">*',
+                    '/<option[^>]*>---Select item---<\/option>/',
+                    '*<option value="ins" selected="on">&lt;Insert&gt;</option>*',
                 ],
                 'op',
                 'ins',
@@ -782,8 +790,8 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_ENUM + F_ASIS as select dropdown'=>[
                 [
-                    '<select name="op">',
-                    '<option value="ins" selected="on"><Insert></option>',
+                    '*<select name="op">*',
+                    '*<option value="ins" selected="on"><Insert></option>*',
                 ],
                 'op',
                 'ins',
@@ -792,10 +800,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_ENUM as radio buttons with delimiter'=>[
                 [
-                    'type="radio"',
-                    'name="op"',
-                    'value="ins" checked="on"',
-                    '>#<',
+                    '*type="radio"*',
+                    '*name="op"*',
+                    '*value="ins" checked="on"*',
+                    '*>#<*',
                 ],
                 'op',
                 'ins',
@@ -804,11 +812,11 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_SET as a collection of 2 checkboxes'=>[
                 [
-                    'type="checkbox"',
-                    'rex1'=>'/name="items\\[a]".+name="items\\[b]"/',
-                    'value="a"',
-                    '&lt;A&gt;',
-                    '>#<',
+                    '*type="checkbox"*',
+                    '/name="items\\[a]".+name="items\\[b]"/',
+                    '*value="a"*',
+                    '*&lt;A&gt;*',
+                    '*>#<*',
                 ],
                 'items',
                 '',
@@ -817,11 +825,11 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_SET + F_ASIS as a non-encoded checkbox'=>[
                 [
-                    'type="checkbox"',
-                    'name="items[a]"',
-                    'value="a"',
-                    'checked="on"',
-                    '<A>',
+                    '*type="checkbox"*',
+                    '*name="items[a]"*',
+                    '*value="a"*',
+                    '*checked="on"*',
+                    '*<A>*',
                 ],
                 'items',
                 'a',
@@ -830,9 +838,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_INT input field'=>[
                 [
-                    'type="text"',
-                    'name="counter"',
-                    'value="100"',
+                    '*type="text"*',
+                    '*name="counter"*',
+                    '*value="100"*',
                 ],
                 'counter',
                 '100',
@@ -841,9 +849,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_CENTS input field'=>[
                 [
-                    'type="text"',
-                    'name="price"',
-                    'value="123,45"',
+                    '*type="text"*',
+                    '*name="price"*',
+                    '*value="123,45"*',
                 ],
                 'price',
                 '12345',
@@ -852,9 +860,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_BOOL input checkbox (true)'=>[
                 [
-                    'type="checkbox"',
-                    'name="is_due"',
-                    'checked="on"',
+                    '*type="checkbox"*',
+                    '*name="is_due"*',
+                    '*checked="on"*',
                 ],
                 'is_due',
                 '1',
@@ -863,9 +871,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_BOOL input checkbox (false) + label'=>[
                 [
-                    'type="checkbox"',
-                    'name="is_due"',
-                    'Vrai',
+                    '*type="checkbox"*',
+                    '*name="is_due"*',
+                    '*Vrai*',
                 ],
                 'is_due',
                 null,
@@ -874,8 +882,8 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_FILE input field'=>[
                 [
-                    'type="file"',
-                    'name="upload"',
+                    '*type="file"*',
+                    '*name="upload"*',
                 ],
                 'upload',
                 null,
@@ -884,9 +892,9 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'unknown class: text field'=>[
                 [
-                    'type="text"',
-                    'name="field"',
-                    'value="undefined"',
+                    '*type="text"*',
+                    '*name="field"*',
+                    '*value="undefined"*',
                 ],
                 'field',
                 'undefined',
