@@ -293,7 +293,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
             $field=>$value,
         ]));
 
-        $this->assertResult($expected, implode(' ', Repo::$input_errors));
+        $this->assertChecker($expected, implode(' ', Repo::$input_errors));
     }
 
     public function validateInputErrorProvider()
@@ -411,7 +411,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
             $field=>$value,
         ]));
 
-        $this->assertResult($expected, Repo::$validated[$field]);
+        $this->assertChecker($expected, Repo::$validated[$field]);
     }
 
     public function validateInputSuccessProvider()
@@ -681,7 +681,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsHtmlInput($expected, $field, $value, $input, $repo)
     {
-        $this->assertResult($expected, Repo::asHtmlInput($field, $value, $input, $repo));
+        $this->assertChecker($expected, Repo::asHtmlInput($field, $value, $input, $repo));
     }
 
     public function asHtmlInputProvider()
@@ -836,9 +836,20 @@ class RepoTest extends PHPUnit_Framework_TestCase
                 [],
                 [Repo::P_CLASS=>Repo::C_SET, Repo::P_FLAGS=>Repo::F_ASIS, Repo::P_ITEMS=>['a'=>'<A>']],
             ],
+            'C_ID input field'=>[
+                [
+                    '*type="number"*',
+                    '*name="counter"*',
+                    '*value="100"*',
+                ],
+                'counter',
+                '100',
+                [],
+                [Repo::P_CLASS=>Repo::C_ID],
+            ],
             'C_INT input field'=>[
                 [
-                    '*type="text"*',
+                    '*type="number"*',
                     '*name="counter"*',
                     '*value="100"*',
                 ],
@@ -849,7 +860,7 @@ class RepoTest extends PHPUnit_Framework_TestCase
             ],
             'C_CENTS input field'=>[
                 [
-                    '*type="text"*',
+                    '*type="number"*',
                     '*name="price"*',
                     '*value="123,45"*',
                 ],

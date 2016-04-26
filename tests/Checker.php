@@ -27,7 +27,7 @@ trait Checker
         }
     }
 
-    public function assertResult($expected, $result)
+    public function assertChecker($expected, $result)
     {
         if (is_array($expected)) {
             foreach ($expected as $k => $part) {

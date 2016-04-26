@@ -85,13 +85,21 @@ class Html
      */
     public static function tableStart($params = array())
     {
+        static $cnt = 0;
+
         $id = Params::extract($params, 'id');
         $caption_attr = Params::extract($params, self::P_CAPTION_ATTR);
+        if (\is_array($caption_attr)) {
+            $caption_attr = self::attr($caption_attr);
+        }
         if ($caption = Params::extract($params, self::P_CAPTION)) {
             $caption = "<caption$caption_attr>$caption</caption>";
         }
         $colgroup_html = null;
         if ($colgroup = Params::extract($params, self::P_COLGROUP)) {
+            if ($id === null) {
+                $id = 'table-implicit-'.++$cnt;
+            }
             $k = 0;
             $extra = 0;
             foreach ($colgroup as &$col) {
@@ -103,14 +111,15 @@ class Html
                     $style[] = "width:$width;";
                 }
                 if ($style) {
-                    $style_html = implode('', $style);
+                    $style_html = \implode('', $style);
                     HtmlPage::add(array(
                         HtmlPage::STYLE=>array(
-                            __METHOD__."-$id-$k"=>"table#$id td:first-child".\str_repeat(' + td', $k).
-                            "{{$style_html}}".
-                            "table#$id th:first-child".\str_repeat(' + th', $k).
-                            "{{$style_html}}"
-                        )
+                            __METHOD__."-$id-$k"=>
+                                "table#$id th:first-child".\str_repeat(' + th', $k).
+                                "{{$style_html}}".
+                                "table#$id td:first-child".\str_repeat(' + td', $k).
+                                "{{$style_html}}"
+                        ),
                     ));
                 }
                 ++$k;
@@ -138,17 +147,25 @@ class Html
      * @param array $params is passed to self::tr()
      * @return string       table row wrapped by thead tags
      */
-    public static function thead($params)
+    public static function thead($params = null)
     {
-        return '<thead>'.
-            (($prefix = Params::extract($params, self::P_PREFIX))
-                ? self::tr(array(
-                    self::P_VALUES=>array($prefix),
-                    self::P_TD_ATTR=>array('colspan'=>\count($params[self::P_VALUES]))
-                ))
-                : ''
-            ).
-            self::tr($params + array(self::P_TAG=>'th'));
+        $prefix_params = [];
+
+        if (\is_array($params) && isset($params[self::P_VALUES])) {
+            $prefix_params[self::P_TD_ATTR] = array(array('colspan'=>\count($params[self::P_VALUES])));
+            $cols_html = self::tr($params + array(self::P_TAG=>'th'));
+        } else {
+            $cols_html = '';
+        }
+
+        if ($prefix = Params::extract($params, self::P_PREFIX)) {
+            $prefix_params[self::P_VALUES] = array($prefix);
+            $prefix_html = self::tr($prefix_params);
+        } else {
+            $prefix_html = '';
+        }
+
+        return "<thead>$prefix_html$cols_html";
     }
 
     /** returns table columns description implemented with COLGROUP construct
@@ -248,7 +265,7 @@ class Html
      */
     public static function inputInt($params)
     {
-        return self::input($params + array('type'=>'text', 'maxlength'=>10));
+        return self::input($params + array('type'=>'number', 'maxlength'=>10));
     }
 
     /**
@@ -261,7 +278,7 @@ class Html
             $params['value'] = \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $params['value'] / 100);
         }
 
-        return self::input($params + array('type'=>'text', 'maxlength'=>10));
+        return self::input($params + array('type'=>'number', 'maxlength'=>10));
     }
 
     /**
@@ -281,7 +298,7 @@ class Html
                 : self::asDateNls($params['value'], $datetime);
         }
 
-        return self::input($params + array('type'=>'date', 'maxlength'=>20));
+        return self::input($params + array('type'=>$datetime ? 'datetime' : 'date', 'maxlength'=>20));
     }
 
     /**
@@ -305,7 +322,7 @@ class Html
         if (($blank = Params::extract($params, self::P_BLANK)) !== null) {
             $items[] = \strlen($blank)
                 ? ('<option value="">'.self::encode($blank)."</option>")
-                : "<option></option>";
+                : '<option></option>';
         }
 
         foreach (Params::extract($params, self::P_ITEMS, array()) as $k => $v) {
@@ -319,16 +336,13 @@ class Html
     }
 
     /** multiple checkboxes with labels (names are suffixed with *[k] and ids with *_k)
+     * calls inputCheckbox()
      * @param array $params {
      *  id:'fld',
      *  name:'field_name',
      *  value:'a,i'|{a:'a',i:'i'},
      *  P_ITEMS:{a:'Active',i:'Inactive'},
      *  P_DELIM:'&lt;br&gt;',
-     *  P_PREFIX:'',
-     *  P_SUFFIX:'',
-     *  P_FMT:'%s',
-     *  P_HEADER_ATTR:{}
      * }
      * @return string
      */
@@ -341,8 +355,6 @@ class Html
         }
         $value = Params::extract($params, 'value');
         $delim = Params::extract($params, self::P_DELIM, '<br>');
-        $item_prefix = Params::extract($params, self::P_PREFIX);
-        $item_suffix = Params::extract($params, self::P_SUFFIX);
         if (!\is_array($value)) {
             if (isset($value)) {
                 $_ = \explode(',', $value);
@@ -362,7 +374,7 @@ class Html
             ) + $params);
         }
 
-        return $item_prefix.\implode($delim, $items).$item_suffix;
+        return \implode($delim, $items);
     }
 
     /** returns html radios with labels
@@ -372,9 +384,7 @@ class Html
      *  value:'a',
      *  P_ITEMS:{a:'Active',i:'Inactive'},
      *  P_DELIM:'&lt;br&gt;',
-     *  P_FMT:'%s',
-     *  P_PREFIX:'',
-     *  P_SUFFIX:'',
+     *  P_WRAP_FMT:'%s',
      *  P_HEADER_ATTR:{'class':'checkbox'}
      * }
      * @return string
@@ -386,8 +396,6 @@ class Html
         if (isset($id) and empty($name)) {
             $name = $id;
         }
-        $item_prefix = Params::extract($params, self::P_PREFIX);
-        $item_suffix = Params::extract($params, self::P_SUFFIX);
         $delim = Params::extract($params, self::P_DELIM, '<br>');
         $fmt = Params::extract($params, self::P_WRAP_FMT);
         $value = Params::extract($params, 'value');
@@ -408,7 +416,7 @@ class Html
             $items[] = isset($fmt) ? \sprintf($fmt, $item) : $item;
         }
 
-        return $item_prefix.\implode($delim, $items).$item_suffix;
+        return \implode($delim, $items);
     }
 
     /** returns html checkbox element
@@ -476,7 +484,7 @@ class Html
             return \nl2br(\htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset));
         } else {
             return \nl2br(\preg_replace(
-                array('#^[-*]\s+#m', '#([\(“‘«])\s+#u', '#\s+([»’”\);:/])#u'),
+                array('#^[-*]\s+#m', '#([\(“‘«])\s#u', '#\s([»’”\);:!?/])#u'),
                 array('&bull;&nbsp;', '\1&nbsp;', '&nbsp;\1'),
                 \htmlspecialchars($str, \ENT_NOQUOTES, Nls::$charset)
             ));
@@ -523,7 +531,7 @@ class Html
      */
     public static function asTel($tel)
     {
-        return \str_replace(array(' ', "\t"), '&nbsp;', \htmlspecialchars($tel, \ENT_NOQUOTES, Nls::$charset));
+        return \str_replace(array(' ', "\t", "\r\n", "\r", "\n"), '&nbsp;', \htmlspecialchars($tel, \ENT_NOQUOTES, Nls::$charset));
     }
 
     /** integer value using specified thousands separator or Nls format if empty
@@ -533,6 +541,10 @@ class Html
      */
     public static function asInt($i, $sep = null)
     {
+        if (!is_numeric($i)) {
+            return null;
+        }
+
         if (!isset($sep)) {
             $sep = Nls::$formats[Nls::P_THOUSANDS_CHAR];
         }
@@ -551,6 +563,10 @@ class Html
      */
     public static function asCents($cts, $show_cents = true)
     {
+        if (!is_numeric($cts)) {
+            return null;
+        }
+
         if ($show_cents === null) {
         // minimum decimal places
             $dec = $cts % 100 ? ($cts % 10 ? 2 : 1) : 0;
