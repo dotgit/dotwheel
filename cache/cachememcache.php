@@ -14,13 +14,15 @@ namespace Dotwheel\Cache;
 
 use Memcached;
 
-class CacheMemcache extends CacheBase
+class CacheMemcache implements CacheInterface
 {
     const P_SERVERS = 2;
     const P_OPTIONS = 3;
     const P_LOGIN   = 4;
     const P_PASS    = 5;
 
+    /** @var string connection prefix to distinguish between different datasets on shared server */
+    protected static $prefix;
     public static $params;
     public static $conn;
 
@@ -28,8 +30,10 @@ class CacheMemcache extends CacheBase
 
     public static function init($params)
     {
+        self::$prefix = $params[self::P_PREFIX].':';
         self::$params = $params;
-        return parent::init($params);
+
+        return true;
     }
 
     /** establishes a permanent memcache server(s) connection and sets initial connection options
@@ -41,19 +45,18 @@ class CacheMemcache extends CacheBase
      */
     public static function connect()
     {
-        if (isset(self::$params[self::P_SERVERS]) and empty(self::$conn))
-        {
+        if (isset(self::$params[self::P_SERVERS]) and empty(self::$conn)) {
             // create Memcached object
-            if (self::$conn = new Memcached(__METHOD__.self::$prefix))
-            {
+            if (self::$conn = new Memcached(__METHOD__.self::$prefix)) {
                 // set options
                 $options = isset(self::$params[self::P_OPTIONS]) ? self::$params[self::P_OPTIONS] : array();
                 self::$conn->setOptions($options + array(
                     Memcached::OPT_PREFIX_KEY=>self::$params[self::P_PREFIX].'.',
                 ));
                 // login if needed
-                if (isset(self::$params[self::P_LOGIN]))
+                if (isset(self::$params[self::P_LOGIN])) {
                     self::$conn->setSaslAuthData(self::$params[self::P_LOGIN], self::$params[self::P_PASS]);
+                }
                 // connect to servers
                 self::$conn->addServers(self::$params[self::P_SERVERS]);
             }
@@ -66,14 +69,14 @@ class CacheMemcache extends CacheBase
     {
         return (self::$conn or self::connect())
             ? self::$conn->set($name, $value, isset($ttl) ? $ttl : 86400)   // 24 hours
-            : parent::store($name, $value, $ttl);
+            : false;
     }
 
     public static function storeMulti($values, $ttl=null)
     {
         return (self::$conn or self::connect())
             ? self::$conn->setMulti($values, isset($ttl) ? $ttl : 86400)    // 24 hours
-            : parent::storeMulti($values, $ttl);
+            : false;
     }
 
     /** gets the stored value or <i>null</i> if not found. may use the read-through
@@ -88,12 +91,13 @@ class CacheMemcache extends CacheBase
      */
     public static function fetch($name, $callback=null)
     {
-        if (self::$conn or self::connect())
+        if (self::$conn or self::connect()) {
             $value = self::$conn->get($name, $callback);
-        elseif ($callback)
+        } elseif ($callback) {
             $callback(null, $name, $value);
-        else
+        } else {
             $value = false;
+        }
 
         return $value === false ? null : $value;
     }
@@ -102,7 +106,7 @@ class CacheMemcache extends CacheBase
     {
         $values = (self::$conn or self::connect())
             ? self::$conn->getMulti($names)
-            : parent::fetchMulti($names);
+            : false;
 
         return $values === false ? array() : $values;
     }
@@ -113,14 +117,12 @@ class CacheMemcache extends CacheBase
      */
     public static function delete($name)
     {
-        if (self::$conn or self::connect())
-        {
-            if (\is_array($name))
-                return self::$conn->deleteMulti($name);
-            else
-                return self::$conn->delete($name);
+        if (self::$conn or self::connect()) {
+            return \is_array($name)
+                ? self::$conn->deleteMulti($name)
+                : self::$conn->delete($name);
+        } else {
+            return false;
         }
-        else
-            return parent::delete($name);
     }
 }

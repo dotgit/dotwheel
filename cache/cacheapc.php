@@ -12,8 +12,19 @@
 
 namespace Dotwheel\Cache;
 
-class CacheApc extends CacheBase
+class CacheApc implements CacheInterface
 {
+    /** @var string connection prefix to distinguish between different datasets on shared server */
+    protected static $prefix;
+
+
+
+    public static function init($params)
+    {
+        self::$prefix = $params[self::P_PREFIX].':';
+        return true;
+    }
+
     public static function store($name, $value, $ttl=null)
     {
         return \apc_add(self::$prefix.$name, $value, isset($ttl) ? $ttl : 86400);   // 24 hours
@@ -29,23 +40,29 @@ class CacheApc extends CacheBase
         return $last_res;
     }
 
-    public static function fetch($name)
+    public static function fetch($name, $callback=null)
     {
         $success = true;
         $value = \apc_fetch(self::$prefix.$name, $success);
-
-        return $success ? $value : null;
+        if ($success) {
+            return $value;
+        } elseif ($callback and $callback(null, $name, $value)) {
+            \apc_add(self::$prefix.$name, $value, 86400);   // 24 hours
+            return $value;
+        } else {
+            return null;
+        }
     }
 
     public static function fetchMulti($names)
     {
         $res = array();
-        foreach ($names as $name)
-        {
+        foreach ($names as $name) {
             $success = true;
             $value = \apc_fetch(self::$prefix.$name, $success);
-            if ($success)
+            if ($success) {
                 $res[$name] = $value;
+            }
         }
 
         return $success;
@@ -53,14 +70,13 @@ class CacheApc extends CacheBase
 
     public static function delete($name)
     {
-        if (\is_array($name))
-        {
-            foreach ($name as $key)
+        if (\is_array($name)) {
+            foreach ($name as $key) {
                 \apc_delete(self::$prefix.$key);
-
+            }
             return true;
-        }
-        else
+        } else {
             return \apc_delete(self::$prefix.$name);
+        }
     }
 }
