@@ -21,6 +21,7 @@ class HtmlPage
     const BASE              = 5;
     const STYLE_SRC         = 6;
     const STYLE             = 7;
+
     /** page footers */
     const HTML_FOOTER       = 10;
     const SCRIPT_SRC_INIT   = 11;

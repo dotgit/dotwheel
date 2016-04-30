@@ -466,11 +466,12 @@ class Html
 
     /** translates special chars in the string to html entities.
      * @param string $str   value to convert
+     * @param int $flags    htmlspecialchars() flags (default: ENT_COMPAT)
      * @return string
      */
-    public static function encodeAttr($str)
+    public static function encodeAttr($str, $flags = \ENT_COMPAT)
     {
-        return \htmlspecialchars($str, \ENT_COMPAT, Nls::$charset);
+        return \htmlspecialchars($str, $flags, Nls::$charset);
     }
 
     /** translates special chars in the string to html entities, then converts newlines to &lt;br /&gt;.
