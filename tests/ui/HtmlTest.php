@@ -79,7 +79,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase
         $this->assertContains('<table id="', $res, 'table with colgroup');
         $this->assertEquals(1, preg_match('/ id="([^"]+)"/', $res, $m), 'table id was computed');
         $id = $m[1];
-        foreach (array_filter(HtmlPage::$bin_style, function ($st) use ($id) {return strpos($st, $id) !== false;}) as $style) {
+        foreach (array_filter(HtmlPage::$bin_head_style, function ($st) use ($id) {return strpos($st, $id) !== false;}) as $style) {
             $this->assertContains('width:', $style, 'width property is set');
         }
     }

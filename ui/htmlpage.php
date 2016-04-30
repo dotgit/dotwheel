@@ -31,17 +31,17 @@ class HtmlPage
     const HTML_FOOTER_LAST  = 16;
 
     /** page headers */
-    public static $bin_meta = array();
-    public static $bin_style_src = array();
-    public static $bin_style = array();
+    public static $bin_head = array();
+    public static $bin_head_style_src = array();
+    public static $bin_head_style = array();
 
     /** page footers */
     public static $bin_html_footer = array();
     public static $bin_script_src_init = array();
     public static $bin_script_src = array();
     public static $bin_script = array();
-    public static $bin_script_last = array();
     public static $bin_dom_ready = array();
+    public static $bin_script_last = array();
     public static $bin_html_footer_last = array();
 
 
@@ -51,203 +51,247 @@ class HtmlPage
      */
     public static function add(array $baskets)
     {
-        foreach ($baskets as $basket=>$items)
-            switch ($basket)
-            {
-            case self::HTML_FOOTER:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_html_footer[] = \trim($v);
-                        elseif (! isset(self::$bin_html_footer[$k]))
-                            self::$bin_html_footer[$k] = \trim($v);
+        foreach ($baskets as $basket => $items) {
+            switch ($basket) {
+                case self::HTML_FOOTER:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_html_footer[] = \trim($v);
+                            } elseif (!isset(self::$bin_html_footer[$k])) {
+                                self::$bin_html_footer[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_html_footer[] = \trim($items);
                     }
-                else
-                    self::$bin_html_footer[] = \trim($items);
-                break;
-            case self::HTML_FOOTER_LAST:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_html_footer_last[] = \trim($v);
-                        elseif (! isset(self::$bin_html_footer_last[$k]))
-                            self::$bin_html_footer_last[$k] = \trim($v);
+                    break;
+                case self::HTML_FOOTER_LAST:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_html_footer_last[] = \trim($v);
+                            } elseif (!isset(self::$bin_html_footer_last[$k])) {
+                                self::$bin_html_footer_last[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_html_footer_last[] = \trim($items);
                     }
-                else
-                    self::$bin_html_footer_last[] = \trim($items);
-                break;
-            case self::DOM_READY:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_dom_ready[] = \trim($v);
-                        elseif (! isset(self::$bin_dom_ready[$k]))
-                            self::$bin_dom_ready[$k] = \trim($v);
+                    break;
+                case self::DOM_READY:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_dom_ready[] = \trim($v);
+                            } elseif (!isset(self::$bin_dom_ready[$k])) {
+                                self::$bin_dom_ready[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_dom_ready[] = \trim($items);
                     }
-                else
-                    self::$bin_dom_ready[] = \trim($items);
-                break;
-            case self::SCRIPT:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_script[] = \trim($v);
-                        elseif (! isset(self::$bin_script[$k]))
-                            self::$bin_script[$k] = \trim($v);
+                    break;
+                case self::SCRIPT:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_script[] = \trim($v);
+                            } elseif (!isset(self::$bin_script[$k])) {
+                                self::$bin_script[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_script[] = \trim($items);
                     }
-                else
-                    self::$bin_script[] = \trim($items);
-                break;
-            case self::SCRIPT_SRC_INIT:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_script_src_init[] = "<script type=\"text/javascript\" src=\"$v\"></script>";
-                        elseif (! isset(self::$bin_script_src_init[$k]))
-                            self::$bin_script_src_init[$k] = "<script type=\"text/javascript\" src=\"$v\"></script>";
+                    break;
+                case self::SCRIPT_SRC_INIT:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            $attr = Html::encodeAttr($v);
+                            if (\is_int($k)) {
+                                self::$bin_script_src_init[] = "<script src=\"$attr\"></script>";
+                            } elseif (!isset(self::$bin_script_src_init[$k])) {
+                                self::$bin_script_src_init[$k] = "<script src=\"$attr\"></script>";
+                            }
+                        }
+                    } else {
+                        $attr = Html::encodeAttr($items);
+                        self::$bin_script_src_init[] = "<script src=\"$attr\"></script>";
                     }
-                else
-                    self::$bin_script_src_init[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
-                break;
-            case self::SCRIPT_SRC:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_script_src[] = "<script type=\"text/javascript\" src=\"$v\"></script>";
-                        elseif (! isset(self::$bin_script_src[$k]))
-                            self::$bin_script_src[$k] = "<script type=\"text/javascript\" src=\"$v\"></script>";
+                    break;
+                case self::SCRIPT_SRC:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            $attr = Html::encodeAttr($v);
+                            if (\is_int($k)) {
+                                self::$bin_script_src[] = "<script src=\"$attr\"></script>";
+                            } elseif (!isset(self::$bin_script_src[$k])) {
+                                self::$bin_script_src[$k] = "<script src=\"$attr\"></script>";
+                            }
+                        }
+                    } else {
+                        $attr = Html::encodeAttr($items);
+                        self::$bin_script_src[] = "<script src=\"$attr\"></script>";
                     }
-                else
-                    self::$bin_script_src[] = "<script type=\"text/javascript\" src=\"$items\"></script>";
-                break;
-            case self::SCRIPT_LAST:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_script_last[] = \trim($v);
-                        elseif (! isset(self::$bin_script_last[$k]))
-                            self::$bin_script_last[$k] = \trim($v);
+                    break;
+                case self::SCRIPT_LAST:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_script_last[] = \trim($v);
+                            } elseif (!isset(self::$bin_script_last[$k])) {
+                                self::$bin_script_last[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_script_last[] = \trim($items);
                     }
-                else
-                    self::$bin_script_last[] = \trim($items);
-                break;
-            case self::STYLE_SRC:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_style_src[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$v\">";
-                        elseif (! isset(self::$bin_style_src[$k]))
-                            self::$bin_style_src[$k] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$v\">";
+                    break;
+                case self::STYLE_SRC:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            $attr = Html::encodeAttr($v);
+                            if (\is_int($k)) {
+                                self::$bin_head_style_src[] = "<link rel=\"stylesheet\" href=\"$attr\">";
+                            } elseif (!isset(self::$bin_head_style_src[$k])) {
+                                self::$bin_head_style_src[$k] = "<link rel=\"stylesheet\" href=\"$attr\">";
+                            }
+                        }
+                    } else {
+                        $attr = Html::encodeAttr($items);
+                        self::$bin_head_style_src[] = "<link rel=\"stylesheet\" href=\"$attr\">";
                     }
-                else
-                    self::$bin_style_src[] = "<link rel=\"stylesheet\" type=\"text/css\" href=\"$items\">";
-                break;
-            case self::STYLE:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_style[] = \trim($v);
-                        elseif (! isset(self::$bin_style[$k]))
-                            self::$bin_style[$k] = \trim($v);
+                    break;
+                case self::STYLE:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_head_style[] = \trim($v);
+                            } elseif (!isset(self::$bin_head_style[$k])) {
+                                self::$bin_head_style[$k] = \trim($v);
+                            }
+                        }
+                    } else {
+                        self::$bin_head_style[] = \trim($items);
                     }
-                else
-                    self::$bin_style[] = \trim($items);
-                break;
-            case self::TITLE:
-                self::$bin_meta[self::TITLE] = "<title>$items</title>";
-                break;
-            case self::META_DESCRIPTION:
-                self::$bin_meta[self::META_DESCRIPTION] = '<meta name="description" content="'.Html::encode($items).'">';
-                break;
-            case self::META:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_meta[] = "<meta$v>";
-                        elseif (! isset(self::$bin_meta[$k]))
-                            self::$bin_meta[$k] = "<meta$v>";
+                    break;
+                case self::TITLE:
+                    if (isset($items)) {
+                        self::$bin_head[__METHOD__.'-'.self::TITLE] = '<title>'.Html::encodeAttr($items).'</title>';
+                    } else {
+                        unset(self::$bin_head[__METHOD__.'-'.self::TITLE]);
                     }
-                else
-                    self::$bin_meta[] = "<meta$items>";
-                break;
-            case self::LINK:
-                if (\is_array($items))
-                    foreach ($items as $k=>$v)
-                    {
-                        if (is_int($k))
-                            self::$bin_meta[] = "<link$v>";
-                        elseif (! isset(self::$bin_meta[$k]))
-                            self::$bin_meta[$k] = "<link$v>";
+                    break;
+                case self::META_DESCRIPTION:
+                    if (isset($items)) {
+                        self::$bin_head[__METHOD__.'-'.self::META_DESCRIPTION] = '<meta name="description" content="'.Html::encodeAttr($items).'">';
+                    } else {
+                        unset(self::$bin_head[__METHOD__.'-'.self::META_DESCRIPTION]);
                     }
-                else
-                    self::$bin_meta[] = "<link$items>";
-                break;
-            case self::BASE:
-                self::$bin_meta[self::BASE] = "<base$items>";
-                break;
+                    break;
+                case self::META:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_head[] = "<meta$v>";
+                            } elseif (!isset(self::$bin_head[$k])) {
+                                self::$bin_head[$k] = "<meta$v>";
+                            }
+                        }
+                    } else {
+                        self::$bin_head[] = "<meta$items>";
+                    }
+                    break;
+                case self::LINK:
+                    if (\is_array($items)) {
+                        foreach ($items as $k => $v) {
+                            if (\is_int($k)) {
+                                self::$bin_head[] = "<link$v>";
+                            } elseif (!isset(self::$bin_head[$k])) {
+                                self::$bin_head[$k] = "<link$v>";
+                            }
+                        }
+                    } else {
+                        self::$bin_head[] = "<link$items>";
+                    }
+                    break;
+                case self::BASE:
+                    if (isset($items)) {
+                        self::$bin_head[__METHOD__.'-'.self::BASE] = "<base$items>";
+                    } else {
+                        unset(self::$bin_head[__METHOD__.'-'.self::BASE]);
+                    }
+                    break;
             }
+        }
     }
 
     /** start the page
      * @param array $params additional params to pass into self::add()
      * @return string       html head contents (styles, title, etc.)
      */
-    public static function getHead(array $params=null)
+    public static function getHead(array $params = null)
     {
-        if ($params)
+        if ($params) {
             self::add($params);
+        }
 
-        $ret = '';
-        if (self::$bin_meta)
-            $ret .= \implode("\n", self::$bin_meta)."\n";
-        if (self::$bin_style_src)
-            $ret .= \implode("\n", self::$bin_style_src)."\n";
-        if (self::$bin_style)
-            $ret .= "<style type=\"text/css\">\n".\implode("\n", self::$bin_style)."\n</style>\n";
+        $parts = array();
+        if (self::$bin_head) {
+            $parts[] = \implode("\n", self::$bin_head);
+        }
+        if (self::$bin_head_style_src) {
+            $parts[] = \implode("\n", self::$bin_head_style_src);
+        }
+        if (self::$bin_head_style) {
+            $parts[] = '<style>'.\implode("\n", self::$bin_head_style).'</style>';
+        }
 
-        return $ret;
+        return \implode("\n", $parts);
     }
 
     /** close the page
      * @param array $params additional params to pass into self::add()
      * @return string       html page trailing contents (scripts)
      */
-    public static function getTail(array $params=null)
+    public static function getTail(array $params = null)
     {
-        if ($params)
+        if ($params) {
             self::add($params);
-
-        $ret = '';
-        if (self::$bin_html_footer)
-            $ret .= \implode("\n", self::$bin_html_footer)."\n";
-        if (self::$bin_script_src_init)
-            $ret .= \implode("\n", self::$bin_script_src_init)."\n";
-        if (self::$bin_script_src)
-            $ret .= \implode("\n", self::$bin_script_src)."\n";
-        if (self::$bin_script or self::$bin_dom_ready or self::$bin_script_last)
-        {
-            $ret .= "<script type=\"text/javascript\">\n";
-            if (self::$bin_script)
-                $ret .= \implode("\n", self::$bin_script)."\n";
-            if (self::$bin_dom_ready)
-                $ret .= "jQuery(document).ready(function(){\n".\implode("\n", self::$bin_dom_ready)."\n});\n";
-            if (self::$bin_script_last)
-                $ret .= \implode("\n", self::$bin_script_last)."\n";
-            $ret .= "</script>\n";
         }
-        if (self::$bin_html_footer_last)
-            $ret .= \implode("\n", self::$bin_html_footer_last)."\n";
 
-        return $ret;
+        $parts = array();
+        if (self::$bin_html_footer) {
+            $parts[] = \implode("\n", self::$bin_html_footer);
+        }
+        if (self::$bin_script_src_init) {
+            $parts[] = \implode("\n", self::$bin_script_src_init);
+        }
+        if (self::$bin_script_src) {
+            $parts[] = \implode("\n", self::$bin_script_src);
+        }
+        if (self::$bin_script or self::$bin_dom_ready or self::$bin_script_last) {
+            $parts[] = '<script>';
+            if (self::$bin_script) {
+                $parts[] = \implode("\n", self::$bin_script);
+            }
+            if (self::$bin_dom_ready) {
+                $parts[] = "document.addEventListener(\"DOMContentLoaded\",function(event){\n".
+                    \implode("\n", self::$bin_dom_ready).
+                "\n});";
+            }
+            if (self::$bin_script_last) {
+                $parts[] = \implode("\n", self::$bin_script_last);
+            }
+            $parts[] = '</script>';
+        }
+        if (self::$bin_html_footer_last) {
+            $parts[] = \implode("\n", self::$bin_html_footer_last);
+        }
+
+        return $parts
+            ? "\n".\implode("\n", $parts)
+            : null;
     }
 }
