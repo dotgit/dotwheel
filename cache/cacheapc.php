@@ -46,11 +46,11 @@ class CacheApc implements CacheInterface
         $value = \apc_fetch(self::$prefix.$name, $success);
         if ($success) {
             return $value;
-        } elseif ($callback and $callback(null, $name, $value)) {
+        } elseif ($callback and $value = true and $callback(null, $name, $value)) {
             \apc_add(self::$prefix.$name, $value, 86400);   // 24 hours
             return $value;
         } else {
-            return null;
+            return false;
         }
     }
 

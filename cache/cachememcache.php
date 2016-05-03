@@ -23,8 +23,8 @@ class CacheMemcache implements CacheInterface
 
     /** @var string connection prefix to distinguish between different datasets on shared server */
     protected static $prefix;
-    public static $params;
-    public static $conn;
+    protected static $params;
+    protected static $conn;
 
 
 
@@ -43,7 +43,7 @@ class CacheMemcache implements CacheInterface
      *  }
      * @return Object self::$conn
      */
-    public static function connect()
+    protected static function connect()
     {
         if (isset(self::$params[self::P_SERVERS]) and empty(self::$conn)) {
             // create Memcached object
@@ -92,14 +92,12 @@ class CacheMemcache implements CacheInterface
     public static function fetch($name, $callback=null)
     {
         if (self::$conn or self::connect()) {
-            $value = self::$conn->get($name, $callback);
-        } elseif ($callback) {
-            $callback(null, $name, $value);
+            return self::$conn->get($name, $callback);
+        } elseif ($callback and $value = true and $callback(null, $name, $value)) {
+            return $value;
         } else {
-            $value = false;
+            return false;
         }
-
-        return $value === false ? null : $value;
     }
 
     public static function fetchMulti($names)

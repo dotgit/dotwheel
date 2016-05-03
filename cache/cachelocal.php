@@ -51,11 +51,11 @@ class CacheLocal implements CacheInterface
     {
         if (isset(self::$store[$name])) {
             return self::$store[$name];
-        } elseif ($callback and $callback(null, $name, $value)) {
+        } elseif ($callback and $value = true and $callback(null, $name, $value)) {
             self::$store[$name] = $value;
             return $value;
         } else {
-            return null;
+            return false;
         }
     }
 
