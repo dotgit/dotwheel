@@ -1006,7 +1006,7 @@ EOfmt
         if ($footer = Params::extract($params, self::P_FOOTER))
         {
             $footer_attr = Params::extract($params, self::P_FOOTER_ATTR, array());
-            if (empty($footer_attr) or \strpos($footer_attr, 'text-left') === false)
+            if (empty($footer_attr['class']) or \strpos($footer_attr['class'], 'text-left') === false)
                 Params::add($footer_attr, 'text-right');
             Params::add($footer_attr, 'panel-footer');
             Params::add($footer_attr, 'clearfix');
