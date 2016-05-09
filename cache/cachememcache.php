@@ -51,7 +51,7 @@ class CacheMemcache implements CacheInterface
                 // set options
                 $options = isset(self::$params[self::P_OPTIONS]) ? self::$params[self::P_OPTIONS] : array();
                 self::$conn->setOptions($options + array(
-                    Memcached::OPT_PREFIX_KEY=>self::$params[self::P_PREFIX].'.',
+                    Memcached::OPT_PREFIX_KEY=>self::$prefix.'.',
                 ));
                 // login if needed
                 if (isset(self::$params[self::P_LOGIN])) {
