@@ -15,27 +15,36 @@ class Db
     /** @var Resource current connection */
     protected static $conn = null;
 
-    /** connects to the database using the currently set codepage
+    /** connects to the database using specified charset
      *
      * @param string $host
      * @param string $username
      * @param string $password
      * @param string $database
-     * @param string $charset
+     * @param string $charset   (default:UTF8)
      * @return Resource|bool new database connection or <i>false</i> on error + error_log
      */
     public static function connect($host = null, $username = null, $password = null, $database = null, $charset = 'UTF8')
     {
-        if (self::$conn = \mysqli_init()
-            and \mysqli_options(self::$conn, \MYSQLI_SET_CHARSET_NAME, $charset)
-            and \mysqli_real_connect(self::$conn, $host, $username, $password, $database)
+        if ($conn = \mysqli_init()
+            and \mysqli_options($conn, \MYSQLI_SET_CHARSET_NAME, $charset)
+            and \mysqli_real_connect($conn, $host, $username, $password, $database)
         ) {
+            self::$conn = $conn;
             return self::$conn;
         } else {
-            \error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".
-                \mysqli_connect_error());
+            \error_log('['.__METHOD__."] >>>>> CANNOT CONNECT TO $username@$host/$database, mysql message: ".\mysqli_connect_error());
             return false;
         }
+    }
+
+    /** gets connection
+     * 
+     * @return Resource current DB connection
+     */
+    public static function getConnection()
+    {
+        return self::$conn;
     }
 
     /** executes a sql statement and fetches only one record in associative mode

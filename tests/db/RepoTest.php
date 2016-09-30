@@ -991,6 +991,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('is_open', Repo::asSql('is_open', 'x', [Repo::P_CLASS=>Repo::C_BOOL]));
         $this->assertEquals('not is_open', Repo::asSql('is_open', '', [Repo::P_CLASS=>Repo::C_BOOL]));
 
+        if (!Db::getConnection()) {
+            self::markTestSkipped('Must be connected to DB for sql escaping');
+        }
+
         // P_CLASS:C_DATE
         $this->assertEquals("queued='2016-12-31'", Repo::asSql('queued', '31/12/2016', [Repo::P_CLASS=>Repo::C_DATE]));
         $this->assertEquals("queued='2016-12-31 00:00:00'", Repo::asSql('queued', '31/12/2016', [Repo::P_CLASS=>Repo::C_DATE, Repo::P_FLAGS=>Repo::F_DATETIME]));
@@ -1040,6 +1044,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsSqlText()
     {
+        if (!Db::getConnection()) {
+            self::markTestSkipped('Must be connected to DB for sql escaping');
+        }
+
         $this->assertEquals("description='term'", Repo::asSqlText('description', 'term'));
         $this->assertEquals("description=''", Repo::asSqlText('description', ''));
         $this->assertNull(Repo::asSqlText('description', null));
@@ -1050,6 +1058,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsSqlSet()
     {
+        if (!Db::getConnection()) {
+            self::markTestSkipped('Must be connected to DB for sql escaping');
+        }
+
         $this->assertEquals("find_in_set('wed',dow)", Repo::asSqlSet('dow', 'wed'));
         $this->assertEquals("(find_in_set('sat',dow)or find_in_set('sun',dow))", Repo::asSqlSet('dow', ['sat','sun']));
         $this->assertEquals("(find_in_set('sat',dow)and find_in_set('sun',dow))", Repo::asSqlSet('dow', ['sat','sun'], true));
@@ -1061,6 +1073,10 @@ class RepoTest extends PHPUnit_Framework_TestCase
      */
     public function testAsSqlDate()
     {
+        if (!Db::getConnection()) {
+            self::markTestSkipped('Must be connected to DB for sql escaping');
+        }
+
         $repo = [
             Repo::P_CLASS=>Repo::C_DATE,
             Repo::P_LABEL=>'Date queued',

@@ -30,7 +30,7 @@ class CacheMemcache implements CacheInterface
 
     public static function init($params)
     {
-        self::$prefix = $params[self::P_PREFIX].':';
+        self::$prefix = $params[self::P_PREFIX];
         self::$params = $params;
 
         return true;
@@ -45,21 +45,21 @@ class CacheMemcache implements CacheInterface
      */
     protected static function connect()
     {
-        if (isset(self::$params[self::P_SERVERS]) and empty(self::$conn)) {
-            // create Memcached object
-            if (self::$conn = new Memcached(__METHOD__.self::$prefix)) {
-                // set options
-                $options = isset(self::$params[self::P_OPTIONS]) ? self::$params[self::P_OPTIONS] : array();
-                self::$conn->setOptions($options + array(
-                    Memcached::OPT_PREFIX_KEY=>self::$prefix.'.',
-                ));
-                // login if needed
-                if (isset(self::$params[self::P_LOGIN])) {
-                    self::$conn->setSaslAuthData(self::$params[self::P_LOGIN], self::$params[self::P_PASS]);
-                }
-                // connect to servers
-                self::$conn->addServers(self::$params[self::P_SERVERS]);
+        if (isset(self::$params[self::P_SERVERS]) 
+            and empty(self::$conn) 
+            and self::$conn = new Memcached(__METHOD__.self::$prefix)
+        ) {
+            // set options
+            $options = isset(self::$params[self::P_OPTIONS]) ? self::$params[self::P_OPTIONS] : array();
+            self::$conn->setOptions($options + array(
+                Memcached::OPT_PREFIX_KEY=>self::$prefix.'.',
+            ));
+            // login if needed
+            if (isset(self::$params[self::P_LOGIN])) {
+                self::$conn->setSaslAuthData(self::$params[self::P_LOGIN], self::$params[self::P_PASS]);
             }
+            // connect to servers
+            self::$conn->addServers(self::$params[self::P_SERVERS]);
         }
 
         return self::$conn;

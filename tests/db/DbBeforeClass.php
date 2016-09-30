@@ -13,7 +13,7 @@ class DbBeforeClass extends PHPUnit_Framework_TestCase
     const HOST  = null;
     const USER  = null;
     const PASS  = null;
-    const DB    = 'test';
+    const DB    = 'tezt';
 
     const TABLE     = 'test';
     const IDX_ID    = 'idx_id';
@@ -28,8 +28,10 @@ class DbBeforeClass extends PHPUnit_Framework_TestCase
      */
     public static function setUpBeforeClass()
     {
-        // connect
-        self::assertNotEmpty(Db::connect(self::HOST, self::USER, self::PASS, self::DB));
+        // connect or skip test
+        if (! Db::connect(self::HOST, self::USER, self::PASS, self::DB)) {
+            self::markTestSkipped('Cannot connect to '.self::DB.' database on default USER:PASS@HOST connection');
+        }
 
         // create temporary table
         Db::dml(sprintf(
