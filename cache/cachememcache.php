@@ -123,4 +123,14 @@ class CacheMemcache implements CacheInterface
             return false;
         }
     }
+
+    /** returns the last result code
+     * @return int result code from the last memcached operation
+     */
+    public static function getResult()
+    {
+        return self::$conn
+            ? self::$conn->getResultCode()
+            : null;
+    }
 }

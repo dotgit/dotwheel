@@ -56,11 +56,14 @@ class CacheMemcacheTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::delete
+     * @covers ::getResult
      */
-    public function testDelete()
+    public function testDeleteGetResult()
     {
         $this->assertEquals('value', CacheMemcache::fetch('name'), 'fetch already stored value');
         $this->assertTrue(CacheMemcache::delete('name'), 'delete stored value');
+        $this->assertEquals(\Memcached::RES_SUCCESS, CacheMemcache::getResult(), 'memcached status for successfully fetched element');
         $this->assertFalse(CacheMemcache::fetch('name'), 'fetch deleted value');
+        $this->assertEquals(\Memcached::RES_NOTFOUND, CacheMemcache::getResult(), 'memcached status for not found element');
     }
 }
