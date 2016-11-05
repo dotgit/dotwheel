@@ -278,7 +278,7 @@ class Html
             $params['value'] = \str_replace('.', Nls::$formats[Nls::P_MON_DECIMAL_CHAR], $params['value'] / 100);
         }
 
-        return self::input($params + array('type'=>'number', 'maxlength'=>10));
+        return self::input($params + array('type'=>'number', 'step'=>'any', 'maxlength'=>10));
     }
 
     /**
