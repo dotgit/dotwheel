@@ -76,6 +76,51 @@ class Misc
         return \round((\strtotime("$date_end +1 day") - \strtotime($date_start))/86400);
     }
 
+    /** returns html color converted to unsigned int
+     * @param string $color html standard color format (#000000 or #000)
+     * @return int|bool unsigned int representation of 3-bytes color or <i>false</i> if color is not of
+     * form #XXX or #XXXXXX
+     * @assert('#000000') == 0
+     * @assert('#0000ff') == 255
+     * @assert('#00ff00') == 65280
+     * @assert('#ff0000') == 16711680
+     * @assert('#ffffff') == 16777215
+     * @assert('#0f0') == 65280
+     * @assert('#f00') == 16711680
+     * @assert('#fef') == 16772863
+     * @assert('#eef') == 15658751
+     * @assert('#cff') == 13434879
+     * @assert('#cfc') == 13434828
+     * @assert('#fed') == 16772829
+     * @assert('#ffd') == 16777181
+     * @assert('#fff') == 16777215
+     * @assertFalse('abc')
+     * @assertFalse('#xyz')
+     */
+    public static function rgbToInt($color)
+    {
+        switch (\strlen($color)) {
+        case 4:
+            $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
+        case 7:
+            if (\sscanf(strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
+                return false;
+            } else {
+                return $r<<16 | $g<<8 | $b;
+            }
+        default: return false;
+        }
+    }
+
+    /** returns html color value from unsigned int
+     * @param int $rgb
+     * @return string html color value in the form #XXXXXX
+     */
+    public static function intToRgb($rgb)
+    {
+        return \sprintf('#%06x', 0xffffff & $rgb);
+    }
+
     /** assembles standard address representation from different parts. resulting
      * address is in the following form:
      * [street]
