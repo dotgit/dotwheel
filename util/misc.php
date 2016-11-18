@@ -12,6 +12,7 @@ namespace Dotwheel\Util;
 
 use Dotwheel\Nls\Nls;
 
+
 class Misc
 {
     /** add $n months to the $date_begin considering not skipping short months
@@ -29,18 +30,20 @@ class Misc
     public static function addMonths($date_begin, $n=1, $date_base=null)
     {
         $n = (int)$n;
-        if (empty($date_base))
+        if (empty($date_base)) {
             $date_base = $date_begin;
+        }
 
         $date_next = \date('Y-m-d', \strtotime("$date_begin +$n month"));
 
-        if (\substr($date_next, 8, 2) != \substr($date_begin, 8, 2))
+        if (\substr($date_next, 8, 2) != \substr($date_begin, 8, 2)) {
             return \date('Y-m-d', \strtotime("$date_next last day of previous month"));
-        elseif (\substr($date_next, 8, 2) != \substr($date_base, 8, 2))
+        } elseif (\substr($date_next, 8, 2) != \substr($date_base, 8, 2)) {
             return \substr($date_next, 0, 8).
                 \min((int)\date('t', \strtotime($date_next)), (int)\substr($date_base, 8, 2));
-        else
+        } else {
             return $date_next;
+        }
     }
 
     /** converts numbers from shorthand form (like '1K') to an integer
@@ -54,18 +57,21 @@ class Misc
      */
     public static function convertSize($size_str)
     {
-        switch (\substr($size_str, -1))
-        {
-            case 'M': case 'm': return (int)$size_str << 20;
-            case 'K': case 'k': return (int)$size_str << 10;
-            case 'G': case 'g': return (int)$size_str << 30;
-            default: return (int)$size_str;
+        switch (\substr($size_str, -1)) {
+            case 'M': case 'm':
+                return (int)$size_str << 20;
+            case 'K': case 'k':
+                return (int)$size_str << 10;
+            case 'G': case 'g':
+                return (int)$size_str << 30;
+            default:
+                return (int)$size_str;
         }
     }
 
     /** returns number of days between 2 dates
      * @param string $date_start    first date of period (yyyy-mm-mm)
-     * @param type $date_end        last date of period (yyyy-mm-dd)
+     * @param string $date_end      last date of period (yyyy-mm-dd)
      * @return int
      * @assert('2013-01-01', '2013-01-01') == 1
      * @assert('2013-01-01', '2013-01-31') == 31
@@ -100,15 +106,16 @@ class Misc
     public static function rgbToInt($color)
     {
         switch (\strlen($color)) {
-        case 4:
-            $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
-        case 7:
-            if (\sscanf(strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
+            case 4:
+                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
+            case 7:
+                if (\sscanf(\strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
+                    return false;
+                } else {
+                    return $r<<16 | $g<<8 | $b;
+                }
+            default:
                 return false;
-            } else {
-                return $r<<16 | $g<<8 | $b;
-            }
-        default: return false;
         }
     }
 
@@ -125,10 +132,10 @@ class Misc
      * address is in the following form:
      * [street]
      * [postal] [city] [country]
-     * @param type $street  address street
-     * @param type $postal  address postal code
-     * @param type $city    address city
-     * @param type $country address country
+     * @param string $street    address street
+     * @param string $postal    address postal code
+     * @param string $city      address city
+     * @param string $country   address country
      * @return string       standard address representation
      * @assert('Street', 'Postal', 'City', 'Country') == "Street\nPostal City Country"
      * @assert('Street', 'Postal', 'City', null) == "Street\nPostal City"
@@ -145,7 +152,6 @@ class Misc
      * @param string $text  bb-style formatted string (recognizes *bold*, /italic/,
      *                      ---header lines---, lines started with dash are bulleted)
      * @return string
-     * @see Snippets::preview_txt()
      * @assert("line") == "<p>line</p>"
      * @assert("line *bold* line") == "<p>line <b>bold</b> line</p>"
      * @assert("line *bold* /italic/ line") == "<p>line <b>bold</b> <i>italic</i> line</p>"
@@ -182,12 +188,13 @@ class Misc
     {
         $t = \str_replace(array(' ', '.', '-', '(0)'), '', $tel);
         $m = array();
-        if (\preg_match('/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
+        if (\preg_match('/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m)) {
             return "$m[1] $m[2] $m[3] $m[4] $m[5]";
-        elseif (\preg_match('/^\+?\(?(\d{2})\)?(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m))
+        } elseif (\preg_match('/^\+?\(?(\d{2})\)?(\d)(\d{2})(\d{2})(\d{2})(\d{2})$/', $t, $m)) {
             return "+$m[1] $m[2] $m[3] $m[4] $m[5] $m[6]";
-        else
+        } else {
             return $tel;
+        }
     }
 
     /** return maximum allowed size for uploaded file in bytes
@@ -221,91 +228,90 @@ class Misc
     public static function humanFloat($amount, $order=null)
     {
         $amount_abs = \abs($amount);
-        switch($order)
-        {
-        case 'k':
-        case 'K':
-            return $amount_abs >= 100000
-                ? \round($amount/1000)
-                : ($amount_abs >= 10000
-                    ? \round($amount/1000, 1)
-                    : \round($amount/1000, 2)
-                );
-
-        case 'm':
-        case 'M':
-            return $amount_abs >= 100000000
-                ? \round($amount/1000000)
-                : ($amount_abs >= 10000000
-                    ? \round($amount/1000000, 1)
-                    : \round($amount/1000000, 2)
-                );
-
-        case 'g':
-        case 'G':
-            return $amount_abs >= 100000000000
-                ? \round($amount/1000000000)
-                : ($amount_abs >= 10000000000
-                    ? \round($amount/1000000000, 1)
-                    : \round($amount/1000000000, 2)
-                );
-
-        case 't':
-        case 'T':
-            return $amount_abs >= 100000000000000
-                ? \round($amount/1000000000000)
-                : ($amount_abs >= 10000000000000
-                    ? \round($amount/1000000000000, 1)
-                    : \round($amount/1000000000000, 2)
-                );
-
-        default:
-            if (isset($order))
-                return $amount_abs >= 100
-                    ? \round($amount)
-                    : ($amount_abs >= 10
-                        ? \round($amount, 1)
-                        : \round($amount, 2)
-                    );
-            elseif ($amount_abs >= 1000000000000)
-                return ($amount_abs >= 100000000000000
-                    ? \round($amount/1000000000000)
-                    : ($amount_abs >= 10000000000000
-                        ? \round($amount/1000000000000, 1)
-                        : \round($amount/1000000000000, 2)
-                    )
-                ).'T';
-            elseif ($amount_abs >= 1000000000)
-                return ($amount_abs >= 100000000000
-                    ? \round($amount/1000000000)
-                    : ($amount_abs >= 10000000000
-                        ? \round($amount/1000000000, 1)
-                        : \round($amount/1000000000, 2)
-                    )
-                ).'G';
-            elseif ($amount_abs >= 1000000)
-                return ($amount_abs >= 100000000
-                    ? \round($amount/1000000)
-                    : ($amount_abs >= 10000000
-                        ? \round($amount/1000000, 1)
-                        : \round($amount/1000000, 2)
-                    )
-                ).'M';
-            elseif ($amount_abs >= 1000)
-                return ($amount_abs >= 100000
+        switch ($order) {
+            case 'k':
+            case 'K':
+                return $amount_abs >= 100000
                     ? \round($amount/1000)
                     : ($amount_abs >= 10000
                         ? \round($amount/1000, 1)
                         : \round($amount/1000, 2)
-                    )
-                ).'K';
-            else
-                return $amount_abs >= 100
-                    ? \round($amount)
-                    : ($amount_abs >= 10
-                        ? \round($amount, 1)
-                        : \round($amount, 2)
                     );
+
+            case 'm':
+            case 'M':
+                return $amount_abs >= 100000000
+                    ? \round($amount/1000000)
+                    : ($amount_abs >= 10000000
+                        ? \round($amount/1000000, 1)
+                        : \round($amount/1000000, 2)
+                    );
+
+            case 'g':
+            case 'G':
+                return $amount_abs >= 100000000000
+                    ? \round($amount/1000000000)
+                    : ($amount_abs >= 10000000000
+                        ? \round($amount/1000000000, 1)
+                        : \round($amount/1000000000, 2)
+                    );
+
+            case 't':
+            case 'T':
+                return $amount_abs >= 100000000000000
+                    ? \round($amount/1000000000000)
+                    : ($amount_abs >= 10000000000000
+                        ? \round($amount/1000000000000, 1)
+                        : \round($amount/1000000000000, 2)
+                    );
+
+            default:
+                if (isset($order))
+                    return $amount_abs >= 100
+                        ? \round($amount)
+                        : ($amount_abs >= 10
+                            ? \round($amount, 1)
+                            : \round($amount, 2)
+                        );
+                elseif ($amount_abs >= 1000000000000)
+                    return ($amount_abs >= 100000000000000
+                        ? \round($amount/1000000000000)
+                        : ($amount_abs >= 10000000000000
+                            ? \round($amount/1000000000000, 1)
+                            : \round($amount/1000000000000, 2)
+                        )
+                    ).'T';
+                elseif ($amount_abs >= 1000000000)
+                    return ($amount_abs >= 100000000000
+                        ? \round($amount/1000000000)
+                        : ($amount_abs >= 10000000000
+                            ? \round($amount/1000000000, 1)
+                            : \round($amount/1000000000, 2)
+                        )
+                    ).'G';
+                elseif ($amount_abs >= 1000000)
+                    return ($amount_abs >= 100000000
+                        ? \round($amount/1000000)
+                        : ($amount_abs >= 10000000
+                            ? \round($amount/1000000, 1)
+                            : \round($amount/1000000, 2)
+                        )
+                    ).'M';
+                elseif ($amount_abs >= 1000)
+                    return ($amount_abs >= 100000
+                        ? \round($amount/1000)
+                        : ($amount_abs >= 10000
+                            ? \round($amount/1000, 1)
+                            : \round($amount/1000, 2)
+                        )
+                    ).'K';
+                else
+                    return $amount_abs >= 100
+                        ? \round($amount)
+                        : ($amount_abs >= 10
+                            ? \round($amount, 1)
+                            : \round($amount, 2)
+                        );
         }
     }
 
@@ -327,41 +333,40 @@ class Misc
      */
     public static function humanBytes($bytes, $order=null)
     {
-        switch($order)
-        {
-        case 'k':
-        case 'K':
-            return \ceil($bytes/1024);
+        switch($order) {
+            case 'k':
+            case 'K':
+                return \ceil($bytes/1024);
 
-        case 'm':
-        case 'M':
-            return \ceil($bytes/1048576);
+            case 'm':
+            case 'M':
+                return \ceil($bytes/1048576);
 
-        case 'g':
-        case 'G':
-            return \ceil($bytes/1073741824);
+            case 'g':
+            case 'G':
+                return \ceil($bytes/1073741824);
 
-        case 't':
-        case 'T':
-            return \ceil($bytes/1099511627776);
+            case 't':
+            case 'T':
+                return \ceil($bytes/1099511627776);
 
-        case 'p':
-        case 'P':
-            return \ceil($bytes/1125899906842624);
+            case 'p':
+            case 'P':
+                return \ceil($bytes/1125899906842624);
 
-        default:
-            if ($bytes >= 1125899906842624)
-                return \ceil($bytes/1125899906842624).'P';
-            elseif ($bytes >= 1099511627776)
-                return \ceil($bytes/1099511627776).'T';
-            elseif ($bytes >= 1073741824)
-                return \ceil($bytes/1073741824).'G';
-            elseif ($bytes >= 1048576)
-                return \ceil($bytes/1048576).'M';
-            elseif ($bytes >= 1024)
-                return \ceil($bytes/1024).'K';
-            else
-                return (int)$bytes;
+            default:
+                if ($bytes >= 1125899906842624)
+                    return \ceil($bytes/1125899906842624).'P';
+                elseif ($bytes >= 1099511627776)
+                    return \ceil($bytes/1099511627776).'T';
+                elseif ($bytes >= 1073741824)
+                    return \ceil($bytes/1073741824).'G';
+                elseif ($bytes >= 1048576)
+                    return \ceil($bytes/1048576).'M';
+                elseif ($bytes >= 1024)
+                    return \ceil($bytes/1024).'K';
+                else
+                    return (int)$bytes;
         }
     }
 
@@ -385,27 +390,27 @@ class Misc
         $elements = array();
         $splitter = '';
 
-        foreach ($params as $k=>$v)
-        {
-            if ($k)
-            {
-                if (isset($v))
-                {
-                    if (\is_scalar($v))
+        foreach ($params as $k=>$v) {
+            if ($k) {
+                if (isset($v)) {
+                    if (\is_scalar($v)) {
                         $elements[] = $v;
-                    elseif (($v = self::joinWs($v)) !== null)
+                    } elseif (($v = self::joinWs($v)) !== null) {
                         $elements[] = $v;
+                    }
                 }
-            }
-            else
+            } else {
                 $splitter = $v;
+            }
         }
-        if (\is_scalar($splitter))
+
+        if (\is_scalar($splitter)) {
             return $elements ? \implode($splitter, $elements) : null;
-        elseif ($elements)
+        } elseif ($elements) {
             return $splitter[0].\implode($splitter[1], $elements).$splitter[2];
-        else
+        } else {
             return null;
+        }
     }
 
     /** compacts $values by removing all null values from the array and adding the
@@ -417,15 +422,13 @@ class Misc
      */
     public static function nullCompact($values)
     {
-        if ($empty = \array_keys($values, null, true))
-        {
+        if ($empty = \array_keys($values, null, true)) {
             $res = \array_diff_key($values, \array_flip($empty));
             $res['N'] = $empty;
-
             return $res;
-        }
-        else
+        } else {
             return $values;
+        }
     }
 
     /** restores null values in the array compacted with nullCompact() from the 'N' field and removes the
@@ -437,8 +440,7 @@ class Misc
      */
     public static function nullRestore($values)
     {
-        if (isset($values['N']))
-        {
+        if (isset($values['N'])) {
             $values += \array_fill_keys($values['N'], null);
             unset($values['N']);
         }
@@ -453,10 +455,11 @@ class Misc
     public static function sessionSetTtl($ttl)
     {
         \session_set_cookie_params($ttl);
-        if (\session_status() == \PHP_SESSION_NONE)
+        if (\session_status() == \PHP_SESSION_NONE) {
             \session_start();
-        else
+        } else {
             \session_regenerate_id(true);
+        }
     }
 
     /** simplify the line by only keeping lowercased alphanumeric symbols and replacing all the rest with dashes,
@@ -488,6 +491,41 @@ class Misc
         return \str_replace('%', '%%', $str);
     }
 
+    /** enhance vsprintf semantics to be able to use named args for argument swapping. so instead of calling:
+     *  <pre>vsprintf(
+     *      'select * from %1$s where %2$s = %3$u',
+     *      ['users', 'user_id', 15]
+     *  )</pre>
+     * we call:
+     *  <pre>vsprintfArgs(
+     *      'select * from %tbl$s where %id$s = %value$u',
+     *      ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
+     *  )</pre>
+     *
+     * @param string $format    format string, like 'select * from %tbl$s where %id$s = %value$u'
+     * @param array $args       named args array, like ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
+     * @return string formatted string, like select * from users where user_id = 15
+     * @assert('select * from %tbl$s where %id$s = %value$u', ['tbl'=>'users', 'id'=>'user_id', 'value'=>15]) == 'select * from users where user_id = 15'
+     * @assert('select * from %1$s where %2$s = %3$u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
+     * @assert('select * from %s where %s = %u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
+     * @assert('aaa=%aaa$s, aa=%aa$s, a=%a$s', ['a'=>'A', 'aa'=>'AA', 'aaa'=>'AAA']) == 'aaa=AAA, aa=AA, a=A'
+     */
+    public static function vsprintfArgs($format, $args)
+    {
+        $from = [];
+        $to = [];
+        $i = 0;
+
+        foreach ($args as $k=>$v) {
+            if (! \is_int($k)) {
+                $from[] = "%$k$";
+                $to[] = '%'.++$i.'$';
+            }
+        }
+
+        return \vsprintf(\str_replace($from, $to, $format), $args);
+    }
+
     /** trims string to the specified length adding suffix
      * @param string $str       string to trim
      * @param int $len          maximal trimmed string lenth
@@ -514,7 +552,8 @@ class Misc
      */
     public static function trimWord($str, $len=100, $suffix='...')
     {
-        return \mb_substr($str,
+        return \mb_substr(
+            $str,
             0,
             \mb_strlen(
                 \mb_strrchr(\mb_substr($str, 0, $len - \mb_strlen($suffix, Nls::$charset) + 1, Nls::$charset), ' ', true, Nls::$charset),
@@ -543,20 +582,21 @@ class Misc
      */
     public static function utf8Leading($char)
     {
-        if     (($char & 0b10000000) == 0b00000000) // ascii byte
+        if (($char & 0b10000000) == 0b00000000) {       // ascii byte
             return null;
-        elseif (($char & 0b11000000) == 0b10000000) // trailing byte
+        } elseif (($char & 0b11000000) == 0b10000000) { // trailing byte
             return 0;
-        elseif ($char == 0xC0 or $char == 0xC1 or $char >= 0xF5) // incorrect
+        } elseif ($char == 0xC0 or $char == 0xC1 or $char >= 0xF5) { // incorrect
             return false;
-        elseif (($char & 0b11100000) == 0b11000000) // leading + 1 byte
+        } elseif (($char & 0b11100000) == 0b11000000) { // leading + 1 byte
             return 2;
-        elseif (($char & 0b11110000) == 0b11100000) // leading + 2 bytes
+        } elseif (($char & 0b11110000) == 0b11100000) { // leading + 2 bytes
             return 3;
-        elseif (($char & 0b11111000) == 0b11110000) // leading + 3 bytes
+        } elseif (($char & 0b11111000) == 0b11110000) { // leading + 3 bytes
             return 4;
-        else                                        // incorrect
+        } else {                                        // incorrect
             return false;
+        }
     }
 
     /** whether the byte code corresponds to a utf-8 continuation byte
