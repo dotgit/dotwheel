@@ -12,7 +12,6 @@ namespace Dotwheel\Util;
 
 use Dotwheel\Nls\Nls;
 
-
 class Misc
 {
     /** add $n months to the $date_begin considering not skipping short months
@@ -80,52 +79,6 @@ class Misc
     public static function daysInPeriod($date_start, $date_end)
     {
         return \round((\strtotime("$date_end +1 day") - \strtotime($date_start))/86400);
-    }
-
-    /** returns html color converted to unsigned int
-     * @param string $color html standard color format (#000000 or #000)
-     * @return int|bool unsigned int representation of 3-bytes color or <i>false</i> if color is not of
-     * form #XXX or #XXXXXX
-     * @assert('#000000') == 0
-     * @assert('#0000ff') == 255
-     * @assert('#00ff00') == 65280
-     * @assert('#ff0000') == 16711680
-     * @assert('#ffffff') == 16777215
-     * @assert('#0f0') == 65280
-     * @assert('#f00') == 16711680
-     * @assert('#fef') == 16772863
-     * @assert('#eef') == 15658751
-     * @assert('#cff') == 13434879
-     * @assert('#cfc') == 13434828
-     * @assert('#fed') == 16772829
-     * @assert('#ffd') == 16777181
-     * @assert('#fff') == 16777215
-     * @assertFalse('abc')
-     * @assertFalse('#xyz')
-     */
-    public static function rgbToInt($color)
-    {
-        switch (\strlen($color)) {
-            case 4:
-                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
-            case 7:
-                if (\sscanf(\strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
-                    return false;
-                } else {
-                    return $r<<16 | $g<<8 | $b;
-                }
-            default:
-                return false;
-        }
-    }
-
-    /** returns html color value from unsigned int
-     * @param int $rgb
-     * @return string html color value in the form #XXXXXX
-     */
-    public static function intToRgb($rgb)
-    {
-        return \sprintf('#%06x', 0xffffff & $rgb);
     }
 
     /** assembles standard address representation from different parts. resulting
@@ -370,6 +323,15 @@ class Misc
         }
     }
 
+    /** returns html color value from unsigned int
+     * @param int $rgb
+     * @return string html color value in the form #XXXXXX
+     */
+    public static function intToRgb($rgb)
+    {
+        return \sprintf('#%06x', 0xffffff & $rgb);
+    }
+
     /** returns the parts from <code>$params</code> joined using the first parameter
      * as separator. if part is an array then calls itself recursively providing
      * this array as parameter. if the glue is an array then uses it as ['prefix',
@@ -448,6 +410,43 @@ class Misc
         return $values;
     }
 
+    /** returns html color converted to unsigned int
+     * @param string $color html standard color format (#000000 or #000)
+     * @return int|bool unsigned int representation of 3-bytes color or <i>false</i> if color is not of
+     * form #XXX or #XXXXXX
+     * @assert('#000000') == 0
+     * @assert('#0000ff') == 255
+     * @assert('#00ff00') == 65280
+     * @assert('#ff0000') == 16711680
+     * @assert('#ffffff') == 16777215
+     * @assert('#0f0') == 65280
+     * @assert('#f00') == 16711680
+     * @assert('#fef') == 16772863
+     * @assert('#eef') == 15658751
+     * @assert('#cff') == 13434879
+     * @assert('#cfc') == 13434828
+     * @assert('#fed') == 16772829
+     * @assert('#ffd') == 16777181
+     * @assert('#fff') == 16777215
+     * @assertFalse('abc')
+     * @assertFalse('#xyz')
+     */
+    public static function rgbToInt($color)
+    {
+        switch (\strlen($color)) {
+            case 4:
+                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
+            case 7:
+                if (\sscanf(\strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
+                    return false;
+                } else {
+                    return $r<<16 | $g<<8 | $b;
+                }
+            default:
+                return false;
+        }
+    }
+
     /** sets session cookie ttl and starts the session or regenerates session id
      * if session already open
      * @param int $ttl  new time to live in seconds
@@ -489,41 +488,6 @@ class Misc
     public static function sprintfEscape($str)
     {
         return \str_replace('%', '%%', $str);
-    }
-
-    /** enhance vsprintf semantics to be able to use named args for argument swapping. so instead of calling:
-     *  <pre>vsprintf(
-     *      'select * from %1$s where %2$s = %3$u',
-     *      ['users', 'user_id', 15]
-     *  )</pre>
-     * we call:
-     *  <pre>vsprintfArgs(
-     *      'select * from %tbl$s where %id$s = %value$u',
-     *      ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
-     *  )</pre>
-     *
-     * @param string $format    format string, like 'select * from %tbl$s where %id$s = %value$u'
-     * @param array $args       named args array, like ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
-     * @return string formatted string, like select * from users where user_id = 15
-     * @assert('select * from %tbl$s where %id$s = %value$u', ['tbl'=>'users', 'id'=>'user_id', 'value'=>15]) == 'select * from users where user_id = 15'
-     * @assert('select * from %1$s where %2$s = %3$u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
-     * @assert('select * from %s where %s = %u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
-     * @assert('aaa=%aaa$s, aa=%aa$s, a=%a$s', ['a'=>'A', 'aa'=>'AA', 'aaa'=>'AAA']) == 'aaa=AAA, aa=AA, a=A'
-     */
-    public static function vsprintfArgs($format, $args)
-    {
-        $from = [];
-        $to = [];
-        $i = 0;
-
-        foreach ($args as $k=>$v) {
-            if (! \is_int($k)) {
-                $from[] = "%$k$";
-                $to[] = '%'.++$i.'$';
-            }
-        }
-
-        return \vsprintf(\str_replace($from, $to, $format), $args);
     }
 
     /** trims string to the specified length adding suffix
@@ -609,5 +573,40 @@ class Misc
     public static function utf8Trailing($char)
     {
         return ($char & 0b11000000) == 0b10000000;
+    }
+
+    /** enhance vsprintf semantics to be able to use named args for argument swapping. so instead of calling:
+     *  <pre>vsprintf(
+     *      'select * from %1$s where %2$s = %3$u',
+     *      ['users', 'user_id', 15]
+     *  )</pre>
+     * we call:
+     *  <pre>vsprintfArgs(
+     *      'select * from %tbl$s where %id$s = %value$u',
+     *      ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
+     *  )</pre>
+     *
+     * @param string $format    format string, like 'select * from %tbl$s where %id$s = %value$u'
+     * @param array $args       named args array, like ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
+     * @return string formatted string, like select * from users where user_id = 15
+     * @assert('select * from %tbl$s where %id$s = %value$u', ['tbl'=>'users', 'id'=>'user_id', 'value'=>15]) == 'select * from users where user_id = 15'
+     * @assert('select * from %1$s where %2$s = %3$u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
+     * @assert('select * from %s where %s = %u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
+     * @assert('aaa=%aaa$s, aa=%aa$s, a=%a$s', ['a'=>'A', 'aa'=>'AA', 'aaa'=>'AAA']) == 'aaa=AAA, aa=AA, a=A'
+     */
+    public static function vsprintfArgs($format, $args)
+    {
+        $from = [];
+        $to = [];
+        $i = 0;
+
+        foreach ($args as $k=>$v) {
+            if (! \is_int($k)) {
+                $from[] = "%$k$";
+                $to[] = '%'.++$i.'$';
+            }
+        }
+
+        return \vsprintf(\str_replace($from, $to, $format), $args);
     }
 }
