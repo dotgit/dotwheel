@@ -38,19 +38,19 @@ class MimeTest extends PHPUnit_Framework_TestCase
      * @covers ::displayName
      * @dataProvider displayNameProvider
      */
-    public function testDisplayName($expected, $name, $charset)
+    public function testDisplayName($expected, $name)
     {
-        $this->assertEquals($expected, Mime::displayName($name, $charset));
+        $this->assertEquals($expected, Mime::displayName($name));
     }
 
     public function displayNameProvider()
     {
         return [
-            'simple name'=>['Resnick', 'Resnick', 'UTF-8'],
-            'double name'=>['Mary Smith', 'Mary Smith', 'UTF-8'],
-            'name with punctuation'=>['"Joe Q. Public"', 'Joe Q. Public', 'UTF-8'],
-            'name with punctuation2'=>['"Giant; \\"Big\\" \\\\Box"', 'Giant; "Big" \\Box', 'UTF-8'],
-            'unicode name'=>['"Jérôme"', 'Jérôme', 'UTF-8'],
+            'simple name'=>['Resnick', 'Resnick'],
+            'double name'=>['Mary Smith', 'Mary Smith'],
+            'name with punctuation'=>['"Joe Q. Public"', 'Joe Q. Public'],
+            'name with punctuation2'=>['"Giant; \\"Big\\" \\\\Box"', 'Giant; "Big" \\Box'],
+            'unicode name'=>['"Jérôme"', 'Jérôme'],
         ];
     }
 
