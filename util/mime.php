@@ -10,8 +10,6 @@
 
 namespace Dotwheel\Util;
 
-use Dotwheel\Nls\Nls;
-
 class Mime
 {
     const RFC5322_ATOMS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&\'*+-/=?^_`{|}~';
@@ -25,7 +23,7 @@ class Mime
      */
     public static function compileParts($parts, &$headers)
     {
-        $boundary = $_SERVER['REQUEST_TIME'];
+        $boundary = 'BOUND:'.\mt_rand().\mt_rand().':';
 
         $headers[] = 'MIME-Version: 1.0';
         $headers[] = "Content-Type: multipart/mixed; boundary=\"$boundary\"";
@@ -36,20 +34,32 @@ class Mime
             "\r\n--$boundary--";
     }
 
-    public static function displayname($name)
+    /** returns the display name formatted as mime 5322/6532 for the destination field of the message
+     * @param string $name      destination name to use
+     * @param string $charset   charset [UTF-8]
+     * @return string the converted display name
+     * @assert('Resnick') == 'Resnick'
+     * @assert('Mary Smith') == 'Mary Smith'
+     * @assert('Joe Q. Public') == '"Joe Q. Public"'
+     * @assert('Giant; "Big" Box') == '"Giant; \\"Big\\" Box"'
+     * @assert('Jérôme') == '"Jérôme"'
+     */
+    public static function displayName($name)
     {
         $phrase_preg = \preg_quote(self::RFC5322_ATOMS, '/');
 
-        if (\preg_match("/[^$phrase_preg\s]/", $name))
-            return self::subject($name);
-        else
+        if (\preg_match("/[^$phrase_preg\s]/", $name)) {
+            return '"'.\str_replace(array('\\', '"'), array('\\\\', '\\"'), $name).'"';
+        } else {
             return $name;
+        }
     }
 
     /** returns base64-encoded $content chunk_split'ted and prefixed with corresponding mime headers
      * @param string $content
      * @param string $mime_type
      * @return string
+     * @assert ('Text', 'text/plain') == Text
      */
     public static function partBase64($content, $mime_type)
     {
@@ -74,21 +84,5 @@ class Mime
             '',
             \quoted_printable_encode($content),
         ));
-    }
-
-    /** returns quoted-printable $subject ready to use as email Subject: header
-     * @param string $subject
-     * @return string
-     */
-    public static function subject($subject)
-    {
-        return
-            '=?'.Nls::$charset.'?Q?'.
-            \str_replace(
-                ' ',
-                '=20',
-                \quoted_printable_encode($subject)
-            ).
-            '?=';
     }
 }
