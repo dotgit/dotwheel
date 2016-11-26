@@ -64,51 +64,61 @@ class MiscTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Generated from @assert ('#000000') == 0.
-     * Generated from @assert ('#0000ff') == 255.
-     * Generated from @assert ('#00ff00') == 65280.
-     * Generated from @assert ('#ff0000') == 16711680.
-     * Generated from @assert ('#ffffff') == 16777215.
-     * Generated from @assert ('#0f0') == 65280.
-     * Generated from @assert ('#f00') == 16711680.
-     * Generated from @assert ('#fef') == 16772863.
-     * Generated from @assert ('#eef') == 15658751.
-     * Generated from @assert ('#cff') == 13434879.
-     * Generated from @assert ('#cfc') == 13434828.
-     * Generated from @assert ('#fed') == 16772829.
-     * Generated from @assert ('#ffd') == 16777181.
-     * Generated from @assert ('#fff') == 16777215.
-     *
-     * @covers ::rgbToInt
+     * @covers ::rgbaToInt
+     * @dataProvider rgbaToIntProvider
      */
-    public function testRgbToInt()
+    public function testRgbaToInt($expected, $color)
     {
-        $this->assertEquals(0, Misc::rgbToInt('#000000'));
-        $this->assertEquals(255, Misc::rgbToInt('#0000ff'));
-        $this->assertEquals(65280, Misc::rgbToInt('#00ff00'));
-        $this->assertEquals(16711680, Misc::rgbToInt('#ff0000'));
-        $this->assertEquals(16777215, Misc::rgbToInt('#ffffff'));
-        $this->assertEquals(65280, Misc::rgbToInt('#0f0'));
-        $this->assertEquals(16711680, Misc::rgbToInt('#f00'));
-        $this->assertEquals(16772863, Misc::rgbToInt('#fef'));
-        $this->assertEquals(15658751, Misc::rgbToInt('#eef'));
-        $this->assertEquals(13434879, Misc::rgbToInt('#cff'));
-        $this->assertEquals(13434828, Misc::rgbToInt('#cfc'));
-        $this->assertEquals(16772829, Misc::rgbToInt('#fed'));
-        $this->assertEquals(16777181, Misc::rgbToInt('#ffd'));
-        $this->assertEquals(16777215, Misc::rgbToInt('#fff'));
+        $this->assertEquals($expected, Misc::rgbaToInt($color));
+    }
+
+    public function rgbaToIntProvider()
+    {
+        return [
+            [0xff000000, '#000000'],
+            [0xff0000ff, '#0000ff'],
+            [0xff00ff00, '#00ff00'],
+            [0xffff0000, '#ff0000'],
+            [0xffffffff, '#ffffff'],
+            [0xff0000ff, '#00f'],
+            [0xff00ff00, '#0f0'],
+            [0xffff0000, '#f00'],
+            [0xffffeeff, '#fef'],
+            [0xffffffff, '#fff'],
+            [0x7f000000, '#0000007f'],
+            [0x7fffffff, '#ffffff7f'],
+            [0xaaffeeff, '#fefa'],
+            [0xaaffeedd, '#feda'],
+        ];
     }
 
     /**
-     * @covers ::intToRgb
+     * @covers ::intToRgba
+     * @dataProvider intToRgbaProvider
      */
-    public function testIntToRgb()
+    public function testIntToRgba($expected, $rgba)
     {
-        $this->assertEquals('#000000', Misc::intToRgb(0x000000));
-        $this->assertEquals('#0000ff', Misc::intToRgb(0x0000ff));
-        $this->assertEquals('#00ff00', Misc::intToRgb(0x00ff00));
-        $this->assertEquals('#ff0000', Misc::intToRgb(0xff0000));
-        $this->assertEquals('#ffffff', Misc::intToRgb(0xffffff));
+        $this->assertEquals($expected, Misc::intToRgba($rgba));
+    }
+
+    public function intToRgbaProvider()
+    {
+        return [
+            ['#000000', 0xff000000],
+            ['#0000ff', 0xff0000ff],
+            ['#00ff00', 0xff00ff00, ],
+            ['#ff0000', 0xffff0000],
+            ['#ffffff', 0xffffffff],
+            ['#0000ff', 0xff0000ff],
+            ['#00ff00', 0xff00ff00],
+            ['#ff0000', 0xffff0000],
+            ['#ffeeff', 0xffffeeff],
+            ['#ffffff', 0xffffffff],
+            ['rgba(0,0,0,0.5)', 0x7f000000],
+            ['rgba(255,255,255,0.5)', 0x7fffffff],
+            ['rgba(255,238,255,0.67)', 0xaaffeeff],
+            ['rgba(255,238,221,0.67)', 0xaaffeedd],
+        ];
     }
 
     /**

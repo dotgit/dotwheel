@@ -15,70 +15,76 @@ class Algo
     /** tests the string has a valid luhn checksum. used for SIRET and CC checks.
      * @param string $num_str   string representing the tested number
      * @return bool             whether the string passes
-     * @see http://fr.wikipedia.org/wiki/Luhn
-     * @see http://fr.wikipedia.org/wiki/Num%C3%A9ro_Interne_de_Classement
+     * @see https://en.wikipedia.org/wiki/Luhn_algorithm
+     * @see https://en.wikipedia.org/wiki/Payment_card_number
+     * @see https://fr.wikipedia.org/wiki/Syst%C3%A8me_d%27identification_du_r%C3%A9pertoire_des_entreprises
      * @see http://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers#PHP
      */
     public static function luhn($num_str)
     {
         $str = '';
         foreach (\array_reverse(\str_split($num_str)) as $i=>$c)
-            $str .= ($i % 2 ? $c * 2 : $c );
+            $str .= ($i % 2 ? $c<<1 : $c );
 
         return \array_sum(\str_split($str)) % 10 == 0;
     }
 
-    /** tests the string has a valid mod97 checksum. used for IBAN and VAT checks.
-     * @param string $num_str   string representing the tested number
-     * @return bool             whether the string passes
-     * @see http://fr.wikipedia.org/wiki/Luhn
-     * @see http://fr.wikipedia.org/wiki/Num%C3%A9ro_Interne_de_Classement
+    /** returns the string MOD-97 value. used for IBAN and VAT checks.
+     * @param string $num_str   string representing the tested number, like '1110271220658244971655161187'
+     * @return int
+     * @see https://en.wikipedia.org/wiki/International_Bank_Account_Number
      */
     public static function mod97($num_str)
     {
-        $ai = 1;
-        $sum = 0;
-        $len = \strlen($num_str);
-        for ($i = 0; $i < $len; ++$i)
-        {
-            $sum += ($num_str[$len-$i-1] * $ai);
-            $ai = ($ai * 10) % 97;
+        if (\strlen($num_str) > 9) {
+            $mod = \substr($num_str, 0, 2);
+            foreach (\str_split(\substr($num_str, 2), 7) as $part) {
+                $mod = "$mod$part" % 97;
+            }
+        } else {
+            $mod = $num_str % 97;
         }
 
-        return $sum % 97;
+        return $mod;
     }
 
-    /** creates a unique random code. the first 5 bytes of code is time-based
+    /** creates a unique random code. the first 8 bytes of code is time-based
      * value allowing to produce incremental values and ease insertion
      * into database as a unique index. the resulting format is the following
      * (spaces added for readability, $bytes = 16):<pre>
-     * TtTtTtTt Ff OoOoOoOoOoOoOoOoOoOoOo</pre>
+     * TtTtTtTt FfFfFfFf RrRrRrRrRrRrRrRr</pre>
      * where<br>
-     * Tt-part is 4-byte unix time value,<br>
-     * Ff-part is 1-byte fraction of a second value,<br>
-     * Oo-part is an openssl-generated random value.
-     * @param int $bytes    length of resulting code in bytes (greater than 5)
+     * Tt-part is 4-bytes unix time value,<br>
+     * Ff-part is 4-bytes fraction of a second value,<br>
+     * Rr-part is a random value.
+     * @param int $bytes    length of resulting code in bytes (default = 8)
      * @return string hexadecimal representation of a random code
      */
-    public static function uniqueCode($bytes)
+    public static function uniqueCode($bytes=8)
     {
         list ($frac, $tm) = \explode(' ', \microtime());
 
-        $suffix_len = $bytes - 5;
+        $suffix_len = $bytes - 8;
 
-        $random_str = \function_exists('random_bytes')
-            ? \random_bytes($suffix_len)
-            : (\function_exists('openssl_random_pseudo_bytes')
-                ? \openssl_random_pseudo_bytes($suffix_len)
-                : function() use ($suffix_len) {
-                    for ($str='';$suffix_len;--$suffix_len)
-                        $str .= \chr(\mt_rand(0, 255));
-                    return $str;
-                });
+        $random_str = $suffix_len > 0
+            ? (\function_exists('random_bytes')
+                ? \random_bytes($suffix_len)
+                : (\function_exists('openssl_random_pseudo_bytes')
+                    ? \openssl_random_pseudo_bytes($suffix_len)
+                    : function() use ($suffix_len) {
+                        for ($str=''; $suffix_len; --$suffix_len) {
+                            $str .= \chr(\mt_rand(0, 255));
+                        }
+                        return $str;
+                    }
+                )
+            )
+            : null;
 
         return
-            // 5-byte prefix
-            \dechex((($tm & 0xffffffff) << 8) + (int)($frac*256)).
+            // 8-bytes prefix
+            \dechex((($tm & 0xffffffff) << 32) + (int)($frac*0x100000000)).
+            // random part
             \bin2hex($random_str);
     }
 }

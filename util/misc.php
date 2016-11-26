@@ -324,12 +324,21 @@ class Misc
     }
 
     /** returns html color value from unsigned int
-     * @param int $rgb
-     * @return string html color value in the form #XXXXXX
+     * @param int $rgba value like 0xAARRGGBB
+     * @return string html color value in the form #RRGGBB or rgba(R,G,B,A)
      */
-    public static function intToRgb($rgb)
+    public static function intToRgba($rgba)
     {
-        return \sprintf('#%06x', 0xffffff & $rgb);
+        $alpha = (0xff000000 & $rgba)>>24;
+
+        if ($alpha == 0xff) {
+            return \sprintf('#%06x', 0xffffff & $rgba);
+        } else {
+            $red = (0xff0000 & $rgba)>>16;
+            $green = (0x00ff00 & $rgba)>>8;
+            $blue = 0x0000ff & $rgba;
+            return \sprintf('rgba(%u,%u,%u,%s)', $red, $green, $blue, \round($alpha/255, 2));
+        }
     }
 
     /** returns the parts from <code>$params</code> joined using the first parameter
@@ -411,39 +420,34 @@ class Misc
     }
 
     /** returns html color converted to unsigned int
-     * @param string $color html standard color format (#000000 or #000)
-     * @return int|bool unsigned int representation of 3-bytes color or <i>false</i> if color is not of
-     * form #XXX or #XXXXXX
-     * @assert('#000000') == 0
-     * @assert('#0000ff') == 255
-     * @assert('#00ff00') == 65280
-     * @assert('#ff0000') == 16711680
-     * @assert('#ffffff') == 16777215
-     * @assert('#0f0') == 65280
-     * @assert('#f00') == 16711680
-     * @assert('#fef') == 16772863
-     * @assert('#eef') == 15658751
-     * @assert('#cff') == 13434879
-     * @assert('#cfc') == 13434828
-     * @assert('#fed') == 16772829
-     * @assert('#ffd') == 16777181
-     * @assert('#fff') == 16777215
-     * @assertFalse('abc')
-     * @assertFalse('#xyz')
+     * @param string $color html standard color format (#RGB, #RRGGBB, #RGBA or #RRGGBBAA)
+     * @return int|bool unsigned int representation of 1-byte alpha chanel and 3-bytes color or <i>false</i> if color
+     * is not of form #RGB, #RRGGBB, #RGBA or #RRGGBBAA.
+     * @assert('#000000') = 0xff000000
+     * @assert('#0000ff') = 0xff0000ff
      */
-    public static function rgbToInt($color)
+    public static function rgbaToInt($color)
     {
         switch (\strlen($color)) {
             case 4:
-                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}";
+                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}ff";
+                break;
+            case 5:
+                $color = "{$color[0]}{$color[1]}{$color[1]}{$color[2]}{$color[2]}{$color[3]}{$color[3]}{$color[4]}{$color[4]}";
+                break;
             case 7:
-                if (\sscanf(\strtolower($color), '#%02x%02x%02x', $r, $g, $b) != 3) {
-                    return false;
-                } else {
-                    return $r<<16 | $g<<8 | $b;
-                }
+                $color .= 'ff';
+                break;
+            case 9:
+                break;
             default:
                 return false;
+        }
+
+        if (\sscanf(\strtolower($color), '#%02x%02x%02x%02x', $r, $g, $b, $a) != 4) {
+            return false;
+        } else {
+            return $a<<24 | $r<<16 | $g<<8 | $b;
         }
     }
 
