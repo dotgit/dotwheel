@@ -13,23 +13,27 @@ namespace Dotwheel\Util;
 class Algo
 {
     /** tests the string has a valid luhn checksum. used for SIRET and CC checks.
-     * @param string $num_str   string representing the tested number
+     * @param string $num_str   string representing the tested number, like '79927398713'
      * @return bool             whether the string passes
      * @see https://en.wikipedia.org/wiki/Luhn_algorithm
      * @see https://en.wikipedia.org/wiki/Payment_card_number
      * @see https://fr.wikipedia.org/wiki/Syst%C3%A8me_d%27identification_du_r%C3%A9pertoire_des_entreprises
      * @see http://rosettacode.org/wiki/Luhn_test_of_credit_card_numbers#PHP
+     * @see https://gist.github.com/troelskn/1287893
      */
     public static function luhn($num_str)
     {
-        $str = '';
-        foreach (\array_reverse(\str_split($num_str)) as $i=>$c)
-            $str .= ($i % 2 ? $c<<1 : $c );
+        $impairs = array(0, 2, 4, 6, 8, 1, 3, 5, 7, 9);
+        $sum = 0;
+        for ($len = \strlen($num_str) - 1, $i = 0; $i <= $len; ++$i)
+            $sum += ($i & 1)
+                ? $impairs[$num_str[$len - $i]]
+                : $num_str[$len - $i];
 
-        return \array_sum(\str_split($str)) % 10 == 0;
+        return !($sum % 10);
     }
 
-    /** returns the string MOD-97 value. used for IBAN and VAT checks.
+    /** returns the MOD-97 value for a numeric string. used for IBAN and VAT checks.
      * @param string $num_str   string representing the tested number, like '1110271220658244971655161187'
      * @return int
      * @see https://en.wikipedia.org/wiki/International_Bank_Account_Number
