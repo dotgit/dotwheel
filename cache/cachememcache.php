@@ -24,6 +24,8 @@ class CacheMemcache implements CacheInterface
     /** @var string connection prefix to distinguish between different datasets on shared server */
     protected static $prefix;
     protected static $params;
+
+    /** @var Memcached */
     protected static $conn;
 
 
@@ -45,8 +47,9 @@ class CacheMemcache implements CacheInterface
      */
     protected static function connect()
     {
-        if (isset(self::$params[self::P_SERVERS]) 
-            and empty(self::$conn) 
+        if (empty(self::$conn)
+            and isset(self::$params[self::P_SERVERS])
+            and empty(self::$conn)
             and self::$conn = new Memcached(__METHOD__.self::$prefix)
         ) {
             // set options
@@ -59,7 +62,9 @@ class CacheMemcache implements CacheInterface
                 self::$conn->setSaslAuthData(self::$params[self::P_LOGIN], self::$params[self::P_PASS]);
             }
             // connect to servers
-            self::$conn->addServers(self::$params[self::P_SERVERS]);
+            if (empty(self::$conn->getServerList())) {
+                self::$conn->addServers(self::$params[self::P_SERVERS]);
+            }
         }
 
         return self::$conn;
