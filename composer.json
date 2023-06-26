@@ -14,6 +14,9 @@
       "tests/"
     ]
   },
+  "require": {
+    "ext-mbstring": "*"
+  },
   "require-dev": {
     "phpunit/phpunit": "^9"
   }

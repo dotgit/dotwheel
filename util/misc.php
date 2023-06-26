@@ -453,13 +453,14 @@ class Misc
 
     /** sets session cookie ttl and starts the session or regenerates session id
      * if session already open
-     * @param int $ttl  new time to live in seconds
+     * @param int $ttl new time to live in seconds
+     * @param array $options list of options to overwrite values from php.ini
      */
-    public static function sessionSetTtl($ttl)
+    public static function sessionSetTtl($ttl, array $options = [])
     {
         \session_set_cookie_params($ttl);
         if (\session_status() == \PHP_SESSION_NONE) {
-            \session_start();
+            \session_start($options);
         } else {
             \session_regenerate_id(true);
         }
