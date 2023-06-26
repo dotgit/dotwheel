@@ -65,7 +65,7 @@ class CacheApc implements CacheInterface
             }
         }
 
-        return $success;
+        return $res;
     }
 
     public static function delete($name)

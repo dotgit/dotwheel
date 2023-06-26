@@ -365,7 +365,7 @@ class Db
 
     /** produces a CSV string from an array of passed non-zero integers
      *
-     * @param array|int $values array of int values to concatenate (if a scalar
+     * @param array|int|null $values array of int values to concatenate (if a scalar
      * is passed then it is converted to int and returned)
      * @return string concatenated CSV string or <i>'null'</i> if the value is
      * unset or empty list
@@ -390,7 +390,7 @@ class Db
     /** escapes the passed value following tha database rules and wraps it in apostrophes
      * (normally used to escape strings)
      *
-     * @param string $value string to escape
+     * @param string|null $value string to escape
      * @return string wrapped value or <i>'null'</i> if the value is unset
      */
     public static function wrapChar($value)
@@ -405,7 +405,7 @@ class Db
     /** escapes the passed string values following tha database rules (normally
      * used to escape array of strings)
      *
-     * @param array $values  array of strings to escape
+     * @param array|string|null $values  array of strings to escape
      * @return string comma separated wrapped values <i>"'a','b','c'"</i> or
      * <i>'null'</i> if value unset
      */

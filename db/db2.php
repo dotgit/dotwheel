@@ -117,7 +117,7 @@ class Db2
 
     /** restores blob value encoded with blobEncode()
      *
-     * @param type $blob    encoded blob value
+     * @param mixed $blob    encoded blob value
      * @return string original blob value
      */
     public static function blobDecode($blob)
