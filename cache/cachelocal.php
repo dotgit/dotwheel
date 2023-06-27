@@ -15,39 +15,35 @@ namespace Dotwheel\Cache;
 class CacheLocal implements CacheInterface
 {
     /** @var string connection prefix to distinguish between different datasets on shared server */
-    protected static $prefix;
+    protected static string $prefix;
     /** @var array stores local cache */
-    protected static $store = array();
+    protected static array $store = [];
 
 
-
-    public static function init($params)
+    public static function init(array $params): bool
     {
-        self::$prefix = $params[self::P_PREFIX].':';
+        self::$prefix = $params[self::P_PREFIX] . ':';
         return true;
     }
 
-    public static function store($name, $value, $ttl=null)
+    public static function store(string $name, $value, int $ttl = 86400): bool // 24 hours
     {
         self::$store[$name] = $value;
         return true;
     }
 
-    public static function storeMulti($values, $ttl=null)
+    public static function storeMulti(array $values, int $ttl = 86400): bool // 24 hours
     {
-        if (\is_array($values)) {
-            foreach ($values as $key => $value) {
-                if (! \is_int($key)) {
-                    static::store($key, $value, $ttl);
-                }
+        foreach ($values as $key => $value) {
+            if (!is_int($key)) {
+                static::store($key, $value, $ttl);
             }
-            return true;
-        } else {
-            return false;
         }
+
+        return true;
     }
 
-    public static function fetch($name, $callback=null)
+    public static function fetch(string $name, callable $callback = null)
     {
         if (isset(self::$store[$name])) {
             return self::$store[$name];
@@ -59,16 +55,14 @@ class CacheLocal implements CacheInterface
         }
     }
 
-    public static function fetchMulti($names)
+    public static function fetchMulti(array $names): array
     {
-        return \is_array($names)
-            ? \array_intersect_key(self::$store, \array_flip($names))
-            : false;
+        return array_intersect_key(self::$store, array_flip($names));
     }
 
     public static function delete($name)
     {
-        if (\is_array($name)) {
+        if (is_array($name)) {
             foreach ($name as $key) {
                 unset(self::$store[$key]);
             }
