@@ -14,8 +14,8 @@ namespace Dotwheel\Cache;
 
 class CacheLocal implements CacheInterface
 {
-    /** @var string connection prefix to distinguish between different datasets on shared server */
-    protected static string $prefix;
+    /** @var ?string connection prefix to distinguish between different datasets on shared server */
+    protected static ?string $prefix = null;
     /** @var array stores local cache */
     protected static array $store = [];
 

@@ -15,28 +15,28 @@ use Dotwheel\Util\Params;
 class DbShard extends Db
 {
     /** connection params */
-    const CNX_HOST      = 1;
-    const CNX_USERNAME  = 2;
-    const CNX_PASSWORD  = 3;
-    const CNX_DATABASE  = 4;
-    const CNX_CHARSET   = 5;
+    public const CNX_HOST = 1;
+    public const CNX_USERNAME = 2;
+    public const CNX_PASSWORD = 3;
+    public const CNX_DATABASE = 4;
+    public const CNX_OPTIONS = 5;
 
     /** shard modes */
-    const MODE_READ     = 1;
-    const MODE_WRITE    = 2;
+    public const MODE_READ = 1;
+    public const MODE_WRITE = 2;
 
     /** internal connection enum */
-    const ENUM_SHARD    = 1;
-    const ENUM_CNX      = 2;
+    public const ENUM_SHARD = 1;
+    public const ENUM_CNX = 2;
 
     /** @var array list of all available application shards by shard name */
-    public static $shards = array();
+    public static array $shards = [];
 
     /** @var array list of current db connections by shard name / access mode */
-    public static $connections = array();
+    public static array $connections = [];
 
-    /** @var string current host */
-    public static $current_shard = array();
+    /** @var array current shard config data */
+    public static array $current_shard = [];
 
     /** initializes application shards
      *
@@ -48,7 +48,7 @@ class DbShard extends Db
      *              CNX_USERNAME:'root',
      *              CNX_PASSWORD:null,
      *              CNX_DATABASE:null,
-     *              CNX_CHARSET:'UTF8',
+     *              CNX_OPTIONS:[],
      *          },
      *          {<server 2>},
      *          {<server 3>},
@@ -60,19 +60,18 @@ class DbShard extends Db
      *      MODE_WRITE:[{<server 1>},...],
      *  }, ...}
      */
-    public static function init($shards)
+    public static function init(array $shards)
     {
         self::$shards = $shards;
     }
 
-    /** switches to specified shard, connects if selected host parameters differ
-     * from currently used
+    /** switches to specified shard, connects if selected host parameters differ from currently used
      *
-     * @param string $shard_name    shard name
-     * @param integer $access_mode  MODE_READ | MODE_WRITE | null
-     * @return mixed connection ressource or <i>false</i> on error
+     * @param string $shard_name shard name
+     * @param ?int $access_mode MODE_READ | MODE_WRITE | null
+     * @return Resource|bool connection resource or <i>false</i> on error
      */
-    public static function open($shard_name, $access_mode = null)
+    public static function open(string $shard_name, ?int $access_mode = null)
     {
         // select access mode
         if ($access_mode != self::MODE_WRITE && $access_mode != self::MODE_READ) {
@@ -89,7 +88,7 @@ class DbShard extends Db
         // open new connection if needed and store in connections array
         if (empty(self::$connections[$shard_name][$access_mode])) {
             $shard = self::selectHost(self::$shards[$shard_name][$access_mode]);
-            self::$connections[$shard_name][$access_mode] = array(self::ENUM_SHARD=>$shard);
+            self::$connections[$shard_name][$access_mode] = [self::ENUM_SHARD => $shard];
             self::$connections[$shard_name][$access_mode][self::ENUM_CNX] = ($shard == self::$current_shard)
                 ? parent::$conn
                 : self::connect(
@@ -97,7 +96,7 @@ class DbShard extends Db
                     Params::extract($shard, self::CNX_USERNAME),
                     Params::extract($shard, self::CNX_PASSWORD),
                     Params::extract($shard, self::CNX_DATABASE),
-                    Params::extract($shard, self::CNX_CHARSET)
+                    Params::extract($shard, self::CNX_OPTIONS) ?: []
                 );
         }
 
@@ -112,11 +111,11 @@ class DbShard extends Db
 
     /** given the list of available host structures selects one to connect to
      *
-     * @param array $hosts  array of available hosts
+     * @param array $hosts array of available hosts
      * @return array        selected host structure
      */
-    public static function selectHost($hosts)
+    public static function selectHost(array $hosts): array
     {
-        return $hosts[\array_rand($hosts)];
+        return $hosts[array_rand($hosts)];
     }
 }

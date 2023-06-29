@@ -16,17 +16,17 @@ use Memcached;
 
 class CacheMemcache implements CacheInterface
 {
-    const P_SERVERS = 2;
-    const P_OPTIONS = 3;
-    const P_LOGIN = 4;
-    const P_PASS = 5;
+    public const P_SERVERS = 2;
+    public const P_OPTIONS = 3;
+    public const P_LOGIN = 4;
+    public const P_PASS = 5;
 
-    /** @var string connection prefix to distinguish between different datasets on shared server */
-    protected static string $prefix;
-    protected static array $params;
+    /** @var ?string connection prefix to distinguish between different datasets on shared server */
+    protected static ?string $prefix = null;
+    protected static array $params = [];
 
-    /** @var Memcached */
-    protected static Memcached $conn;
+    /** @var ?Memcached */
+    protected static ?Memcached $conn = null;
 
 
     /**

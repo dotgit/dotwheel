@@ -17,7 +17,7 @@ namespace Dotwheel\Cache;
 
 interface CacheInterface
 {
-    const P_PREFIX = 1;
+    public const P_PREFIX = 1;
 
 
     /** initialize cache by defining cache prefix

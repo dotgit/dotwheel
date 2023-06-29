@@ -16,6 +16,7 @@
   },
   "require": {
     "php": ">=7.4",
+    "ext-json": "*",
     "ext-mbstring": "*"
   },
   "require-dev": {

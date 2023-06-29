@@ -35,14 +35,20 @@ class DbShardTest extends DbBeforeClass
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
                 DbShard::MODE_READ => [[
                     DbShard::CNX_HOST => self::HOST,
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
             ],
             self::$shard_contracts => [
@@ -51,14 +57,20 @@ class DbShardTest extends DbBeforeClass
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
                 DbShard::MODE_READ => [[
                     DbShard::CNX_HOST => self::HOST,
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
             ],
             self::$shard_storage => [
@@ -67,14 +79,20 @@ class DbShardTest extends DbBeforeClass
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
                 DbShard::MODE_READ => [[
                     DbShard::CNX_HOST => self::HOST,
                     DbShard::CNX_USERNAME => self::USER,
                     DbShard::CNX_PASSWORD => self::PASS,
                     DbShard::CNX_DATABASE => DbBeforeClass::DB,
-                    DbShard::CNX_CHARSET => 'utf8',
+                    DbShard::CNX_OPTIONS => [
+                        MYSQLI_SET_CHARSET_NAME => 'utf8',
+                        MYSQLI_INIT_COMMAND => "SET time_zone = 'Europe/Paris';",
+                    ],
                 ]],
             ],
         ];

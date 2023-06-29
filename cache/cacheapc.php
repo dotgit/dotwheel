@@ -14,8 +14,8 @@ namespace Dotwheel\Cache;
 
 class CacheApc implements CacheInterface
 {
-    /** @var string connection prefix to distinguish between different datasets on shared server */
-    protected static string $prefix;
+    /** @var ?string connection prefix to distinguish between different datasets on shared server */
+    protected static ?string $prefix = null;
 
 
     public static function init(array $params): bool
@@ -31,6 +31,8 @@ class CacheApc implements CacheInterface
 
     public static function storeMulti(array $values, int $ttl = 86400): bool // 24 hours
     {
+        $last_res = true;
+
         foreach ($values as $name => $value) {
             $last_res = apc_add(self::$prefix . $name, $value, $ttl);
         }
