@@ -27,5 +27,6 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9"
-  }
+  },
+  "bin": ["nls/po2php.php"]
 }
