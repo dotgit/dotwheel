@@ -1,4 +1,10 @@
 {
+  "name": "dotgit/dotwheel",
+  "description": "PHP framework providing lightweight solutions for most frequent development tasks",
+  "keywords": ["php", "framework", "db", "cache", "http", "nls", "html", "bootstrap", "ui", "acl", "recaptcha", "mime", "crypt", "utf-8"],
+  "license": "BSD-2-Clause",
+  "type": "library",
+  "readme": "README.md",
   "autoload": {
     "classmap": [
       "cache/",
