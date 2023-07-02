@@ -12,24 +12,24 @@ namespace Dotwheel\Util;
 
 class Crypt
 {
-    const SALT_ALPHABET = '0123456789.ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz';
-    const SALT_LEN_BLOWFISH = 22;
-
+    public const SALT_ALPHABET = '0123456789.ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz';
+    public const SALT_LEN_BLOWFISH = 22;
 
 
     /** generate salt string used by crypt function. use Blowfish salt by default
+     *
      * @param int $cost base 2 log value specifying the num of iterations
-     * @return string Blowfish-formatted salt string ($2a$xx$yyyyyyyyyyyyyyyyyyyyyy$) or null
+     * @return ?string Blowfish-formatted salt string ($2a$xx$yyyyyyyyyyyyyyyyyyyyyy$) or null
      */
-    public static function getSalt($cost=9)
+    public static function getSalt(int $cost = 9): ?string
     {
-        return \CRYPT_BLOWFISH == 1
-            ? \sprintf(
+        return CRYPT_BLOWFISH == 1
+            ? sprintf(
                 '$2y$%02u$%s$',
                 $cost,
 // faster, small memory footprint
-                \substr(
-                    \str_shuffle(self::SALT_ALPHABET),
+                substr(
+                    str_shuffle(self::SALT_ALPHABET),
                     0,
                     self::SALT_LEN_BLOWFISH
                 )
@@ -46,24 +46,27 @@ class Crypt
     }
 
     /** encode the password by using the crypt algorithm (bcrypt or another available)
-     * @param string $pass  password to encode
-     * @param string $salt  salt to use when encoding. when empty, randomly created
+     *
+     * @param string $pass password to encode
+     * @param ?string $salt salt to use when encoding. when empty, randomly created
      * @return string 60-char encoded password (Blowfish) or other size (13 chars min)
      */
-    public static function passEncode($pass, $salt=null)
+    public static function passEncode(string $pass, ?string $salt = null): string
     {
-        if (empty($salt))
+        if (empty($salt)) {
             $salt = self::getSalt();
+        }
 
         return \crypt($pass, $salt);
     }
 
     /** check the user provided unencoded password against existing hash
-     * @param string $pass          clear (unencoded) password
-     * @param string $pass_encoded  password hash
-     * @return boolean whether the encoded $pass equals $pass_encoded
+     *
+     * @param string $pass clear (unencoded) password
+     * @param string $pass_encoded password hash
+     * @return bool whether the encoded $pass equals $pass_encoded
      */
-    public static function passCompare($pass, $pass_encoded)
+    public static function passCompare(string $pass, string $pass_encoded): bool
     {
         return self::passEncode($pass, $pass_encoded) == $pass_encoded;
     }

@@ -6,97 +6,101 @@ use Dotwheel\Http\Http;
 use Dotwheel\Nls\Nls;
 use Dotwheel\Ui\Html;
 use Dotwheel\Ui\HtmlPage;
-use Dotwheel\Util\Params;
 
 class GReCaptcha
 {
-    const SRC_API       = 'https://www.google.com/recaptcha/api.js';
-    const SRC_VERIFY    = 'https://www.google.com/recaptcha/api/siteverify';
+    public const SRC_API = 'https://www.google.com/recaptcha/api.js';
+    public const SRC_VERIFY = 'https://www.google.com/recaptcha/api/siteverify';
 
-    const JS_ONLOAD = 'onload';
-    const JS_RENDER = 'render';
+    public const JS_ONLOAD = 'onload';
+    public const JS_RENDER = 'render';
 
-    const FLD_RESPONSE  = 'g-recaptcha-response';
+    public const FLD_RESPONSE = 'g-recaptcha-response';
 
-    const POST_SECRET       = 'secret';
-    const POST_RESPONSE     = 'response';
-    const POST_REMOTE_IP    = 'remoteip';
+    public const POST_SECRET = 'secret';
+    public const POST_RESPONSE = 'response';
+    public const POST_REMOTE_IP = 'remoteip';
 
-    const A_SITEKEY     = 'data-sitekey';
-    const A_THEME       = 'data-theme';
-    const A_TYPE        = 'data-type';
-    const A_SIZE        = 'data-size';
-    const A_TABINDEX    = 'data-tabindex';
-    const A_CALLBACK    = 'data-callback';
-    const A_EXPIRED_CBK = 'data-expired-callback';
+    public const A_SITEKEY = 'data-sitekey';
+    public const A_THEME = 'data-theme';
+    public const A_TYPE = 'data-type';
+    public const A_SIZE = 'data-size';
+    public const A_TABINDEX = 'data-tabindex';
+    public const A_CALLBACK = 'data-callback';
+    public const A_EXPIRED_CBK = 'data-expired-callback';
 
-    const THEME_DARK    = 'dark';
-    const THEME_LIGHT   = 'light';
+    public const THEME_DARK = 'dark';
+    public const THEME_LIGHT = 'light';
 
-    const TYPE_AUDIO    = 'audio';
-    const TYPE_IMAGE    = 'image';
+    public const TYPE_AUDIO = 'audio';
+    public const TYPE_IMAGE = 'image';
 
-    const SIZE_COMPACT  = 'compact';
-    const SIZE_NORMAL   = 'normal';
+    public const SIZE_COMPACT = 'compact';
+    public const SIZE_NORMAL = 'normal';
 
-    const RESP_SUCCESS  = 'success';
-    const RESP_ERRORS   = 'error-codes';
+    public const RESP_SUCCESS = 'success';
+    public const RESP_ERRORS = 'error-codes';
 
-    const ERR_TRANSPORT = 1;
-    const ERR_JSON      = 2;
-    const ERR_UNSET     = 3;
+    public const ERR_TRANSPORT = 1;
+    public const ERR_JSON = 2;
+    public const ERR_UNSET = 3;
 
     public static $error;
 
 
-
-    public static function getHtml($sitekey, $attr=[])
+    /**
+     * @param string $sitekey
+     * @param array $attr
+     * @return string
+     */
+    public static function getHtml(string $sitekey, array $attr = []): string
     {
-        HtmlPage::add([HtmlPage::SCRIPT_SRC=>[
-            __METHOD__=>isset(Nls::$lang)
-                ? self::SRC_API.Html::urlArgs('?', ['hl'=>Nls::$lang])
-                : self::SRC_API,
-        ]]);
+        HtmlPage::add([
+            HtmlPage::SCRIPT_SRC => [
+                __METHOD__ => isset(Nls::$lang)
+                    ? self::SRC_API . Html::urlArgs('?', ['hl' => Nls::$lang])
+                    : self::SRC_API,
+            ],
+        ]);
 
         Params::add($attr, 'g-recaptcha');
         Params::add($attr, $sitekey, 'data-sitekey');
 
-        return '<div'.Html::attr($attr).'></div>';
+        return '<div' . Html::attr($attr) . '></div>';
     }
 
-    public static function verify($secret, $response)
+    /**
+     * @param string $secret
+     * @param string $response
+     * @return bool
+     */
+    public static function verify(string $secret, string $response): bool
     {
         $post = Http::post(self::SRC_VERIFY, [
-            self::POST_SECRET=>$secret,
-            self::POST_RESPONSE=>$response,
+            self::POST_SECRET => $secret,
+            self::POST_RESPONSE => $response,
         ]);
 
         $content = $post[Http::P_CONTENT];
-        if (isset($content))
-        {
-            if ($json = \json_decode($content, true) and \is_array($json) and isset($json[self::RESP_SUCCESS]))
-            {
-                if ($json[self::RESP_SUCCESS])
-                {
+        if (isset($content)) {
+            if ($json = json_decode($content, true)
+                and is_array($json)
+                and isset($json[self::RESP_SUCCESS])
+            ) {
+                if ($json[self::RESP_SUCCESS]) {
                     self::$error = null;
                     return true;
-                }
-                else
-                {
+                } else {
                     self::$error = isset($json[self::RESP_ERRORS])
-                        ? \implode(',', $json[self::RESP_ERRORS])
+                        ? implode(',', $json[self::RESP_ERRORS])
                         : self::ERR_UNSET;
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 self::$error = self::ERR_JSON;
                 return false;
             }
-        }
-        else
-        {
+        } else {
             self::$error = self::ERR_TRANSPORT;
             return false;
         }

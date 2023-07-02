@@ -1,12 +1,12 @@
 <?php
 
 /**
-handles html form display, list of required fields etc.
-
-[type: library]
-
-@author stas trefilov
-*/
+ * handles html form display, list of required fields etc.
+ *
+ * [type: library]
+ *
+ * @author stas trefilov
+ */
 
 namespace Dotwheel\Ui;
 
@@ -17,65 +17,65 @@ use Dotwheel\Util\Params;
 
 class HtmlTable
 {
-    const CGI_FILTERS   = 'f';
-    const CGI_SORT      = 's';
-    const CGI_PAGE      = 'p';
+    public const CGI_FILTERS = 'f';
+    public const CGI_SORT = 's';
+    public const CGI_PAGE = 'p';
 
-    const SORT_REV_SUFFIX           = '-';
-    const SORT_REV_SUFFIX_LENGTH    = 1;
+    public const SORT_REV_SUFFIX = '-';
+    public const SORT_REV_SUFFIX_LENGTH = 1;
 
-    const P_ROWS        = 1;
-    const P_TD          = 2;
-    const P_TR          = 3;
-    const P_FIELDS      = 4;
-    const P_SORT        = 5;
-    const P_PREFIX      = 6;
-    const P_SUFFIX      = 7;
-    const P_GROUP_CLASS = 8;
-    const P_TOTAL_CLASS = 9;
-    const P_FOOTERS     = 10;
+    public const P_ROWS = 1;
+    public const P_TD = 2;
+    public const P_TR = 3;
+    public const P_FIELDS = 4;
+    public const P_SORT = 5;
+    public const P_PREFIX = 6;
+    public const P_SUFFIX = 7;
+    public const P_GROUP_CLASS = 8;
+    public const P_TOTAL_CLASS = 9;
+    public const P_FOOTERS = 10;
 
-    const R_VALUES  = -1;
-    const R_TD      = -2;
-    const R_TR      = -3;
+    public const R_VALUES = -1;
+    public const R_TD = -2;
+    public const R_TR = -3;
 
-    const F_WIDTH           = 1;
-    const F_ALIGN           = 2;
-    const F_REPO            = 3;
-    const F_HEADER          = 4;
-    const F_HEADER_TYPE     = 41;
-    const F_HEADER_ABBR     = 42;
-    const F_CHECKBOX        = 5;
-    const F_SORT            = 6;
-    const F_SORT_EXCLUDE    = 61;
-    const F_SORT_GROUP      = 62;
-    const F_FMT             = 7;
-    const F_URL             = 8;
-    const F_URL_FIELD       = 81;
-    const F_URL_FMT         = 82;
-    const F_URL_TARGET      = 83;
-    const F_HIDDEN          = 100;
-    const F_ASIS            = 101;
+    public const F_WIDTH = 1;
+    public const F_ALIGN = 2;
+    public const F_REPO = 3;
+    public const F_HEADER = 4;
+    public const F_HEADER_TYPE = 41;
+    public const F_HEADER_ABBR = 42;
+    public const F_CHECKBOX = 5;
+    public const F_SORT = 6;
+    public const F_SORT_EXCLUDE = 61;
+    public const F_SORT_GROUP = 62;
+    public const F_FMT = 7;
+    public const F_URL = 8;
+    public const F_URL_FIELD = 81;
+    public const F_URL_FMT = 82;
+    public const F_URL_TARGET = 83;
+    public const F_HIDDEN = 100;
+    public const F_ASIS = 101;
 
-    const S_FIELD   = 1;
-    const S_ICON    = 2;
-    const S_REVERSE = 3;
-    const S_SCRIPT  = 4;
-    const S_PARAMS  = 5;
-    const S_TARGET  = 6;
+    public const S_FIELD = 1;
+    public const S_ICON = 2;
+    public const S_REVERSE = 3;
+    public const S_SCRIPT = 4;
+    public const S_PARAMS = 5;
+    public const S_TARGET = 6;
 
-    const L_LPT = 1;
-    const L_XL  = 2;
-    const L_CSV = 3;
+    public const L_LPT = 1;
+    public const L_XL = 2;
+    public const L_CSV = 3;
 
-    const PAGES_PER_BLOCK   = 10;
-    const ITEMS_PER_PAGE    = 100;
+    public const PAGES_PER_BLOCK = 10;
+    public const ITEMS_PER_PAGE = 100;
 
     /** @var int    autoincrement for automatic table id if id parameter omitted */
-    protected static $counter = 0;
+    protected static int $counter = 0;
 
     /** @var array  if totals row displayed then the values are stored here */
-    public static $totals = array();
+    public static array $totals = [];
 
     /** @var array  list of elements (tables) with corresponding details, like
      *  <pre>{
@@ -92,8 +92,7 @@ class HtmlTable
      *  <li>f (filters): f[users][u_status]=online&f[users][u_lastname]=tref
      *  <li>p (page): p[users]=2
      */
-    public static $details = array();
-
+    public static array $details = [];
 
 
     /**
@@ -102,56 +101,53 @@ class HtmlTable
     public static function init()
     {
         // identify $details
-        if (! empty($_REQUEST[self::CGI_FILTERS]) and \is_array($_REQUEST[self::CGI_FILTERS]))
+        if (!empty($_REQUEST[self::CGI_FILTERS]) and is_array($_REQUEST[self::CGI_FILTERS])) {
             self::$details[self::CGI_FILTERS] = $_REQUEST[self::CGI_FILTERS];
+        }
 
-        if (! empty($_REQUEST[self::CGI_SORT]) and \is_array($_REQUEST[self::CGI_SORT]))
+        if (!empty($_REQUEST[self::CGI_SORT]) and is_array($_REQUEST[self::CGI_SORT])) {
             self::$details[self::CGI_SORT] = $_REQUEST[self::CGI_SORT];
+        }
 
-        if (! empty($_REQUEST[self::CGI_PAGE]) and \is_array($_REQUEST[self::CGI_PAGE]))
+        if (!empty($_REQUEST[self::CGI_PAGE]) and is_array($_REQUEST[self::CGI_PAGE])) {
             self::$details[self::CGI_PAGE] = $_REQUEST[self::CGI_PAGE];
+        }
     }
 
-    /** retrieves cgi parameters passed for the $element_id and returns them in translated form
+    /** retrieve cgi parameters passed for the $element_id and return them in translated form
      * (hash of filters, sort column name, the reverse sort attribute, page num)
-     * @param string $element_id    element id to search in self::$details
-     * @param array $sort_cols      {fld1:true, fld2:true, ...}
-     * @param string $sort_default  default sort column, like 'fld1'
+     *
+     * @param string $element_id element id to search in self::$details
+     * @param array $sort_cols {fld1:true, fld2:true, ...}
+     * @param string $sort_default default sort column, like 'fld1'
      * @return array [{filters}, 'field_name', <i>true</i> if reverse order or <i>false</i> otherwise, page_num]
      */
-    public static function translateDetails($element_id, $sort_cols, $sort_default)
+    public static function translateDetails(string $element_id, array $sort_cols, string $sort_default): array
     {
-        if (empty(self::$details))
-            return array(null, $sort_default, false, null);
-
-        $filters = isset(self::$details[self::CGI_FILTERS][$element_id])
-            ? self::$details[self::CGI_FILTERS][$element_id]
-            : null;
-
-        $sort_fld = isset(self::$details[self::CGI_SORT][$element_id])
-            ? self::$details[self::CGI_SORT][$element_id]
-            : $sort_default;
-        if (isset($sort_cols[$sort_fld]))
-            $sort_rev = false;
-        elseif (isset($sort_cols[\substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)]))
-        {
-            $sort_fld = \substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH);
-            $sort_rev = true;
+        if (empty(self::$details)) {
+            return [null, $sort_default, false, null];
         }
-        else
-        {
+
+        $filters = self::$details[self::CGI_FILTERS][$element_id] ?? null;
+
+        $sort_fld = self::$details[self::CGI_SORT][$element_id] ?? $sort_default;
+        if (isset($sort_cols[$sort_fld])) {
+            $sort_rev = false;
+        } elseif (isset($sort_cols[substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH)])) {
+            $sort_fld = substr($sort_fld, 0, -self::SORT_REV_SUFFIX_LENGTH);
+            $sort_rev = true;
+        } else {
             $sort_fld = null;
             $sort_rev = false;
         }
 
-        $page = isset(self::$details[self::CGI_PAGE][$element_id])
-            ? self::$details[self::CGI_PAGE][$element_id]
-            : null;
+        $page = self::$details[self::CGI_PAGE][$element_id] ?? null;
 
-        return array($filters, $sort_fld, $sort_rev, $page);
+        return [$filters, $sort_fld, $sort_rev, $page];
     }
 
-    /** returns the html code of a table
+    /** table in html form
+     *
      * @param array $params list of table parameters:
      * <pre>
      * {
@@ -215,95 +211,96 @@ class HtmlTable
      *  P_SUFFIX:'',
      *  table tag arguments,
      * }
+     * @return ?string
      * @todo implement layout parameter
-     * @return string|null
      */
-    public static function get($params)
+    public static function get(array $params): ?string
     {
-        if (empty($params[self::P_FIELDS]))
+        if (empty($params[self::P_FIELDS])) {
             return null;
+        }
 
         // initialize parameters
         //
 
-        $table_id = Params::extract($params, 'id', 'tid_'.++self::$counter);
+        $table_id = Params::extract($params, 'id', 'tid_' . ++self::$counter);
         Params::add($params, $table_id, 'id');
 
-        if ($sort = Params::extract($params, self::P_SORT))
-        {
-            $sort_params = Params::extract($sort, self::S_PARAMS, array());
+        if ($sort = Params::extract($params, self::P_SORT)) {
+            $sort_params = Params::extract($sort, self::S_PARAMS, []);
             unset($sort_params[self::CGI_SORT][$table_id], $sort_params[self::CGI_PAGE][$table_id]);
-        }
-        else
+        } else {
             $sort_params = null;
+        }
 
-        $colgroup = array();
-        $repo = array();
-        $headers = array();
-        $headers_td = array();
+        $colgroup = [];
+        $repo = [];
+        $headers = [];
+        $headers_td = [];
         $sort_group_key = null;
         $sort_group_old = null;
-        $formats = array();
-        $checkboxes = array();
-        $urls_field = array();
-        $urls_fmt = array();
-        $urls_target = array();
-        $hidden = array();
-        $asis = array();
+        $formats = [];
+        $checkboxes = [];
+        $urls_field = [];
+        $urls_fmt = [];
+        $urls_target = [];
+        $hidden = [];
+        $asis = [];
 
         $group_class = Params::extract($params, self::P_GROUP_CLASS, '_grp');
 
-        foreach (Params::extract($params, self::P_FIELDS, array()) as $field=>$f)
-        {
-            if (! \is_array($f))
-                $f = array(self::F_WIDTH=>$f, self::F_ALIGN=>null, self::F_SORT=>array(self::F_SORT_EXCLUDE=>true));
+        foreach (Params::extract($params, self::P_FIELDS, []) as $field => $f) {
+            if (!is_array($f)) {
+                $f = [self::F_WIDTH => $f, self::F_ALIGN => null, self::F_SORT => [self::F_SORT_EXCLUDE => true]];
+            }
 
             $colgroup[$field] = ($w = Params::extract($f, self::F_WIDTH))
-                ? array('width'=>$w)
-                : array();
-            $repo[$field] = Repo::get($field, isset($f[self::F_REPO]) ? $f[self::F_REPO] : array());
+                ? ['width' => $w]
+                : [];
+            $repo[$field] = Repo::get($field, $f[self::F_REPO] ?? []);
 
-            if (isset($f[self::F_HEADER]))
-            {
-                if ($f[self::F_HEADER] !== false)
-                {
+            if (isset($f[self::F_HEADER])) {
+                if ($f[self::F_HEADER] !== false) {
                     $h = Params::extract($f[self::F_HEADER], self::F_HEADER_TYPE);
                     $abbr = Params::extract($f[self::F_HEADER], self::F_HEADER_ABBR);
 
-                    if ($h)
+                    if ($h) {
                         $headers[$field] = Html::encode(Repo::getLabel($field, $h, $repo[$field]));
-                    elseif ($abbr)
+                    } elseif ($abbr) {
                         $headers[$field] = Html::asAbbr(
                             Html::encode(Repo::getLabel($field, Repo::P_LABEL_SHORT, $repo[$field])),
                             Repo::getLabel($field, $abbr === true ? Repo::P_LABEL_LONG : $abbr, $repo[$field])
                         );
-                    elseif (\is_scalar($f[self::F_HEADER]))
+                    } elseif (is_scalar($f[self::F_HEADER])) {
                         $headers[$field] = $f[self::F_HEADER];
-                    else
+                    } else {
                         $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
+                    }
 
-                    if (\is_array($f[self::F_HEADER]))
+                    if (is_array($f[self::F_HEADER])) {
                         $headers_td[$field] = $f[self::F_HEADER];
+                    }
                 }
-            }
-            else
+            } else {
                 $headers[$field] = Html::encode(Repo::getLabel($field, null, $repo[$field]));
+            }
 
-            if (isset($f[self::F_CHECKBOX]))
-            {
+            if (isset($f[self::F_CHECKBOX])) {
                 $checkboxes[$field] = $f[self::F_CHECKBOX];
-                $headers[$field] = Html::inputCheckbox(array('id'=>"{$table_id}_chk"));
-                HtmlPage::add(array(
-                    HtmlPage::DOM_READY=>array("{$table_id}_chk"=>
-<<<EOm
-$('#{$table_id}_chk')
-.change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);})
-;
-EOm
-                    )
-                ));
-                if (! isset($f[self::F_ALIGN]))
+                $headers[$field] = Html::inputCheckbox(['id' => "{$table_id}_chk"]);
+                HtmlPage::add([
+                    HtmlPage::DOM_READY => [
+                        "{$table_id}_chk" =>
+                            <<<EOm
+                            $('#{$table_id}_chk')
+                            .change(function(){\$('input:checkbox[name^=\"$field\"]','#$table_id').prop('checked',this.checked);})
+                            ;
+                            EOm,
+                    ],
+                ]);
+                if (!isset($f[self::F_ALIGN])) {
                     $f[self::F_ALIGN] = 'center';
+                }
             }
 
             if (isset($sort)
@@ -311,41 +308,46 @@ EOm
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
                 and isset($f[self::F_SORT][self::F_SORT_GROUP])
                 and $sort[self::S_FIELD] == $field
-            )
+            ) {
                 $sort_group_key = $f[self::F_SORT][self::F_SORT_GROUP] === true
                     ? $field
                     : $f[self::F_SORT][self::F_SORT_GROUP];
+            }
 
-            if (isset($f[self::F_ALIGN]))
+            if (isset($f[self::F_ALIGN])) {
                 $colgroup[$field]['align'] = $f[self::F_ALIGN];
+            }
 
-            if (isset($f[self::F_FMT]))
+            if (isset($f[self::F_FMT])) {
                 $formats[$field] = $f[self::F_FMT];
+            }
 
             if (isset($f[self::F_URL])
                 and isset($f[self::F_URL][self::F_URL_FIELD])
                 and isset($f[self::F_URL][self::F_URL_FMT])
-            )
-            {
+            ) {
                 $urls_field[$field] = $f[self::F_URL][self::F_URL_FIELD];
                 $urls_fmt[$field] = $f[self::F_URL][self::F_URL_FMT];
-                if (isset($f[self::F_URL][self::F_URL_TARGET]))
+                if (isset($f[self::F_URL][self::F_URL_TARGET])) {
                     $urls_target[$field] = $f[self::F_URL][self::F_URL_TARGET];
+                }
             }
 
             if (isset($sort)
                 and empty($f[self::F_SORT][self::F_SORT_EXCLUDE])
-                )
-            {
+            ) {
                 $s_sfx = ($sort[self::S_FIELD] == $field and empty($sort[self::S_REVERSE]))
                     ? self::SORT_REV_SUFFIX
                     : '';
-                $headers[$field] = \sprintf(
+                $headers[$field] = sprintf(
                     '<a href="%s%s"%s>%s</a>%s',
-                    isset($sort[self::S_SCRIPT]) ? $sort[self::S_SCRIPT] : '',
-                    Html::urlArgs('?', \array_merge_recursive($sort_params, array(
-                        self::CGI_SORT=>array($table_id=>"$field$s_sfx"),
-                    ))),
+                    $sort[self::S_SCRIPT] ?? '',
+                    Html::urlArgs(
+                        '?',
+                        array_merge_recursive($sort_params, [
+                            self::CGI_SORT => [$table_id => "$field$s_sfx"],
+                        ])
+                    ),
                     isset($sort[self::S_TARGET]) ? " target=\"{$sort[self::S_TARGET]}\"" : '',
                     $headers[$field],
                     (isset($sort[self::S_FIELD]) and $sort[self::S_FIELD] == $field and isset($sort[self::S_ICON]))
@@ -354,44 +356,42 @@ EOm
                 );
             }
 
-            if (isset($f[self::F_HIDDEN]))
-            {
+            if (isset($f[self::F_HIDDEN])) {
                 $hidden[$field] = true;
                 unset($headers[$field], $headers_td[$field]);
             }
 
-            if (isset($f[self::F_ASIS]))
+            if (isset($f[self::F_ASIS])) {
                 $asis[$field] = true;
+            }
         }
 
-        $rows_values = Params::extract($params, self::P_ROWS, array());
-        $footers_values = Params::extract($params, self::P_FOOTERS, array());
-        $rows_td = Params::extract($params, self::P_TD, array());
-        $rows_tr = Params::extract($params, self::P_TR, array());
+        $rows_values = Params::extract($params, self::P_ROWS, []);
+        $footers_values = Params::extract($params, self::P_FOOTERS, []);
+        $rows_td = Params::extract($params, self::P_TD, []);
+        $rows_tr = Params::extract($params, self::P_TR, []);
         $prefix = Params::extract($params, self::P_PREFIX);
         $suffix = Params::extract($params, self::P_SUFFIX);
 
-        \ob_start();
+        ob_start();
 
         // start table
         //
 
-        echo Html::tableStart($params + array(Html::P_COLGROUP=>$colgroup)),
-            Html::thead(array(Html::P_VALUES=>$headers, Html::P_TD_ATTR=>$headers_td, Html::P_PREFIX=>$prefix)),
+        echo Html::tableStart($params + [Html::P_COLGROUP => $colgroup]),
+            Html::thead([Html::P_VALUES => $headers, Html::P_TD_ATTR => $headers_td, Html::P_PREFIX => $prefix]),
             '<tbody>';
 
         // cycle through the rows
         //
 
-        foreach ($rows_values as $krow=>$row)
-        {
-            $values = array();
-            $td = isset($rows_td[$krow]) ? $rows_td[$krow] : array();
-            $tr = isset($rows_tr[$krow]) ? $rows_tr[$krow] : array();
+        foreach ($rows_values as $krow => $row) {
+            $values = [];
+            $td = $rows_td[$krow] ?? [];
+            $tr = $rows_tr[$krow] ?? [];
 
             // grouping
-            if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key])
-            {
+            if (isset($sort_group_key) and $sort_group_old != $row[$sort_group_key]) {
                 Params::add($tr, $group_class);
                 $sort_group_old = $row[$sort_group_key];
             }
@@ -399,149 +399,156 @@ EOm
             // cycle through the fields
             //
 
-            foreach ($repo as $field=>$r)
-            {
+            foreach ($repo as $field => $r) {
                 // set cell value
 
-                // whether checkbox...
-                if (isset($checkboxes[$field]))
-                    $values[$field] = Html::inputCheckbox(array(
-                        'name'=>"{$field}[{$row[$field]}]",
-                        'value'=>$row[$field]
-                    ));
-                // ...as is column
-                elseif (isset($asis[$field]))
+                if (isset($checkboxes[$field])) {
+                    // whether checkbox...
+                    $values[$field] = Html::inputCheckbox([
+                        'name' => "{$field}[{$row[$field]}]",
+                        'value' => $row[$field],
+                    ]);
+                } elseif (isset($asis[$field])) {
+                    // ...as is column
                     $values[$field] = $row[$field];
-                // ...or normal value (if not hidden)
-                elseif (empty($hidden[$field]))
-                {
+                } elseif (empty($hidden[$field])) {
+                    // ...or normal value (if not hidden)
                     $v = Repo::asHtmlStatic($field, $row[$field], $r);
-                    if (isset($urls_field[$field]))
-                        $v = \sprintf(
+                    if (isset($urls_field[$field])) {
+                        $v = sprintf(
                             '<a href="%s"%s>%s</a>',
-                            \sprintf($urls_fmt[$field], $row[$urls_field[$field]]),
-                            isset($urls_target[$field]) ? " target=\"{$urls_target[$field]}\"" : '',
+                            sprintf($urls_fmt[$field], $row[$urls_field[$field]]),
+                            isset($urls_target[$field]) ? " target=\"$urls_target[$field]\"" : '',
                             $v
                         );
-                    $values[$field] = isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v;
+                    }
+                    $values[$field] = isset($formats[$field]) ? sprintf($formats[$field], $v) : $v;
                 }
             }
 
-            echo Html::tr(array(
-                Html::P_VALUES=>$values,
-                Html::P_TD_ATTR=>$td ? $td : null,
-            ) + $tr);
+            echo Html::tr([
+                Html::P_VALUES => $values,
+                Html::P_TD_ATTR => $td ?: null,
+            ] + $tr);
         }
 
         // handle table footer rows
         //
 
-        $tfoot = array();
+        $tfoot = [];
 
-        foreach ($footers_values as $krow=>$row)
-        {
-            $values = array();
-            $td = isset($rows_td[$krow]) ? $rows_td[$krow] : array();
-            $tr = isset($rows_tr[$krow]) ? $rows_tr[$krow] : array();
+        foreach ($footers_values as $krow => $row) {
+            $values = [];
+            $td = $rows_td[$krow] ?? [];
+            $tr = $rows_tr[$krow] ?? [];
 
             // cycle through the fields
             //
 
-            foreach ($repo as $field=>$r)
-            {
+            foreach ($repo as $field => $r) {
                 // set cell value
 
-                // whether as is column...
-                if (isset($asis[$field]))
+                if (isset($asis[$field])) {
+                    // whether as is column...
                     $values[$field] = $row[$field];
-                // ...or normal value (if not hidden)
-                elseif (empty($hidden[$field]))
-                {
+                } elseif (empty($hidden[$field])) {
+                    // ...or normal value (if not hidden)
                     $v = Repo::asHtmlStatic($field, $row[$field], $r);
                     $values[$field] = isset($row[$field])
-                        ? (isset($formats[$field]) ? \sprintf($formats[$field], $v) : $v)
+                        ? (isset($formats[$field]) ? sprintf($formats[$field], $v) : $v)
                         : null;
                 }
             }
 
-            $tfoot[] = Html::tr(array(
-                Html::P_VALUES=>$values,
-                Html::P_TD_ATTR=>$td ? $td : null,
-            ) + $tr);
+            $tfoot[] = Html::tr([
+                Html::P_VALUES => $values,
+                Html::P_TD_ATTR => $td ?: null,
+            ] + $tr);
         }
 
-        if (isset($suffix))
-            $tfoot[] = Html::tr(array(
-                Html::P_VALUES=>array($suffix),
-                Html::P_TD_ATTR=>array(' colspan="'.\count($headers).'"'),
-            ));
+        if (isset($suffix)) {
+            $tfoot[] = Html::tr([
+                Html::P_VALUES => [$suffix],
+                Html::P_TD_ATTR => [' colspan="' . count($headers) . '"'],
+            ]);
+        }
 
-        if ($tfoot)
+        if ($tfoot) {
             echo '<tfoot>', implode('', $tfoot);
+        }
 
         // stop table
         //
 
         echo Html::tableStop();
 
-        return \ob_get_clean();
+        return ob_get_clean();
     }
 
     /** draw the pagination element
-     * @param type $action      script to load for the next page
-     * @param type $hidden      url params to pass to the next page
-     * @param type $total       total number of items
-     * @param type $page        current page (0-based)
-     * @param type $table_id    table id
-     * @param type $items       items per page
-     * @return string           an html to visualize the pagination
+     *
+     * @param string $action script to load for the next page
+     * @param array $hidden url params to pass to the next page
+     * @param int $total total number of items
+     * @param int $page current page (0-based)
+     * @param string $table_id table id
+     * @param int $items items per page
+     * @return string pagination html
      */
-    public static function pagination($action, $hidden, $total, $page, $table_id, $items=self::ITEMS_PER_PAGE)
-    {
-        if ($total)
-        {
-            if ($items and $total > $items)
-            {
+    public static function pagination(
+        string $action,
+        array $hidden,
+        int $total,
+        int $page,
+        string $table_id,
+        int $items = self::ITEMS_PER_PAGE
+    ): string {
+        if ($total) {
+            if ($items and $total > $items) {
                 $str_link_3 = '<li%s><a href="%s">%s</a></li>';
                 $str_act_1 = '<li class="active"><a>%s</a></li>';
                 unset($hidden['p'][$table_id]);
                 $args0 = isset($hidden) ? Html::urlArgs('?', $hidden) : '';
-                $pages = (int)(($total-1) / $items) + 1;
+                $pages = (int)(($total - 1) / $items) + 1;
                 $page_first = (int)($page / self::PAGES_PER_BLOCK) * self::PAGES_PER_BLOCK;
-                $page_next = \min($page_first + self::PAGES_PER_BLOCK, $pages);
+                $page_next = min($page_first + self::PAGES_PER_BLOCK, $pages);
                 $url0 = "$action$args0";
                 $url = $url0 . ($args0 ? "&p%5B$table_id%5D=" : "?p%5B$table_id%5D=");
-                $parts = array();
+                $parts = [];
 
                 // first/prev page
-                if ($page)
-                {
-                    $parts[] = \sprintf($str_link_3, '', $url0, '&laquo;');
-                    $parts[] = \sprintf(
+                if ($page) {
+                    $parts[] = sprintf($str_link_3, '', $url0, '&laquo;');
+                    $parts[] = sprintf(
                         $str_link_3,
                         '',
-                        $page > 1 ? ($url.($page-1)) : $url0,
-                        '&larr; '.Text::dget(Nls::FW_DOMAIN, 'Prev')
+                        $page > 1 ? ($url . ($page - 1)) : $url0,
+                        '&larr; ' . Text::dget(Nls::FW_DOMAIN, 'Prev')
                     );
                 }
                 // numbered pages
-                for ($i = $page_first; $i < $page_next; ++$i)
+                for ($i = $page_first; $i < $page_next; ++$i) {
                     $parts[] = $i == $page
-                        ? \sprintf($str_act_1, $i+1)
-                        : \sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i+1);
+                        ? sprintf($str_act_1, $i + 1)
+                        : sprintf($str_link_3, '', $i ? "$url$i" : $url0, $i + 1);
+                }
                 // next/last page
-                if ($page < $pages-1)
-                {
-                    $parts[] = \sprintf($str_link_3, '', $url.($page+1), Text::dget(Nls::FW_DOMAIN, 'Next').' &rarr;');
-                    $parts[] = \sprintf($str_link_3, '', $url.($pages-1), '&raquo;');
+                if ($page < $pages - 1) {
+                    $parts[] = sprintf(
+                        $str_link_3,
+                        '',
+                        $url . ($page + 1),
+                        Text::dget(Nls::FW_DOMAIN, 'Next') . ' &rarr;'
+                    );
+                    $parts[] = sprintf($str_link_3, '', $url . ($pages - 1), '&raquo;');
                 }
 
-                return '<ul>'.\implode('', $parts)."</ul>";
-            }
-            else
+                return '<ul>' . implode('', $parts) . "</ul>";
+            } else {
                 return "[$total]";
-        }
-        else
+            }
+        } else {
             return '';
+        }
     }
 }

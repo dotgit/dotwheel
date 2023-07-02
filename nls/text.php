@@ -29,39 +29,36 @@ namespace Dotwheel\Nls;
 
 class Text
 {
-    public static $pluralForms        = 0;
-    public static $domainTranslations = array();
-    public static $domain             = 'messages'; // default gettext domain
+    public static string $pluralForms = '0';
+    public static array $domainTranslations = [];
+    public static string $domain = 'messages'; // default gettext domain
 
-    /** fetches an existing string from $domainTranslations by its hash and
-     * message name (in case of collision)
-     * @param string $domain    domain to lookup
-     * @param int $hash         existing hash in $domainTranslations[$domain]
-     * @param string $message   the original message used to produce the hash
+    /** fetch an existing string from $domainTranslations by its hash and message name (in case of collision)
+     *
+     * @param string $domain domain to lookup
+     * @param int $hash existing hash in $domainTranslations[$domain]
+     * @param string $message the original message used to produce the hash
      * @return string
      */
-    protected static function fetch($domain, $hash, $message)
+    protected static function fetch(string $domain, int $hash, string $message): string
     {
-        return \is_array(self::$domainTranslations[$domain][$hash])
-            ? (isset(self::$domainTranslations[$domain][$hash][$message])
-                ? self::$domainTranslations[$domain][$hash][$message]
-                : self::$domainTranslations[$domain][$hash][$hash]
-            )
+        return is_array(self::$domainTranslations[$domain][$hash])
+            ? (self::$domainTranslations[$domain][$hash][$message] ?? self::$domainTranslations[$domain][$hash][$hash])
             : self::$domainTranslations[$domain][$hash];
     }
 
-    /** loads translations from the provided translations file (generated from .PO file)
-     * existing translation file must be present in the specified location.
+    /** load translations from the provided translations file (generated from .PO file). existing translation file must
+     * be present in the specified location.
      * ex: english translation for the application is stored in the file
      *      /app/locale/en_US/myapp.php
      *
-     * @param string $domain    domain filename (like 'myapp')
-     * @param string $dir       path to the locale dir without language part (like '/app/locale')
-     * @param string $lang      language part of dir (like 'en_US')
+     * @param string $domain domain filename (like 'myapp')
+     * @param string $dir path to the locale dir without language part (like '/app/locale')
+     * @param string $lang language part of dir (like 'en_US')
      */
-    public static function binddomain($domain, $dir, $lang)
+    public static function binddomain(string $domain, string $dir, string $lang)
     {
-        include ("$dir/$lang/$domain.php");
+        include("$dir/$lang/$domain.php");
 
         if (isset($PLURALFORMS)) {
             self::$pluralForms = $PLURALFORMS;
@@ -72,95 +69,151 @@ class Text
         self::$domain = $domain;
     }
 
-    /** sets global domain to new value
+    /** set global domain to new value
+     *
      * @param string $domain
      */
-    public static function domain($domain)
+    public static function domain(string $domain)
     {
         self::$domain = $domain;
     }
 
-    public static function _($message)
+    /** get message translation
+     *
+     * @param string $message
+     * @return string translated message
+     */
+    public static function _(string $message): string
     {
-        $crc = \crc32($message);
+        $crc = crc32($message);
 
         return (isset(self::$domainTranslations[self::$domain][$crc]))
             ? self::fetch(self::$domain, $crc, $message)
             : $message;
     }
 
-    public static function dget($domain, $message)
+    /** get message translation from specific domain
+     *
+     * @param string $domain
+     * @param string $message
+     * @return string translated message
+     */
+    public static function dget(string $domain, string $message): string
     {
-        $crc = \crc32($message);
+        $crc = crc32($message);
 
         return (isset(self::$domainTranslations[$domain][$crc]))
             ? self::fetch($domain, $crc, $message)
             : $message;
     }
 
-    public static function pget($context, $message)
+    /** get message translation in specific context
+     *
+     * @param string $context
+     * @param string $message
+     * @return string translated message
+     */
+    public static function pget(string $context, string $message): string
     {
-        $crc = \crc32("$message\f$context");
+        $crc = crc32("$message\f$context");
 
         return (isset(self::$domainTranslations[self::$domain][$crc]))
             ? self::fetch(self::$domain, $crc, $message)
             : $message;
     }
 
-    public static function dpget($domain, $context, $message)
+    /** get message translation from specific domain in specific context
+     *
+     * @param string $domain
+     * @param string $context
+     * @param string $message
+     * @return string translated message
+     */
+    public static function dpget(string $domain, string $context, string $message): string
     {
-        $crc = \crc32("$message\f$context");
+        $crc = crc32("$message\f$context");
 
         return (isset(self::$domainTranslations[$domain][$crc]))
             ? self::fetch($domain, $crc, $message)
             : $message;
     }
 
-    public static function nget($message1, $message2, $count)
+    /** use singular or one of plural forms of a message depending on $n and NLS settings for the language
+     *
+     * @param string $message1
+     * @param string $message2
+     * @param int $n
+     * @return string translated message
+     */
+    public static function nget(string $message1, string $message2, int $n): string
     {
-        $n   = (int)$count;
-        eval('$num = '.self::$pluralForms.';');
-        $idn = "$message1\f$message2\f".(int)$num;
-        $crc = \crc32($idn);
+        eval('$num = ' . self::$pluralForms . ';');
+        $idn = "$message1\f$message2\f" . (int)$num;
+        $crc = crc32($idn);
 
         return (isset(self::$domainTranslations[self::$domain][$crc]))
             ? self::fetch(self::$domain, $crc, $idn)
-            : ($count == 1 ? $message1 : $message2);
+            : ($n == 1 ? $message1 : $message2);
     }
 
-    public static function dnget($domain, $message1, $message2, $count)
+    /** use singular or one of plural forms of a message from specific domain depending on $n and NLS settings for the
+     * language
+     *
+     * @param $domain
+     * @param $message1
+     * @param $message2
+     * @param $n
+     * @return string translated message
+     */
+    public static function dnget($domain, $message1, $message2, $n)
     {
-        $n   = (int)$count;
-        eval('$num = '.self::$pluralForms.';');
-        $idn = "$message1\f$message2\f".(int)$num;
-        $crc = \crc32($idn);
+        eval('$num = ' . self::$pluralForms . ';');
+        $idn = "$message1\f$message2\f" . (int)$num;
+        $crc = crc32($idn);
 
         return (isset(self::$domainTranslations[$domain][$crc]))
             ? self::fetch($domain, $crc, $idn)
-            : ($count == 1 ? $message1 : $message2);
+            : ($n == 1 ? $message1 : $message2);
     }
 
-    public static function pnget($context, $message1, $message2, $count)
+    /** use singular or one of plural forms of a message in specific context depending on $n and NLS settings for the
+     * language
+     *
+     * @param string $context
+     * @param string $message1
+     * @param string $message2
+     * @param int $n
+     * @return string translated message
+     */
+    public static function pnget(string $context, string $message1, string $message2, int $n): string
     {
-        $n   = (int)$count;
-        eval('$num = '.self::$pluralForms.';');
-        $idn = "$message1\f$context\f$message2\f".(int)$num;
-        $crc = \crc32($idn);
+        eval('$num = ' . self::$pluralForms . ';');
+        $idn = "$message1\f$context\f$message2\f" . (int)$num;
+        $crc = crc32($idn);
 
         return (isset(self::$domainTranslations[self::$domain][$crc]))
             ? self::fetch(self::$domain, $crc, $idn)
-            : ($count == 1 ? $message1 : $message2);
+            : ($n == 1 ? $message1 : $message2);
     }
 
-    public static function dpnget($domain, $context, $message1, $message2, $count)
+    /** use singular or one of plural forms of a message from specific domain in specific context depending on $n and
+     * NLS settings for the language
+     *
+     * @param string $domain
+     * @param string $context
+     * @param string $message1
+     * @param string $message2
+     * @param int $n
+     * @return string
+     */
+    public static function dpnget(string $domain, string $context, string $message1, string $message2, int $n): string
     {
-        $n   = (int)$count;
-        eval('$num = '.self::$pluralForms.';');
-        $idn = "$message1\f$context\f$message2\f".(int)$num;
-        $crc = \crc32($idn);
+        eval('$num = ' . self::$pluralForms . ';');
+        $idn = "$message1\f$context\f$message2\f" . (int)$num;
+        $crc = crc32($idn);
 
         return (isset(self::$domainTranslations[$domain][$crc]))
             ? self::fetch($domain, $crc, $idn)
-            : ($count == 1 ? $message1 : $message2);
+            : ($n == 1 ? $message1 : $message2);
     }
 }

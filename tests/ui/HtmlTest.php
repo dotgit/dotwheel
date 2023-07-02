@@ -287,7 +287,7 @@ class HtmlTest extends TestCase
         $this->assertStringContainsString(' name="field"', $res, 'name attribute set from id');
         $this->assertStringContainsString('<option value="">Select line</option>', $res, 'blank line with empty value');
         $this->assertStringContainsString('<option value="one">First <line></option>', $res, 'first line, unescaped');
-        $this->assertStringContainsString('<option value="two" selected="on">Second line</option>', $res, 'second line selected');
+        $this->assertStringContainsString('<option value="two" selected>Second line</option>', $res, 'second line selected');
     }
 
     /**
