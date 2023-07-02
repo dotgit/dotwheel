@@ -38,7 +38,8 @@ class DbShard extends Db
     /** @var array current shard config data */
     public static array $current_shard = [];
 
-    /** initializes application shards
+
+    /** initialize application shards
      *
      * @param array $shards list of available shards in format
      *  {'shard1':{
@@ -65,7 +66,7 @@ class DbShard extends Db
         self::$shards = $shards;
     }
 
-    /** switches to specified shard, connects if selected host parameters differ from currently used
+    /** switch to specified shard, connect if selected host parameters differ from currently used
      *
      * @param string $shard_name shard name
      * @param ?int $access_mode MODE_READ | MODE_WRITE | null

@@ -746,11 +746,11 @@ class BootstrapUi
      * - for A: href,
      * - for DIV: none of the above.
      *
-     * @param string $content html content of the item
+     * @param ?string $content html content of the item
      * @param array $attr list-group-item attributes
      * @return string
      */
-    public static function listGroupItem(string $content, array $attr = []): string
+    public static function listGroupItem(?string $content, array $attr = []): string
     {
         Params::add($attr, 'list-group-item');
         $tag = isset($attr['href'])

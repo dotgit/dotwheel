@@ -61,11 +61,11 @@ class Html
 
     /** string with url-encoded parameters
      *
-     * @param string $prefix prefix to use (normally '?')
+     * @param ?string $prefix prefix to use (normally '?')
      * @param ?array $params hash of parameters to encode, like {a:'b',c:{d:'e'}}
      * @return string           url-encoded list, like '?a=b&c%5Bd%5D=e'
      */
-    public static function urlArgs(string $prefix, ?array $params = null): string
+    public static function urlArgs(?string $prefix, ?array $params = null): string
     {
         $args = is_array($params) ? http_build_query($params) : '';
 
@@ -156,7 +156,7 @@ class Html
     {
         $prefix_params = [];
 
-        if (is_array($params) && isset($params[self::P_VALUES])) {
+        if (isset($params[self::P_VALUES])) {
             $prefix_params[self::P_TD_ATTR] = [['colspan' => count($params[self::P_VALUES])]];
             $cols_html = self::tr($params + [self::P_TAG => 'th']);
         } else {
@@ -479,32 +479,32 @@ class Html
 
     /** translate special chars in string to html entities
      *
-     * @param string $str value to convert
+     * @param ?string $str value to convert
      * @return string
      */
-    public static function encode(string $str): string
+    public static function encode(?string $str): string
     {
         return htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset);
     }
 
     /** translate special chars in string to html entities
      *
-     * @param string $str value to convert
+     * @param ?string $str value to convert
      * @param int $flags htmlspecialchars() flags (default: ENT_COMPAT)
      * @return string
      */
-    public static function encodeAttr(string $str, int $flags = ENT_COMPAT): string
+    public static function encodeAttr(?string $str, int $flags = ENT_COMPAT): string
     {
         return htmlspecialchars($str, $flags, Nls::$charset);
     }
 
     /** translate special chars in string to html entities, then convert newlines to &lt;br /&gt;
      *
-     * @param string $str value to convert
+     * @param ?string $str value to convert
      * @param bool $format try some meta formatting
      * @return string
      */
-    public static function encodeNl(string $str, bool $format = false): string
+    public static function encodeNl(?string $str, bool $format = false): string
     {
         if (!$format) {
             return nl2br(htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset));
@@ -521,11 +521,11 @@ class Html
 
     /** html formatted email address
      *
-     * @param string $email email address
+     * @param ?string $email email address
      * @param int $width max width of displayed string (0 == unrestricted)
      * @return string
      */
-    public static function asEmail(string $email, int $width = 0): string
+    public static function asEmail(?string $email, int $width = 0): string
     {
         return '<a href="mailto:' . htmlspecialchars($email, ENT_COMPAT, Nls::$charset) . '">' .
             htmlspecialchars(
@@ -538,11 +538,11 @@ class Html
 
     /** html formatted url address
      *
-     * @param string $url url address(with or without http:// prefix)
+     * @param ?string $url url address(with or without http:// prefix)
      * @param int $width max width of displayed string(0 == unrestricted)
      * @return string
      */
-    public static function asUrl(string $url, int $width = 0): string
+    public static function asUrl(?string $url, int $width = 0): string
     {
         $href = strpos($url, ':') && preg_match('/^\w+:\/\//', $url) ? $url : "http://$url";
 
@@ -557,14 +557,15 @@ class Html
 
     /** html formatted telephone number (whitespace replaced with &amp;nbsp;)
      *
-     * @param string $tel telephone
+     * @param ?string $tel telephone
      * @return string
      */
-    public static function asTel(string $tel): string
+    public static function asTel(?string $tel): string
     {
         return str_replace([' ', "\t", "\r\n", "\r", "\n"],
             '&nbsp;',
-            htmlspecialchars($tel, ENT_NOQUOTES, Nls::$charset));
+            htmlspecialchars($tel, ENT_NOQUOTES, Nls::$charset)
+        );
     }
 
     /** integer value using specified thousands separator or Nls format if empty
@@ -624,11 +625,11 @@ class Html
 
     /** date representation as YYYY-MM-DD
      *
-     * @param string $dt YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS if $datetime set)
+     * @param ?string $dt YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS if $datetime set)
      * @param bool $datetime
      * @return string
      */
-    public static function asDateRfc(string $dt, bool $datetime = false): string
+    public static function asDateRfc(?string $dt, bool $datetime = false): string
     {
         if (strtotime($dt)) {
             return $datetime ? str_replace(' ', 'T', $dt) : substr($dt, 0, 10);
@@ -639,11 +640,11 @@ class Html
 
     /** date representation in current Nls format
      *
-     * @param string $dt YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS if $datetime set)
+     * @param ?string $dt YYYY-MM-DD representation of a date (YYYY-MM-DD HH:MM:SS if $datetime set)
      * @param bool $datetime
      * @return string
      */
-    public static function asDateNls(string $dt, bool $datetime = false): string
+    public static function asDateNls(?string $dt, bool $datetime = false): string
     {
         if ($tm = strtotime($dt)) {
             return date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
@@ -654,11 +655,11 @@ class Html
 
     /** month / year representation in current Nls format, like 'January 2015' for '2015-01-01'
      *
-     * @param string $date YYYY-MM-DD or YYYY-MM representation of a date
+     * @param ?string $date YYYY-MM-DD or YYYY-MM representation of a date
      * @param int $param_month Nls::P_MONTHS for "January 2015" or Nls::P_MONTHS_SHORT for "Jan '15"
      * @return string Month representation of a date
      */
-    public static function asMonth(string $date, int $param_month = Nls::P_MONTHS): string
+    public static function asMonth(?string $date, int $param_month = Nls::P_MONTHS): string
     {
         if (preg_match('/^(\d{4})-(\d{2})\b/', $date, $m)
             and isset(Nls::$formats[$param_month][(int)$m[2]])
@@ -681,11 +682,11 @@ class Html
 
     /** ABBR tag with short string tooltipped with a longer description
      *
-     * @param string $short short string
-     * @param string $long longer description
+     * @param ?string $short short string
+     * @param ?string $long longer description
      * @return string
      */
-    public static function asAbbr(string $short, string $long): string
+    public static function asAbbr(?string $short, ?string $long): string
     {
         return '<abbr title="' . htmlspecialchars($long, ENT_COMPAT, Nls::$charset) . '">' . $short . '</abbr>';
     }

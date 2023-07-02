@@ -762,7 +762,7 @@ class RepoTest extends TestCase
                 [
                     '*<select name="op">*',
                     '/<option[^>]*>---Select item---<\/option>/',
-                    '*<option value="ins" selected="on">&lt;Insert&gt;</option>*',
+                    '*<option value="ins" selected>&lt;Insert&gt;</option>*',
                 ],
                 'op',
                 'ins',
@@ -772,7 +772,7 @@ class RepoTest extends TestCase
             'C_ENUM + F_ASIS as select dropdown' => [
                 [
                     '*<select name="op">*',
-                    '*<option value="ins" selected="on"><Insert></option>*',
+                    '*<option value="ins" selected><Insert></option>*',
                 ],
                 'op',
                 'ins',

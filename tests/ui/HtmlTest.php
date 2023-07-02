@@ -370,6 +370,7 @@ class HtmlTest extends TestCase
     public function testEncode()
     {
         $this->assertEquals("&lt;p&gt;\n&amp;\"e\"\n&amp;n's", Html::encode("<p>\n&\"e\"\n&n's"), 'encode &, < and >');
+        $this->assertEquals('', Html::encode(null), 'encode &, < and >');
     }
 
     /**

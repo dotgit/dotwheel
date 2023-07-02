@@ -36,7 +36,7 @@ class Mime
 
     /** display name formatted as mime 5322/6532 for the destination field of the message
      *
-     * @param string $name destination name to use
+     * @param ?string $name destination name to use
      * @return string the converted display name
      * @assert('Resnick') == 'Resnick'
      * @assert('Mary Smith') == 'Mary Smith'
@@ -44,7 +44,7 @@ class Mime
      * @assert('Giant; "Big" Box') == '"Giant; \\"Big\\" Box"'
      * @assert('Jérôme') == '"Jérôme"'
      */
-    public static function displayName(string $name): string
+    public static function displayName(?string $name): string
     {
         $phrase_preg = preg_quote(self::RFC5322_ATOMS, '/');
 
@@ -57,12 +57,12 @@ class Mime
 
     /** base64-encoded $content chunk_split-ted and prefixed with corresponding mime headers
      *
-     * @param string $content
-     * @param string $mime_type
+     * @param ?string $content
+     * @param ?string $mime_type
      * @return string
      * @assert ('Text', 'text/plain') == Text
      */
-    public static function partBase64(string $content, string $mime_type): string
+    public static function partBase64(?string $content, ?string $mime_type): string
     {
         return implode("\r\n", [
             "Content-Type: $mime_type",
@@ -74,11 +74,11 @@ class Mime
 
     /** quoted-printable-encoded $content prefixed with corresponding mime headers
      *
-     * @param string $content
-     * @param string $mime_type
+     * @param ?string $content
+     * @param ?string $mime_type
      * @return string
      */
-    public static function partQuoted(string $content, string $mime_type): string
+    public static function partQuoted(?string $content, ?string $mime_type): string
     {
         return implode("\r\n", [
             "Content-Type: $mime_type",

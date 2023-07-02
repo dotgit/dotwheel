@@ -1,11 +1,11 @@
 <?php
 
 /**
-  repository management.
-
-  [type: library]
-
-  @author stas trefilov
+ * repository management.
+ *
+ * [type: library]
+ *
+ * @author stas trefilov
  */
 
 namespace Dotwheel\Db;
@@ -17,80 +17,80 @@ use Dotwheel\Util\Misc;
 
 class Repo
 {
-    const P_CLASS               = 1;
-    const P_LABEL               = 11;   // always html-encoded
-    const P_LABEL_SHORT         = 12;
-    const P_LABEL_LONG          = 13;
-    const P_WIDTH               = 21;
-    const P_ITEMS               = 31;
-    const P_ITEMS_SHORT         = 32;
-    const P_ITEMS_LONG          = 33;
-    const P_ITEM_BLANK          = 35;   // for specifying the first blank item
-    const P_ITEM_DELIM          = 36;   // for specifying items delimiter in enums and sets
-    const P_COMMENT             = 41;   // for checkboxes in forms
-    const P_ALIAS               = 51;
-    const P_VALIDATE_CALLBACK   = 61;   // for input validation via user callback (callback function receives value
-                                        // to validate, returns true if ok, error message otherwise)
-    const P_VALIDATE_REGEXP     = 62;   // for input validation via regexp
-    const P_REQUIRED            = 71;   // for specifying required fields
-    const P_WHERE_CALLBACK      = 81;
-    const P_FLAGS               = 91;
+    public const P_CLASS = 1;
+    public const P_LABEL = 11;   // always html-encoded
+    public const P_LABEL_SHORT = 12;
+    public const P_LABEL_LONG = 13;
+    public const P_WIDTH = 21;
+    public const P_ITEMS = 31;
+    public const P_ITEMS_SHORT = 32;
+    public const P_ITEMS_LONG = 33;
+    public const P_ITEM_BLANK = 35;   // for specifying the first blank item
+    public const P_ITEM_DELIM = 36;   // for specifying items delimiter in enums and sets
+    public const P_COMMENT = 41;   // for checkboxes in forms
+    public const P_ALIAS = 51;
+    public const P_VALIDATE_CALLBACK = 61;   // for input validation via user callback (callback function receives value
+    // to validate, returns true if ok, error message otherwise)
+    public const P_VALIDATE_REGEXP = 62;   // for input validation via regexp
+    public const P_REQUIRED = 71;   // for specifying required fields
+    public const P_WHERE_CALLBACK = 81;
+    public const P_FLAGS = 91;
 
-    const C_ID      = 1;
-    const C_INT     = 2;
-    const C_CENTS   = 3;
-    const C_BOOL    = 4;
-    const C_TEXT    = 5;
-    const C_DATE    = 6;
-    const C_ENUM    = 7;
-    const C_SET     = 8;
-    const C_FILE    = 9;
+    public const C_ID = 1;
+    public const C_INT = 2;
+    public const C_CENTS = 3;
+    public const C_BOOL = 4;
+    public const C_TEXT = 5;
+    public const C_DATE = 6;
+    public const C_ENUM = 7;
+    public const C_SET = 8;
+    public const C_FILE = 9;
 
-    const F_POSITIVE        = 0x00000001;
-    const F_HIDE_DECIMAL    = 0x00000002;
-    const F_SHOW_COMPACT    = 0x00000004;
+    public const F_POSITIVE = 0x00000001;
+    public const F_HIDE_DECIMAL = 0x00000002;
+    public const F_SHOW_COMPACT = 0x00000004;
 
-    const F_PASSWORD        = 0x00000010;
-    const F_UPPERCASE       = 0x00000020;
-    const F_LOWERCASE       = 0x00000040;
-    const F_UCFIRST         = 0x00000080;
-    const F_TEL             = 0x00000100;
-    const F_EMAIL           = 0x00000200;
-    const F_URL             = 0x00000400;
-    const F_TEXTAREA        = 0x00000800;
-    const F_TEXT_FORMAT     = 0x00001000;
+    public const F_PASSWORD = 0x00000010;
+    public const F_UPPERCASE = 0x00000020;
+    public const F_LOWERCASE = 0x00000040;
+    public const F_UCFIRST = 0x00000080;
+    public const F_TEL = 0x00000100;
+    public const F_EMAIL = 0x00000200;
+    public const F_URL = 0x00000400;
+    public const F_TEXTAREA = 0x00000800;
+    public const F_TEXT_FORMAT = 0x00001000;
 
-    const F_DATETIME        = 0x00010000;
+    public const F_DATETIME = 0x00010000;
 
-    const F_CHAR            = 0x00100000;
-    const F_RADIO           = 0x00200000;    // display as radio buttons instead of select dropdown
-    const F_INLINE_ITEMS    = 0x00400000;    // display enum or set items on one line instead of stacked
-    const F_ABBR            = 0x00800000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) for abbr tag
+    public const F_CHAR = 0x00100000;
+    public const F_RADIO = 0x00200000;    // display as radio buttons instead of select dropdown
+    public const F_INLINE_ITEMS = 0x00400000;    // display enum or set items on one line instead of stacked
+    public const F_ABBR = 0x00800000;    // using (P_ITEMS_SHORT || P_ITEMS) + (P_ITEMS_LONG || P_ITEMS) for abbr tag
 
-    const F_ASIS            = 0x10000000;
+    public const F_ASIS = 0x10000000;
 
     /**
      * var array fields description in the form:
      * {field: {PARAM_LABEL:'User last name', PARAM_CLASS:CLASS_TEXT, PARAM_FLAGS:FLAG_UPPERCASE, etc...}}
      */
-    public static $store = array();
+    public static array $store = [];
     /** var array list of loaded packages */
-    public static $packages = array();
+    public static array $packages = [];
     /** var array list of unresolved aliases to lookup after each addPackage */
-    public static $unresolved = array();
+    public static array $unresolved = [];
     /** var array list of validated request variables */
-    public static $validated = array();
+    public static array $validated = [];
     /** var array list of errors during import */
-    public static $input_errors = array();
+    public static array $input_errors = [];
 
-    /** adds new package to repository (resolves aliases while adding). if the package
-     * already exists then does nothing.
+
+    /** add new package to repository (resolve aliases while adding). if the package already exists then skip.
      *
-     * @param string $package   package name
-     * @param array $fields     {fld:{repository field params}, ...}
+     * @param string $package package name
+     * @param array $fields {fld:{repository field params}, ...}
      * @return bool whether the package was added
      */
-    public static function registerPackage($package, $fields)
+    public static function registerPackage(string $package, array $fields): bool
     {
         // do not register twice
         if (isset(self::$packages[$package])) {
@@ -106,7 +106,7 @@ class Repo
                 } elseif (isset(self::$unresolved[$ref])) {
                     self::$unresolved[$ref][$name] = true;
                 } else {
-                    self::$unresolved[$ref] = array($name=>true);
+                    self::$unresolved[$ref] = [$name => true];
                 }
             }
             self::$store[$name] = $repo;
@@ -128,164 +128,144 @@ class Repo
         return true;
     }
 
-    /** returns a specified field parameter if set
+    /** specified field parameter if set
      *
-     * @param string $name  field name
-     * @param int $param    field parameter
-     * @param array $repo   {field repository attributes}
-     * @return array|null
+     * @param string $name field name
+     * @param string|int $param field parameter
+     * @param array $repo {field repository attributes}
+     * @return mixed
      */
-    public static function getParam($name, $param, $repo = array())
+    public static function getParam(string $name, $param, array $repo = [])
     {
-        if (isset($repo[$param])) {
-            return $repo[$param];
-        } elseif (isset(self::$store[$name][$param])) {
-            return self::$store[$name][$param];
-        }
-
-        return null;
+        return $repo[$param] ?? self::$store[$name][$param] ?? null;
     }
 
-    /** returns a specified html-escaped label if set (otherwise the P_LABEL)
+    /** specified html-escaped label if set (otherwise the P_LABEL)
      *
-     * @param string $name  field name
-     * @param int $param    which label to return
-     * @param array $repo   {field repository attributes}
-     * @return string|null
+     * @param string $name field name
+     * @param ?int $param which label to return
+     * @param array $repo {field repository attributes}
+     * @return ?string
      */
-    public static function getLabel($name, $param = null, $repo = array())
+    public static function getLabel(string $name, ?int $param = null, array $repo = []): ?string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
         }
         switch ($param) {
             case self::P_LABEL_SHORT:
-                return isset($repo[self::P_LABEL_SHORT])
-                    ? $repo[self::P_LABEL_SHORT]
-                    : (isset($repo[self::P_LABEL]) ? $repo[self::P_LABEL] : null);
+                return $repo[self::P_LABEL_SHORT] ?? $repo[self::P_LABEL] ?? null;
             case self::P_LABEL_LONG:
-                return isset($repo[self::P_LABEL_LONG])
-                    ? $repo[self::P_LABEL_LONG]
-                    : (isset($repo[self::P_LABEL]) ? $repo[self::P_LABEL] : null);
+                return $repo[self::P_LABEL_LONG] ?? $repo[self::P_LABEL] ?? null;
             default:
-                return isset($repo[self::P_LABEL]) ? $repo[self::P_LABEL] : null;
+                return $repo[self::P_LABEL] ?? null;
         }
-
-        return null;
     }
 
-    /** returns a specified list if set(otherwise the PARAM_LIST)
+    /** specified list if set (otherwise the PARAM_LIST)
      *
-     * @param string $name  field name
-     * @param int $param    which list to return
-     * @param array $repo   {field repository attributes}
-     * @return array
+     * @param string $name field name
+     * @param ?int $param which list to return
+     * @param array $repo {field repository attributes}
+     * @return ?array
      */
-    public static function getList($name, $param = null, $repo = array())
+    public static function getList(string $name, ?int $param = null, array $repo = []): ?array
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
         }
         switch ($param) {
             case self::P_ITEMS_SHORT:
-                return isset($repo[self::P_ITEMS_SHORT])
-                    ? $repo[self::P_ITEMS_SHORT]
-                    : (isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array());
+                return $repo[self::P_ITEMS_SHORT] ?? $repo[self::P_ITEMS] ?? [];
             case self::P_ITEMS_LONG:
-                return isset($repo[self::P_ITEMS_LONG])
-                    ? $repo[self::P_ITEMS_LONG]
-                    : (isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array());
+                return $repo[self::P_ITEMS_LONG] ?? $repo[self::P_ITEMS] ?? [];
             default:
-                return isset($repo[self::P_ITEMS])
-                    ? $repo[self::P_ITEMS]
-                    : array();
+                return $repo[self::P_ITEMS] ?? [];
         }
     }
 
-    /** returns field repository attributes
+    /** field repository attributes
      *
-     * @param string $name  field name
-     * @param array $repo   {field repository attributes}
+     * @param string $name field name
+     * @param array $repo {field repository attributes}
      * @return array
      */
-    public static function get($name, $repo = array())
+    public static function get(string $name, array $repo = []): array
     {
         return isset(self::$store[$name]) ? $repo + self::$store[$name] : $repo;
     }
 
-    /** whether the repository entry specifies numbers that can be added / substracted
+    /** whether repository entry specifies numbers that can be added / subtracted
      *
-     * @param array $repo   {field repository attributes}
+     * @param array $repo {field repository attributes}
      * @return bool
      */
-    public static function isArithmetical($repo)
+    public static function isArithmetical(array $repo): bool
     {
-        if (isset($repo[self::P_CLASS])) {
-            switch ($repo[self::P_CLASS]) {
-                case self::C_CENTS:
-                case self::C_INT:
-                    return true;
-            }
+        switch ($repo[self::P_CLASS] ?? null) {
+            case self::C_CENTS:
+            case self::C_INT:
+                return true;
+            default:
+                return false;
         }
-
-        return false;
     }
 
-    /** whether the repository entry specifies date
+    /** whether repository entry specifies a date field
      *
-     * @param array $repo   {field repository attributes}
+     * @param array $repo {field repository attributes}
      * @return bool
      */
-    public static function isDate($repo)
+    public static function isDate(array $repo): bool
     {
-        return (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_DATE);
+        return ($repo[self::P_CLASS] ?? null) === self::C_DATE;
     }
 
-    /** whether the repository entry specifies the textual data or not
+    /** whether repository entry specifies textual data
      *
-     * @param array $repo   {field repository attributes}
+     * @param array $repo {field repository attributes}
      * @return bool
      */
-    public static function isTextual($repo)
+    public static function isTextual(array $repo): bool
     {
-        return (empty($repo[self::P_CLASS]) or $repo[self::P_CLASS] == self::C_TEXT);
+        return ($repo[self::P_CLASS] ?? self::C_TEXT) === self::C_TEXT;
     }
 
-    /** stores validated input values in Repo::$validated public var. if errors occured
-     * during validation then Repository::$input_errors array contains error messages.
+    /** store validated input values in Repo::$validated public var. if errors occur during validation then
+     * Repository::$input_errors array contains error messages.
      *
      * @param array $fields {field1:{repository parameters}, field2:{repository parameters}}
-     * @param array $values {field1:val1, field2:val2, ...} if omitted then uses $_REQUEST
+     * @param ?array $values {field1:val1, field2:val2, ...} if omitted then uses $_REQUEST
      * @return bool whether validation has passed ok (no input errors)
      */
-    public static function validateInput($fields, $values = null)
+    public static function validateInput(array $fields, ?array $values = null): bool
     {
         if (empty($values)) {
             $values = $_REQUEST;
         }
 
-        self::$input_errors = array();
+        self::$input_errors = [];
 
         foreach ($fields as $fld => $params) {
-            if (\is_scalar($params)) {
-                $params = array($params=>true);
+            if (is_scalar($params)) {
+                $params = [$params => true];
             }
             $repo = self::get($fld, $params);
 
             $err = null;
-            $label = isset($repo[self::P_LABEL]) ? $repo[self::P_LABEL] : '';
+            $label = $repo[self::P_LABEL] ?? '';
             $value = isset($values[$fld])
-                ? (\is_scalar($values[$fld])
-                    ? \trim($values[$fld])
-                    : ($values[$fld] ? $values[$fld] : null)
+                ? (is_scalar($values[$fld])
+                    ? trim($values[$fld])
+                    : ($values[$fld] ?: null)
                 )
                 : null;
 
-            if (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_BOOL) {
-                $val = \filter_var($value, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE);
+            if (($repo[self::P_CLASS] ?? null) === self::C_BOOL) {
+                $val = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
                 if ($val === null) {
                     $val = false;
-                    $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' is not a boolean"), $label);
+                    $err = sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' is not a boolean"), $label);
                 } else {
                     $val = (int)$val;
                 }
@@ -294,45 +274,42 @@ class Repo
                 if ($value === '') {
                     $val = null;
                 } else {
-                    $flags = isset($repo[self::P_FLAGS]) ? $repo[self::P_FLAGS] : null;
-                    switch (isset($repo[self::P_CLASS]) ? $repo[self::P_CLASS] : self::C_TEXT) {
+                    $flags = $repo[self::P_FLAGS] ?? null;
+                    switch ($repo[self::P_CLASS] ?? self::C_TEXT) {
                         case self::C_ID:
                             $val = (int)$value;
                             $flags |= self::F_POSITIVE;
                             break;
                         case self::C_INT:
-                            $val = \is_numeric($value) ? (int)$value : false;
+                            $val = is_numeric($value) ? (int)$value : false;
                             break;
                         case self::C_CENTS:
-                            if (!\is_scalar($value)) {
+                            if (!is_scalar($value)) {
                                 $val = false;
-                            } elseif (!\is_numeric(\str_replace(array(' ', ' ', '.', ','), '', $value))) {
+                            } elseif (!is_numeric(str_replace([' ', ' ', '.', ','], '', $value))) {
                                 $val = false;
                             } else {
-                                $value = \str_replace(array(' ', ' ', '.'), array('', '', ','), $value);
-                                $m = array();
-                                if (\preg_match('/^(.*),(\d{1,2})$/', $value, $m)) {
-                                    $val = \str_replace(',', '', $m[1]).$m[2].(isset($m[2][1]) ? '' : '0');
+                                $value = str_replace([' ', ' ', '.'], ['', '', ','], $value);
+                                $m = [];
+                                if (preg_match('/^(.*),(\d{1,2})$/', $value, $m)) {
+                                    $val = str_replace(',', '', $m[1]) . $m[2] . (isset($m[2][1]) ? '' : '0');
                                 } else {
-                                    $val = \str_replace(',', '', $value).'00';
+                                    $val = str_replace(',', '', $value) . '00';
                                 }
                                 $val = (int)$val;
                             }
                             break;
                         case self::C_TEXT:
-                            if (\is_scalar($value)) {
+                            if (is_scalar($value)) {
                                 if (!($flags & self::F_TEXTAREA)) {
-                                    $value = \preg_replace('/\s{2,}/', ' ', $value);
+                                    $value = preg_replace('/\s{2,}/', ' ', $value);
                                 }
                                 if (isset($repo[self::P_WIDTH])
-                                    and \mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH]
+                                    and mb_strlen($value, Nls::$charset) > $repo[self::P_WIDTH]
                                 ) {
                                     $val = false;
-                                    $err = \sprintf(
-                                        Text::dget(
-                                            Nls::FW_DOMAIN,
-                                            "value in '%s' must not exceed %u characters"
-                                        ),
+                                    $err = sprintf(
+                                        Text::dget(Nls::FW_DOMAIN, "value in '%s' must not exceed %u characters"),
                                         $label,
                                         $repo[self::P_WIDTH]
                                     );
@@ -340,10 +317,10 @@ class Repo
                                     $val = $value;
 
                                     if ($flags & self::F_EMAIL
-                                        and ! \filter_var($val, \FILTER_VALIDATE_EMAIL)
+                                        and !filter_var($val, FILTER_VALIDATE_EMAIL)
                                     ) {
                                         $val = false;
-                                        $err = \sprintf(
+                                        $err = sprintf(
                                             Text::dget(
                                                 Nls::FW_DOMAIN,
                                                 "value in '%s' does not represent an email address"
@@ -354,10 +331,10 @@ class Repo
                                     }
 
                                     if ($flags & self::F_URL
-                                        and ! \filter_var($val, \FILTER_VALIDATE_URL)
+                                        and !filter_var($val, FILTER_VALIDATE_URL)
                                     ) {
                                         $val = false;
-                                        $err = \sprintf(
+                                        $err = sprintf(
                                             Text::dget(
                                                 Nls::FW_DOMAIN,
                                                 "value in '%s' does not represent a web address"
@@ -368,10 +345,10 @@ class Repo
                                     }
 
                                     if (isset($repo[self::P_VALIDATE_REGEXP])
-                                        and ! \preg_match($repo[self::P_VALIDATE_REGEXP], $val)
+                                        and !preg_match($repo[self::P_VALIDATE_REGEXP], $val)
                                     ) {
                                         $val = false;
-                                        $err = \sprintf(
+                                        $err = sprintf(
                                             Text::dget(
                                                 Nls::FW_DOMAIN,
                                                 "value in '%s' does not match the required format"
@@ -382,15 +359,15 @@ class Repo
                                     }
 
                                     if ($flags & self::F_UPPERCASE) {
-                                        $val = \mb_strtoupper($val, Nls::$charset);
+                                        $val = mb_strtoupper($val, Nls::$charset);
                                     }
 
                                     if ($flags & self::F_UCFIRST) {
-                                        $val = \mb_convert_case($val, \MB_CASE_TITLE, Nls::$charset);
+                                        $val = mb_convert_case($val, MB_CASE_TITLE, Nls::$charset);
                                     }
 
                                     if ($flags & self::F_LOWERCASE) {
-                                        $val = \mb_strtolower($val, Nls::$charset);
+                                        $val = mb_strtolower($val, Nls::$charset);
                                     }
 
                                     if ($flags & self::F_TEL) {
@@ -402,21 +379,21 @@ class Repo
                             }
                             break;
                         case self::C_DATE:
-                            if (\is_scalar($value)) {
+                            if (is_scalar($value)) {
                                 $val = Nls::toDate($value, $flags & self::F_DATETIME);
                             } else {
                                 $val = false;
                             }
 
                             if ($val === false) {
-                                $err = \sprintf(
+                                $err = sprintf(
                                     Text::dget(Nls::FW_DOMAIN, "value in '%s' is not a valid date"),
                                     $label
                                 );
                             }
                             break;
                         case self::C_ENUM:
-                            if (\is_scalar($value)) {
+                            if (is_scalar($value)) {
                                 $val = isset($repo[self::P_ITEMS])
                                     ? (isset($repo[self::P_ITEMS][$value]) ? $value : false)
                                     : $value;
@@ -425,49 +402,50 @@ class Repo
                             }
 
                             if ($val === false) {
-                                $err = \sprintf(
+                                $err = sprintf(
                                     Text::dget(Nls::FW_DOMAIN, "value in '%s' is not an option"),
                                     $label
                                 );
                             }
                             break;
                         case self::C_SET:
-                            if (\is_scalar($value)) {
-                                $value = \explode(',', $value);
+                            if (is_scalar($value)) {
+                                $value = explode(',', $value);
                             }
 
-                            $val = \implode(
+                            $val = implode(
                                 ',',
-                                \array_keys(isset($repo[self::P_ITEMS])
-                                    ? \array_intersect_key($repo[self::P_ITEMS], \array_flip($value))
-                                    : \array_flip($value)
+                                array_keys(
+                                    isset($repo[self::P_ITEMS])
+                                        ? array_intersect_key($repo[self::P_ITEMS], array_flip($value))
+                                        : array_flip($value)
                                 )
                             );
 
-                            if ($val === '')
+                            if ($val === '') {
                                 $val = null;
+                            }
                             break;
+                        default:
+                            $val = null;
                     }
 
                     if ($flags & self::F_POSITIVE and $val < 1) {
                         $val = false;
-                        $err = \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
+                        $err = sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be positive"), $label);
                     }
 
                     if (empty($err)
                         and isset($repo[self::P_VALIDATE_CALLBACK])
-                        and ($err = \call_user_func_array(
-                            $repo[self::P_VALIDATE_CALLBACK],
-                            array($val, $label)
-                        )) !== true
+                        and ($err = call_user_func_array($repo[self::P_VALIDATE_CALLBACK], [$val, $label])) !== true
                     ) {
                         $val = false;
                     }
                 }
-            } elseif (isset($repo[self::P_CLASS]) and $repo[self::P_CLASS] == self::C_FILE) {
+            } elseif (($repo[self::P_CLASS] ?? null) === self::C_FILE) {
                 if (empty($_FILES[$fld])) {
                     $val = false;
-                    $err = \sprintf(
+                    $err = sprintf(
                         Text::dget(Nls::FW_DOMAIN, "too big file in '%s' (maximal allowed file size: %s)"),
                         $label,
                         Misc::humanBytes(Misc::getMaxUploadSize())
@@ -478,20 +456,20 @@ class Repo
                     switch ($_FILES[$fld]['error']) {
                         case UPLOAD_ERR_INI_SIZE:
                         case UPLOAD_ERR_FORM_SIZE:
-                            $msg = \sprintf(
+                            $msg = sprintf(
                                 Text::dget(Nls::FW_DOMAIN, "too big file in '%s' (maximal allowed file size: %s)"),
                                 $label,
                                 Misc::humanBytes(Misc::getMaxUploadSize())
                             );
                             break;
                         default:
-                            $msg = \sprintf(
+                            $msg = sprintf(
                                 Text::dget(Nls::FW_DOMAIN, "error uploading file from '%s'"),
                                 $label
                             );
                     }
                     $val = false;
-                    $err = $msg." [err: {$_FILES[$fld]['error']}]";
+                    $err = $msg . " [err: {$_FILES[$fld]['error']}]";
                 } elseif (!$_FILES[$fld]['size']) {
                     $val = null;
                 } else {
@@ -502,30 +480,28 @@ class Repo
             }
 
             // check required flags
-            if ($val === null and ! empty($repo[self::P_REQUIRED])) {
-                self::$input_errors[] = \sprintf(Text::dget(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
+            if ($val === null and !empty($repo[self::P_REQUIRED])) {
+                self::$input_errors[] = sprintf(Text::dget(Nls::FW_DOMAIN, "value is required in '%s'"), $label);
             }
 
             if ($val !== false) {
                 self::$validated[$fld] = $val;
             } else {
-                self::$input_errors[] = isset($err)
-                    ? $err
-                    : \sprintf(Text::dget(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label);
+                self::$input_errors[] = $err ?? sprintf(Text::dget(Nls::FW_DOMAIN, "type mismatch for '%s'"), $label);
             }
         }
 
         return empty(self::$input_errors);
     }
 
-    /** returns html representation of the field
+    /** html representation of the field
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
+     * @param string $name field name
+     * @param mixed $value field value
+     * @param array $repo {field repository attributes}
      * @return string
      */
-    public static function asHtmlStatic($name, $value, $repo = array())
+    public static function asHtmlStatic(string $name, $value, array $repo = []): string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
@@ -538,13 +514,13 @@ class Repo
 
             switch ($repo[self::P_CLASS]) {
                 case self::C_TEXT:
-                    return (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_TEXTAREA)
+                    return (($repo[self::P_FLAGS] ?? 0) & self::F_TEXTAREA)
                         ? Html::encodeNl($value, $repo[self::P_FLAGS] & self::F_TEXT_FORMAT)
                         : Html::encode($value);
                 case self::C_DATE:
                     return Html::asDateNls(
                         $value,
-                        isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_DATETIME
+                        ($repo[self::P_FLAGS] ?? 0) & self::F_DATETIME
                     );
                 case self::C_ENUM:
                     if (isset($repo[self::P_FLAGS])) {
@@ -554,7 +530,7 @@ class Repo
                         $asis = false;
                         $abbr = false;
                     }
-                    $items = isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array();
+                    $items = $repo[self::P_ITEMS] ?? [];
                     return $abbr
                         ? Html::asAbbr(
                             isset($repo[self::P_ITEMS_SHORT][$value])
@@ -580,52 +556,44 @@ class Repo
                 case self::C_SET:
                     return self::setToString(
                         $value,
-                        isset($repo[self::P_ITEMS]) ? $repo[self::P_ITEMS] : array(),
-                        empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)
+                        $repo[self::P_ITEMS] ?? [],
+                        !(($repo[self::P_FLAGS] ?? 0) & self::F_ASIS)
                     );
                 case self::C_ID:
                 case self::C_INT:
-                    if (!\is_numeric($value)) {
+                    if (!is_numeric($value)) {
                         return '';
                     }
-                    $val = Html::asCents(
-                        $value * 100,
-                        false
-                    );
-                    return (isset($repo[self::P_FLAGS]) and $repo[self::P_FLAGS] & self::F_ASIS)
-                        ? \str_replace('&nbsp;', ' ', $val)
+                    $val = Html::asCents($value * 100, false);
+                    return (($repo[self::P_FLAGS] ?? 0) & self::F_ASIS)
+                        ? str_replace('&nbsp;', ' ', $val)
                         : $val;
                 case self::C_CENTS:
-                    if (!\is_numeric($value)) {
+                    if (!is_numeric($value)) {
                         return '';
                     }
                     $val = Html::asCents(
                         $value,
-                        isset($repo[self::P_FLAGS])
-                            ? (($repo[self::P_FLAGS] & self::F_SHOW_COMPACT)
-                                ? null
-                                : ($repo[self::P_FLAGS] & self::F_HIDE_DECIMAL ? false : true)
-                            )
-                            : true
+                        ($repo[self::P_FLAGS] ?? 0) & self::F_SHOW_COMPACT
+                            ? null
+                            : !(($repo[self::P_FLAGS] ?? 0) & self::F_HIDE_DECIMAL)
                     );
-                    return isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
-                        ? \str_replace('&nbsp;', ' ', $val)
+                    return ($repo[self::P_FLAGS] ?? 0) & self::F_ASIS
+                        ? str_replace('&nbsp;', ' ', $val)
                         : $val;
                 case self::C_BOOL:
                     // if P_ITEMS provided, must be array of 2 items
                     return self::enumToString(
                         (int)((bool)$value),
-                        isset($repo[self::P_ITEMS])
-                            ? $repo[self::P_ITEMS]
-                            : array(
-                                Text::dget(Nls::FW_DOMAIN, 'no'),
-                                Text::dget(Nls::FW_DOMAIN, 'yes'),
-                            ),
-                        empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)
+                        $repo[self::P_ITEMS] ?? [
+                            Text::dget(Nls::FW_DOMAIN, 'no'),
+                            Text::dget(Nls::FW_DOMAIN, 'yes'),
+                        ],
+                        !(($repo[self::P_FLAGS] ?? 0) & self::F_ASIS)
                     );
                 case self::C_FILE:
                     return isset($value['name'])
-                        ? (isset($repo[self::P_FLAGS]) && $repo[self::P_FLAGS] & self::F_ASIS
+                        ? (($repo[self::P_FLAGS] ?? 0) & self::F_ASIS
                             ? $value['name']
                             : Html::encode($value['name'])
                         )
@@ -640,19 +608,19 @@ class Repo
 
     /** returns html representation of the field for input
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $input  {html input tag attributes}
-     * @param array $repo   {field repository attributes}
+     * @param string $name field name
+     * @param mixed $value field value
+     * @param mixed $input {html input tag attributes}
+     * @param array $repo {field repository attributes}
      * @return string
      */
-    public static function asHtmlInput($name, $value, $input = array(), $repo = array())
+    public static function asHtmlInput(string $name, $value, $input = [], array $repo = []): string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
         }
 
-        if (!\is_array($input)) {
+        if (!is_array($input)) {
             $input = (array)$input;
         }
 
@@ -665,11 +633,13 @@ class Repo
             case self::C_TEXT:
                 if (isset($repo[self::P_FLAGS])) {
                     if ($repo[self::P_FLAGS] & self::F_TEXTAREA) {
-                        return Html::inputTextarea($input + array(
-                            'name'=>$name,
-                            'value'=>$value,
-                            'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
-                        ));
+                        return Html::inputTextarea(
+                            $input + [
+                                'name' => $name,
+                                'value' => $value,
+                                'maxlength' => $repo[self::P_WIDTH] ?? null,
+                            ]
+                        );
                     }
 
                     if ($repo[self::P_FLAGS] & self::F_PASSWORD) {
@@ -682,93 +652,104 @@ class Repo
                         $type = 'text';
                     }
 
-                    return Html::input($input + array(
-                        'name'=>$name,
-                        'value'=>$value,
-                        'type'=>$type,
-                        'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
-                    ));
+                    return Html::input(
+                        $input + [
+                            'name' => $name,
+                            'value' => $value,
+                            'type' => $type,
+                            'maxlength' => $repo[self::P_WIDTH] ?? null,
+                        ]
+                    );
                 } else {
-                    return Html::inputText($input + array(
-                        'name'=>$name,
-                        'value'=>$value,
-                        'maxlength'=>isset($repo[self::P_WIDTH]) ? $repo[self::P_WIDTH] : null
-                    ));
+                    return Html::inputText(
+                        $input + [
+                            'name' => $name,
+                            'value' => $value,
+                            'maxlength' => $repo[self::P_WIDTH] ?? null,
+                        ]
+                    );
                 }
             case self::C_DATE:
-                return Html::inputDate($input + array(
-                    'name'=>$name,
-                    'value'=>$value,
-                    Html::P_DATETIME=>isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_DATETIME)
-                ));
+                return Html::inputDate(
+                    $input + [
+                        'name' => $name,
+                        'value' => $value,
+                        Html::P_DATETIME => ($repo[self::P_FLAGS] ?? 0) & self::F_DATETIME,
+                    ]
+                );
             case self::C_ENUM:
-                $items = isset($repo[self::P_ITEMS])
-                    ? $repo[self::P_ITEMS]
-                    : array();
-                if (empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)) {
+                $items = $repo[self::P_ITEMS] ?? [];
+                if (!(($repo[self::P_FLAGS] ?? 0) & self::F_ASIS)) {
                     foreach ($items as &$item) {
                         $item = Html::encode($item);
                     }
                 }
-                return isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_RADIO)
-                    ? Html::inputRadio($input + array(
-                        'name'=>$name,
-                        'value'=>$value,
-                        Html::P_ITEMS=>$items,
-                        Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM]) ? $repo[self::P_ITEM_DELIM] : null
-                    ))
-                    : Html::inputSelect($input + array(
-                        'name'=>$name,
-                        'value'=>$value,
-                        Html::P_ITEMS=>$items,
-                        Html::P_BLANK=>isset($repo[self::P_ITEM_BLANK]) ? $repo[self::P_ITEM_BLANK] : null
-                    ));
+                return (($repo[self::P_FLAGS] ?? 0) & self::F_RADIO)
+                    ? Html::inputRadio(
+                        $input + [
+                            'name' => $name,
+                            'value' => $value,
+                            Html::P_ITEMS => $items,
+                            Html::P_DELIM => $repo[self::P_ITEM_DELIM] ?? null,
+                        ]
+                    )
+                    : Html::inputSelect(
+                        $input + [
+                            'name' => $name,
+                            'value' => $value,
+                            Html::P_ITEMS => $items,
+                            Html::P_BLANK => $repo[self::P_ITEM_BLANK] ?? null,
+                        ]
+                    );
             case self::C_SET:
-                $items = isset($repo[self::P_ITEMS])
-                    ? $repo[self::P_ITEMS]
-                    : array();
-                if (empty($repo[self::P_FLAGS]) or !($repo[self::P_FLAGS] & self::F_ASIS)) {
+                $items = $repo[self::P_ITEMS] ?? [];
+                if (!(($repo[self::P_FLAGS] ?? 0) & self::F_ASIS)) {
                     foreach ($items as &$item) {
                         $item = Html::encode($item);
                     }
                 }
-                return Html::inputSet($input + array(
-                    'name'=>$name,
-                    'value'=>$value,
-                    Html::P_ITEMS=>$items,
-                    Html::P_DELIM=>isset($repo[self::P_ITEM_DELIM]) ? $repo[self::P_ITEM_DELIM] : null
-                ));
+                return Html::inputSet(
+                    $input + [
+                        'name' => $name,
+                        'value' => $value,
+                        Html::P_ITEMS => $items,
+                        Html::P_DELIM => $repo[self::P_ITEM_DELIM] ?? null,
+                    ]
+                );
             case self::C_ID:
             case self::C_INT:
-                return Html::inputInt($input + array('name'=>$name, 'value'=>$value));
+                return Html::inputInt($input + ['name' => $name, 'value' => $value]);
             case self::C_CENTS:
-                return Html::inputCents($input + array('name'=>$name, 'value'=>$value));
+                return Html::inputCents($input + ['name' => $name, 'value' => $value]);
             case self::C_BOOL:
                 // if P_ITEMS provided, must be array of 2 items
-                return Html::inputCheckbox($input + array(
-                    'name'=>$name,
-                    'checked'=>$value ? 'on' : null,
-                    Html::P_HEADER=>isset($repo[self::P_ITEMS])
-                        ? (isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_ASIS)
-                            ? $repo[self::P_ITEMS][1]
-                            : Html::encode($repo[self::P_ITEMS][1])
-                        )
-                        : null
-                ));
+                return Html::inputCheckbox(
+                    $input + [
+                        'name' => $name,
+                        'checked' => $value ? 'on' : null,
+                        Html::P_HEADER => isset($repo[self::P_ITEMS])
+                            ? (($repo[self::P_FLAGS] ?? 0) & self::F_ASIS
+                                ? $repo[self::P_ITEMS][1]
+                                : Html::encode($repo[self::P_ITEMS][1])
+                            )
+                            : null,
+                    ]
+                );
             case self::C_FILE:
-                return Html::input($input + array('name'=>$name, 'type'=>'file'));
+                return Html::input($input + ['name' => $name, 'type' => 'file']);
             default:
-                return Html::input($input + array('name'=>$name, 'value'=>$value, 'type'=>'text'));
+                return Html::input($input + ['name' => $name, 'value' => $value, 'type' => 'text']);
         }
     }
 
     /** representation of a list item: 'On'
-     * @param string $value 'x'
-     * @param array $items  {'x':'On', '':'Off'}
-     * @param bool $encode  whether to html encode the result
+     *
+     * @param ?string $value 'x'
+     * @param array $items {'x':'On', '':'Off'}
+     * @param bool $encode whether to html encode the result
      * @return string
-    */
-    public static function enumToString($value, $items=array(), $encode=true)
+     */
+    public static function enumToString(?string $value, array $items = [], bool $encode = true): string
     {
         return isset($items[$value])
             ? ($encode ? Html::encode($items[$value]) : $items[$value])
@@ -776,26 +757,29 @@ class Repo
     }
 
     /** html representation of set: 'High, Low'
-     * @param string $value 'a,c'
-     * @param array $items  {a:High, b:Normal, c:Low} (array values will be html-escaped)
-     * @param bool $encode  whether to html encode the result
+     *
+     * @param ?string $value 'a,c'
+     * @param array $items {a:High, b:Normal, c:Low} (array values will be html-escaped)
+     * @param bool $encode whether to html encode the result
      * @return string
      */
-    public static function setToString($value, $items, $encode=true)
+    public static function setToString(?string $value, array $items = [], bool $encode = true)
     {
-        if ($set = \array_flip(\explode(',', $value))) {
+        if ($set = array_flip(explode(',', $value))) {
             if ($encode) {
-                $res = Html::encode(\implode(
-                    Nls::$formats[Nls::P_LIST_DELIM].' ',
-                    \array_intersect_key($items, $set)
-                ));
+                $res = Html::encode(
+                    implode(
+                        Nls::$formats[Nls::P_LIST_DELIM] . ' ',
+                        array_intersect_key($items, $set)
+                    )
+                );
                 return Nls::$formats[Nls::P_LIST_DELIM] == Nls::$formats[Nls::P_LIST_DELIM_HTML]
                     ? $res
-                    : \str_replace(Nls::$formats[Nls::P_LIST_DELIM], Nls::$formats[Nls::P_LIST_DELIM_HTML], $res);
+                    : str_replace(Nls::$formats[Nls::P_LIST_DELIM], Nls::$formats[Nls::P_LIST_DELIM_HTML], $res);
             } else {
-                return \implode(
-                    Nls::$formats[Nls::P_LIST_DELIM].' ',
-                    \array_intersect_key($items, $set)
+                return implode(
+                    Nls::$formats[Nls::P_LIST_DELIM] . ' ',
+                    array_intersect_key($items, $set)
                 );
             }
         } else {
@@ -803,39 +787,39 @@ class Repo
         }
     }
 
-    /** validates cents value to represent a number between 0 and 100
+    /** validate cents value to represent a number between 0 and 100
      *
-     * @param int $value    field value
-     * @param string $label field name to use in error message
+     * @param int|string $value field value
+     * @param ?string $label field name to use in error message
      * @return bool|string <i>true</i> on success, error message on validation error
      */
-    public static function validatePct100($value, $label)
+    public static function validatePct100($value, ?string $label)
     {
-        return (\is_numeric($value) and 0 <= $value and $value <= 100)
+        return (is_numeric($value) and 0 <= $value and $value <= 100)
             ? true
-            : \sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
+            : sprintf(Text::dget(Nls::FW_DOMAIN, "value in '%s' must be between 0 and 100"), $label);
     }
 
-    /** return value for use in sql where clause
+    /** value for use in sql where clause
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @param array $repo   {field repository attributes}
+     * @param string $name field name
+     * @param mixed $value field value
+     * @param array $repo {field repository attributes}
      * @return string|null|false
      */
-    public static function asSql($name, $value, $repo = array())
+    public static function asSql(string $name, $value, array $repo = [])
     {
-        $Rep = $repo + (isset(self::$store[$name]) ? self::$store[$name] : array());
+        $Rep = $repo + (self::$store[$name] ?? []);
 
         if (isset($Rep[self::P_WHERE_CALLBACK])) {
-            return \call_user_func_array($Rep[self::P_WHERE_CALLBACK], array($name, $value, $Rep));
+            return call_user_func_array($Rep[self::P_WHERE_CALLBACK], [$name, $value, $Rep]);
         } else {
-            switch (isset($Rep[self::P_CLASS]) ? $Rep[self::P_CLASS] : self::C_TEXT) {
+            switch ($Rep[self::P_CLASS] ?? self::C_TEXT) {
                 case self::C_ID:
                 case self::C_INT:
                     return self::asSqlInt($name, $value);
                 case self::C_CENTS:
-                    return self::asSqlInt($name, \is_numeric($value) ? $value * 100 : $value);
+                    return self::asSqlInt($name, is_numeric($value) ? $value * 100 : $value);
                 case self::C_BOOL:
                     return self::asSqlBool($name, $value);
                 case self::C_DATE:
@@ -848,28 +832,28 @@ class Repo
         }
     }
 
-    /** returns sql condition for the integer field value
+    /** sql condition for the integer field value
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
+     * @param string $name field name
+     * @param mixed $value field value
      * @return string|null|false
      */
-    public static function asSqlInt($name, $value)
+    public static function asSqlInt(string $name, $value)
     {
-        if (\is_numeric($value)) {
-            return "$name=".Db::escapeInt($value);
+        if (is_numeric($value)) {
+            return "$name=" . Db::escapeInt($value);
         } else {
             return empty($value) ? null : false;
         }
     }
 
-    /** returns sql condition for the boolean field value
+    /** sql condition for the boolean field value
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @return string|null
+     * @param string $name field name
+     * @param mixed $value field value
+     * @return ?string
      */
-    public static function asSqlBool($name, $value)
+    public static function asSqlBool(string $name, $value): ?string
     {
         if (isset($value)) {
             return !empty($value)
@@ -880,34 +864,34 @@ class Repo
         }
     }
 
-    /** returns sql condition for the text field value
+    /** sql condition for the text field value
      *
-     * @param string $name  field name
-     * @param mixed $value  field value
-     * @return string|null
+     * @param string $name field name
+     * @param mixed $value field value
+     * @return ?string
      */
-    public static function asSqlText($name, $value)
+    public static function asSqlText(string $name, $value): ?string
     {
         return isset($value)
-            ? "$name=".Db::wrapChar($value)
+            ? "$name=" . Db::wrapChar($value)
             : null;
     }
 
-    /** returns sql condition for the set field where all (or some) values from
+    /** sql condition for the set field where all (or some) values from
      * <code>$value</code> are present in a field
      *
-     * @param string $name  field name
-     * @param array $value  field values
-     * @param bool $all     whether all values must be present or only some [false]
+     * @param string $name field name
+     * @param array|string $value field values
+     * @param bool $all whether all values must be present or only some [false]
      * @return string
      */
-    public static function asSqlSet($name, $value, $all = false)
+    public static function asSqlSet(string $name, $value, bool $all = false): ?string
     {
-        $cond = array();
+        $cond = [];
 
         foreach ((array)$value as $v) {
             if (isset($v)) {
-                $cond[] = 'find_in_set('.Db::wrapChar($v).",$name)";
+                $cond[] = 'find_in_set(' . Db::wrapChar($v) . ",$name)";
             }
         }
 
@@ -917,46 +901,47 @@ class Repo
             case 1:
                 return $cond[0];
             default:
-                return '('.\implode($all ? 'and ' : 'or ', $cond).')';
+                return '(' . implode($all ? 'and ' : 'or ', $cond) . ')';
         }
     }
 
-    /** returns sql condition for the date field value
+    /** sql condition for the date field value
      *
-     * @param string $name  field name
-     * @param mixed $value  field value (possible values: '31/12/2012'
-     *                      || '1/12/2012 - 31/12/2012' // spaces around - sign!
-     *                      || '< 31/12/2012'
-     *                      || '> 31/12/2012'
-     *                      )
-     * @param array $repo   {field repository attributes}
+     * @param string $name field name
+     * @param mixed $value field value (possible values:
+     *  '31/12/2012'
+     *  || '1/12/2012 - 31/12/2012' // spaces around - sign!
+     *  || '< 31/12/2012'
+     *  || '> 31/12/2012'
+     *  )
+     * @param array $repo {field repository attributes}
      * @return string|null|false
      */
-    public static function asSqlDate($name, $value, $repo = array())
+    public static function asSqlDate(string $name, $value, array $repo = [])
     {
-        $datetime = isset($repo[self::P_FLAGS]) && ($repo[self::P_FLAGS] & self::F_DATETIME);
-        $matches = array();
+        $datetime = ($repo[self::P_FLAGS] ?? 0) & self::F_DATETIME;
+        $matches = [];
 
         if (empty($value)) {
             return null;
-        } elseif (\preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
+        } elseif (preg_match('/^(\S+)\s+-\s+(\S+)$/', $value, $matches)
             and $d1 = Nls::toDate($matches[1], $datetime)
             and $d2 = Nls::toDate($matches[2], $datetime)
         ) {
-            if ($datetime and \substr($d2, -8) == '00:00:00') {
-                $d2 = \substr_replace($d2, '23:59:59', -8);
+            if ($datetime and substr($d2, -8) == '00:00:00') {
+                $d2 = substr_replace($d2, '23:59:59', -8);
             }
-            return "$name between".Db::wrapChar($d1).'and'.Db::wrapChar($d2);
-        } elseif (\preg_match('/^<\s*(\S+)$/', $value, $matches)
+            return sprintf("%s between%sand%s", $name, Db::wrapChar($d1), Db::wrapChar($d2));
+        } elseif (preg_match('/^<\s*(\S+)$/', $value, $matches)
             and $d = Nls::toDate($matches[1], $datetime)
         ) {
-            return "$name<".Db::wrapChar($d);
-        } elseif (\preg_match('/^>\s*(\S+)$/', $value, $matches)
+            return "$name<" . Db::wrapChar($d);
+        } elseif (preg_match('/^>\s*(\S+)$/', $value, $matches)
             and $d = Nls::toDate($matches[1], $datetime)
         ) {
-            return "$name>".Db::wrapChar($d);
+            return "$name>" . Db::wrapChar($d);
         } elseif ($d = Nls::toDate($value, $datetime)) {
-            return "$name=".Db::wrapChar($d);
+            return "$name=" . Db::wrapChar($d);
         } else {
             return false;
         }

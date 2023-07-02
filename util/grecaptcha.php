@@ -49,11 +49,11 @@ class GReCaptcha
 
 
     /**
-     * @param string $sitekey
+     * @param ?string $sitekey
      * @param array $attr
      * @return string
      */
-    public static function getHtml(string $sitekey, array $attr = []): string
+    public static function getHtml(?string $sitekey, array $attr = []): string
     {
         HtmlPage::add([
             HtmlPage::SCRIPT_SRC => [
@@ -70,11 +70,11 @@ class GReCaptcha
     }
 
     /**
-     * @param string $secret
-     * @param string $response
+     * @param ?string $secret
+     * @param ?string $response
      * @return bool
      */
-    public static function verify(string $secret, string $response): bool
+    public static function verify(?string $secret, ?string $response): bool
     {
         $post = Http::post(self::SRC_VERIFY, [
             self::POST_SECRET => $secret,

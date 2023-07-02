@@ -16,10 +16,10 @@ class Misc
 {
     /** add $n months to the $date_begin considering not skipping short months
      *
-     * @param string $date_begin date that need to be incremented
+     * @param ?string $date_begin date that need to be incremented
      * @param int $n number of months to add
      * @param ?string $date_base initial date to trim to (only days part is used)
-     * @return string               incremented date in YYYY-MM-DD format
+     * @return string|bool incremented date in YYYY-MM-DD format
      * @assert('2013-01-01', 1) == '2013-02-01'
      * @assert('2013-01-31', 1) == '2013-02-28'
      * @assert('2013-02-28', 1) == '2013-03-28'
@@ -27,7 +27,7 @@ class Misc
      * @assert('2013-02-28', 1, '2013-01-29') == '2013-03-29'
      * @assert('2013-02-28', 2, '2013-01-29') == '2013-04-29'
      */
-    public static function addMonths(string $date_begin, int $n = 1, ?string $date_base = null)
+    public static function addMonths(?string $date_begin, int $n = 1, ?string $date_base = null)
     {
         if (empty($date_base)) {
             $date_base = $date_begin;
@@ -47,7 +47,7 @@ class Misc
 
     /** convert numbers from shorthand form (like '1K') to an integer
      *
-     * @param string $size_str shorthand size string to convert
+     * @param ?string $size_str shorthand size string to convert
      * @return int integer value in bytes
      * @assert('15') == 15
      * @assert('1K') == 1024
@@ -55,7 +55,7 @@ class Misc
      * @assert('1M') == 1048576
      * @assert('1g') == 1073741824
      */
-    public static function convertSize(string $size_str): int
+    public static function convertSize(?string $size_str): int
     {
         switch (substr($size_str, -1)) {
             case 'M':
@@ -74,14 +74,14 @@ class Misc
 
     /** number of days between 2 dates
      *
-     * @param string $date_start first date of period (yyyy-mm-mm)
-     * @param string $date_end last date of period (yyyy-mm-dd)
+     * @param ?string $date_start first date of period (yyyy-mm-mm)
+     * @param ?string $date_end last date of period (yyyy-mm-dd)
      * @return int
      * @assert('2013-01-01', '2013-01-01') == 1
      * @assert('2013-01-01', '2013-01-31') == 31
      * @assert('2013-01-01', '2013-12-31') == 365
      */
-    public static function daysInPeriod(string $date_start, string $date_end): int
+    public static function daysInPeriod(?string $date_start, ?string $date_end): int
     {
         return round((strtotime("$date_end +1 day") - strtotime($date_start)) / 86400);
     }
@@ -108,7 +108,7 @@ class Misc
 
     /** html-formatted string with some bb-style formatting conversion
      *
-     * @param string $text bb-style formatted string (available formatting:
+     * @param ?string $text bb-style formatted string (available formatting:
      *  *bold*,
      *  /italic/,
      *  ---header lines---,
@@ -121,7 +121,7 @@ class Misc
      * @assert("---heading line---\nline") == "<h5>heading line</h5>\n<p>line</p>"
      * @assert("-line 1\n-line 2") == "<li>line 1</li>\n<li>line 2</li>"
      */
-    public static function formatPreview(string $text): string
+    public static function formatPreview(?string $text): string
     {
         return preg_replace(
             [
@@ -152,13 +152,13 @@ class Misc
 
     /** formatted tel number or the original string if tel number not recognized
      *
-     * @param string $tel
+     * @param ?string $tel
      * @return string
      * @assert("01.23.45.67.89") == "01 23 45 67 89"
      * @assert("+33-1-23-45-67-89") == "+33 1 23 45 67 89"
      * @assert("T.+33-1-23-45-67-89") == "T.+33-1-23-45-67-89"
      */
-    public static function formatTel(string $tel): string
+    public static function formatTel(?string $tel): string
     {
         $t = str_replace([' ', '.', '-', '(0)'], '', $tel);
         $m = [];
@@ -186,7 +186,7 @@ class Misc
     /** human-readable amount rounded to 3 meaningful numbers with appropriate suffix (T,G,M,K)
      *
      * @param int $amount amount to convert
-     * @param string|null $order an order to use, one of (T,G,M,K). if provided, no suffix is appended
+     * @param ?string $order an order to use, one of (T,G,M,K). if provided, no suffix is appended
      * @return string value like '150', '8.37K', '15M', '374G'
      * @assert(20) == '20'
      * @assert(999) == '999'
@@ -200,7 +200,7 @@ class Misc
      * @assert(2000, 'K') == '2'
      * @assert(2157, 'K') == '2.16'
      */
-    public static function humanFloat(int $amount, string $order = null): string
+    public static function humanFloat(int $amount, ?string $order = null): string
     {
         $amount_abs = abs($amount);
         switch ($order) {
@@ -294,7 +294,7 @@ class Misc
     /** human-readable number of bytes with appropriate suffix (P,T,G,M,K). rounded up to a higher integer
      *
      * @param int $bytes number of bytes to convert
-     * @param string|null $order an order to use, one of (P,T,G,M,K). if provided, no suffix is appended
+     * @param ?string $order an order to use, one of (P,T,G,M,K). if provided, no suffix is appended
      * @return string value like '150', '9K', '15M', '374G'
      * @assert(20) == '20'
      * @assert(999) == '999'
@@ -306,7 +306,7 @@ class Misc
      * @assert(1048576) == '1M'
      * @assert(1048577) == '2M'
      */
-    public static function humanBytes(int $bytes, string $order = null)
+    public static function humanBytes(int $bytes, ?string $order = null)
     {
         switch ($order) {
             case 'k':
@@ -445,13 +445,13 @@ class Misc
 
     /** html color converted to unsigned int
      *
-     * @param string $color html standard color format (#RGB, #RRGGBB, #RGBA or #RRGGBBAA)
+     * @param ?string $color html standard color format (#RGB, #RRGGBB, #RGBA or #RRGGBBAA)
      * @return int|bool unsigned int representation of 1-byte alpha chanel and 3-bytes color or <i>false</i> if color
      * is not of form #RGB, #RRGGBB, #RGBA or #RRGGBBAA.
      * @assert('#000000') = 0xff000000
      * @assert('#0000ff') = 0xff0000ff
      */
-    public static function rgbaToInt(string $color)
+    public static function rgbaToInt(?string $color)
     {
         switch (strlen($color)) {
             case 4:
@@ -495,13 +495,13 @@ class Misc
      * then coalescing dashes and removing trailing dashes
      * ex: 'Very Common Name, Inc...' becomes 'very-common-name-inc'
      *
-     * @param string $line
+     * @param ?string $line
      * @return string
      * @assert('simple') == 'simple'
      * @assert('simple string') == 'simple-string'
      * @assert('Very Common Name, Inc...') == 'very-common-name-inc'
      */
-    public static function simplifyLine(string $line): string
+    public static function simplifyLine(?string $line): string
     {
         return trim(
             preg_replace(
@@ -515,19 +515,19 @@ class Misc
 
     /** escape a string to be used in sprintf by doubling the % characters
      *
-     * @param string $str string to escape
+     * @param ?string $str string to escape
      * @return string
      * @assert('simple') == 'simple'
      * @assert('line with % sign') == 'line with %% sign'
      */
-    public static function sprintfEscape(string $str): string
+    public static function sprintfEscape(?string $str): string
     {
         return str_replace('%', '%%', $str);
     }
 
     /** trim string to the specified length adding specified suffix
      *
-     * @param string $str string to trim
+     * @param ?string $str string to trim
      * @param int $len maximal trimmed string lenth
      * @param string $suffix suffix to add
      * @return string           trimmed string
@@ -535,7 +535,7 @@ class Misc
      * @assert('longer line', 8) == 'longe...'
      * @assert('длинная строка', 10, '.') == 'длинная с.'
      */
-    public static function trim(string $str, int $len = 0, string $suffix = '...'): string
+    public static function trim(?string $str, int $len = 0, string $suffix = '...'): string
     {
         return ($len && mb_strlen($str, Nls::$charset) > $len)
             ? mb_substr($str, 0, $len - max(0, mb_strlen($suffix, Nls::$charset)), Nls::$charset) . $suffix
@@ -544,14 +544,14 @@ class Misc
 
     /** trim string to the specified length by word boundary adding specified suffix
      *
-     * @param string $str string to trim
+     * @param ?string $str string to trim
      * @param int $len maximal trimmed string lenth
      * @param string $suffix suffix to add
      * @return string           trimmed string
      * @assert('much longer line', 15) == 'much longer...'
      * @assert('гораздо более длинная строка', 23) == 'гораздо более...'
      */
-    public static function trimWord(string $str, int $len = 100, string $suffix = '...'): string
+    public static function trimWord(?string $str, int $len = 100, string $suffix = '...'): string
     {
         return mb_substr(
             $str,
@@ -630,7 +630,7 @@ class Misc
      *      ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
      *  )</pre>
      *
-     * @param string $format format string, like 'select * from %tbl$s where %id$s = %value$u'
+     * @param ?string $format format string, like 'select * from %tbl$s where %id$s = %value$u'
      * @param array $args named args array, like ['tbl'=&gt;'users', 'id'=&gt;'user_id', 'value'=&gt;15]
      * @return string formatted string, like select * from users where user_id = 15
      * @assert('select * from %tbl$s where %id$s = %value$u', ['tbl'=>'users', 'id'=>'user_id', 'value'=>15]) == 'select * from users where user_id = 15'
@@ -638,7 +638,7 @@ class Misc
      * @assert('select * from %s where %s = %u', ['users', 'user_id', 15]) == 'select * from users where user_id = 15'
      * @assert('aaa=%aaa$s, aa=%aa$s, a=%a$s', ['a'=>'A', 'aa'=>'AA', 'aaa'=>'AAA']) == 'aaa=AAA, aa=AA, a=A'
      */
-    public static function vsprintfArgs(string $format, array $args): string
+    public static function vsprintfArgs(?string $format, array $args): string
     {
         $from = [];
         $to = [];

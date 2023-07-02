@@ -197,9 +197,9 @@ class Response
 
     /** produce and output an html page using the passed parameter as contents
      *
-     * @param string $html contents of an html block on the page
+     * @param ?string $html contents of an html block on the page
      */
-    public static function outputHtml(string $html)
+    public static function outputHtml(?string $html)
     {
         header('Content-Language: ' . Nls::$lang);
         header('Content-Type: text/html;charset=' . Nls::$charset);
@@ -246,9 +246,9 @@ class Response
 
     /** output message as is
      *
-     * @param string $msg the message to output
+     * @param ?string $msg the message to output
      */
-    public static function outputAsis(string $msg)
+    public static function outputAsis($msg)
     {
         echo $msg;
     }
@@ -259,7 +259,7 @@ class Response
      * @return bool on any error outputs an error template and returns false, otherwise
      * true
      */
-    public static function run(): bool
+    public static function run()
     {
         if (($context = static::init()) !== false) {
             if (($result = static::exec($context)) !== false) {

@@ -317,7 +317,7 @@ class Db
      * @return int|bool number of affected rows or <i>false</i> on error + error_log
      * @link http://php.net/manual/en/mysqli-stmt.bind-param.php
      */
-    public static function dmlBind(string $sql, string $types, array $params)
+    public static function dmlBind(string $sql, string $types = '', array $params = [])
     {
         if ($stmt = mysqli_prepare(self::$conn, $sql)) {
             $bind_params = [$stmt, $types];

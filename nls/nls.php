@@ -320,11 +320,11 @@ class Nls
 
     /** convert date from nls representation to standard format 2012-12-31 23:59:59
      *
-     * @param string $value the value to convert
+     * @param ?string $value the value to convert
      * @param bool $datetime whether to include time
      * @return string|bool date string or false on error
      */
-    public static function toDate(string $value, bool $datetime = false)
+    public static function toDate(?string $value, bool $datetime = false)
     {
         $d1 = $d2 = $d3 = $h = $m = $s = null;
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?/', $value, $m)) {

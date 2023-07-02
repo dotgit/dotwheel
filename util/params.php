@@ -15,12 +15,12 @@ class Params
     /** add new attribute to the list of attributes or add new value to the existing attribute
      *
      * @param mixed $params array of attributes (reference)
-     * @param string $value attribute value
+     * @param ?string $value attribute value
      * @param string $name attribute name
      * @param string $sep separator of attribute values
      * @assert() == 1
      */
-    public static function add(&$params, string $value, string $name = 'class', string $sep = ' ')
+    public static function add(&$params, ?string $value, string $name = 'class', string $sep = ' ')
     {
         if (!is_array($params)) {
             $params = [$name => $value];

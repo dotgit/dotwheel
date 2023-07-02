@@ -24,6 +24,7 @@ class ParamsTest extends TestCase
         return [
             [['class' => 'active'], '', 'active', 'class', ' '],
             [['class' => 'active'], [], 'active', 'class', ' '],
+            [['class' => null], '', null, 'class', ' '],
             [['id' => 'usr', 'class' => 'active'], ['class' => 'active'], 'usr', 'id', ' '],
             [['id' => 'usr', 'class' => 'active'], ['id' => 'usr', 'class' => 'active'], 'active', 'class', ' '],
             [['id' => 'usr', 'class' => 'active second'], ['id' => 'usr', 'class' => 'active'], 'second', 'class', ' '],

@@ -58,13 +58,13 @@ class Algo
     }
 
     /** create a unique random code. the first 8 bytes of code is time-based value allowing to produce incremental
-     * values and ease insertion into database as a unique index. the resulting format is the following (spaces added
+     * values and ease insertion into database as a unique index. the resulting format is as follows (spaces added
      * for readability, $bytes = 16):
      * <pre>TtTtTtTt FfFfFfFf RrRrRrRrRrRrRrRr</pre>
-     * where<br>
-     * Tt-part is 4-bytes unix time value,<br>
-     * Ff-part is 4-bytes fraction of a second value,<br>
-     * Rr-part is a random value.
+     * where:
+     * - Tt-part is 4-bytes unix time value,<br>
+     * - Ff-part is 4-bytes fraction of a second value,<br>
+     * - Rr-part is a random value.
      *
      * @param int $bytes length of resulting code in bytes (default = 8)
      * @return string hexadecimal representation of a random code

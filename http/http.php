@@ -24,18 +24,19 @@ class Http
 
     /** create a redirect URL
      *
-     * @param string $page name of the script including module, like desk/index.php
+     * @param ?string $page name of the script including module, like desk/index.php
      * @param array $params hash with parameters to attach
      * @param string|null $hash url hash part (omit hash sign)
      * @return string a full URL to specified view embedding the passed parameters to use in a Location header
      */
-    public static function getRedirect(string $page, array $params = [], string $hash = null): string
+    public static function getRedirect(?string $page, array $params = [], string $hash = null): string
     {
         return Request::$root_url . $page . Html::urlArgs('?', $params) . (isset($hash) ? "#$hash" : '');
     }
 
     /** make an http POST request and return the response body and headers
-     * @param string $url url of the requested script
+     *
+     * @param ?string $url url of the requested script
      * @param array $data hash array of request variables
      * @param array $headers hash array of http headers in the form:
      *  {'Connection':'close'
@@ -47,7 +48,7 @@ class Http
      *  , P_CONTENT: 'html file content'
      *  }
      */
-    public static function post(string $url, array $data, array $headers = []): array
+    public static function post(?string $url, array $data, array $headers = []): array
     {
         $data_url = http_build_query($data);
         $headers += [
@@ -85,7 +86,7 @@ class Http
 
     /** make an http POST request with file upload and return the response body and headers
      *
-     * @param string $url url of the requested script
+     * @param ?string $url url of the requested script
      * @param array $data hash array of request variables in the form:
      *  {var_name1: 'value1'
      *  , var_name2: {P_CONTENT: 'file content'
@@ -103,7 +104,7 @@ class Http
      *  , P_CONTENT: 'html file content'
      *  }
      */
-    public static function postUpload(string $url, array $data, array $headers = []): array
+    public static function postUpload(?string $url, array $data, array $headers = []): array
     {
         $boundary = uniqid('', true);
         $parts = [];
@@ -174,18 +175,18 @@ class Http
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             return "{$_SERVER['REMOTE_ADDR']} XFF {$_SERVER['HTTP_X_FORWARDED_FOR']}";
         } else {
-            return $_SERVER['REMOTE_ADDR'];
+            return $_SERVER['REMOTE_ADDR'] ?? '';
         }
     }
 
     /** prepare a shortened url by using bit.ly online API
      *
-     * @param string $url urlencoded address
-     * @param string $login bitly login
-     * @param string $key bitly key
+     * @param ?string $url urlencoded address
+     * @param ?string $login bitly login
+     * @param ?string $key bitly key
      * @return string the shortened url
      */
-    public static function shortenUrl(string $url, string $login, string $key): string
+    public static function shortenUrl(?string $url, string $login, string $key): string
     {
         if ($url_short = @file_get_contents(
             'http://api.bit.ly/v3/shorten' .
@@ -196,7 +197,7 @@ class Http
         )) {
             return urlencode($url_short);
         } else {
-            return $url;
+            return $url ?: '';
         }
     }
 }
