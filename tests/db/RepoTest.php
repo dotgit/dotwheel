@@ -129,6 +129,10 @@ class RepoTest extends TestCase
             Repo::getParam(DbBeforeClass::C_NAME, Repo::P_ITEMS),
             'null for non-existent parameters'
         );
+        $this->assertNull(
+            Repo::getParam(null, Repo::P_ITEMS),
+            'null for empty'
+        );
     }
 
     /**
@@ -149,6 +153,10 @@ class RepoTest extends TestCase
         $this->assertNull(
             Repo::getLabel('unknown_field'),
             'null for non-existent fields'
+        );
+        $this->assertNull(
+            Repo::getLabel(null),
+            'null for null fields'
         );
         $this->assertEquals(
             'Full name',
@@ -196,6 +204,11 @@ class RepoTest extends TestCase
             Repo::getList('unknown', Repo::P_ITEMS_SHORT, $repo)[2],
             'P_ITEMS_SHORT returned from passed repository entry'
         );
+        $this->assertSame(
+            [],
+            Repo::getList(null),
+            'empty list returned for undefined list'
+        );
     }
 
     /**
@@ -224,6 +237,11 @@ class RepoTest extends TestCase
             255,
             $fld_name2[Repo::P_WIDTH],
             'does not overwrite non-passed attributes'
+        );
+        $this->assertSame(
+            [],
+            Repo::get(null),
+            'empty list for undefined field'
         );
     }
 
@@ -559,6 +577,8 @@ class RepoTest extends TestCase
         ];
 
         return [
+            'NULL values: undefined field' =>
+                ['', null, null, []],
             'NULL values: empty string' =>
                 ['', 'op', null, []],
             'P_CLASS not provided: return value as is' =>
@@ -668,6 +688,13 @@ class RepoTest extends TestCase
     public function asHtmlInputProvider(): array
     {
         return [
+            'undefined field' => [
+                '',
+                null,
+                null,
+                [],
+                [],
+            ],
             'class not provided: return as is' => [
                 '<comment>',
                 'comment',
@@ -953,6 +980,25 @@ class RepoTest extends TestCase
      */
     public function testAsSql()
     {
+        // null
+        $this->assertFalse(Repo::asSql(null, null));
+        $this->assertFalse(Repo::asSql(null, 'x'));
+        $this->assertFalse(Repo::asSql(null, ''));
+
+        // null + callback
+        $this->assertEquals(
+            'value',
+            Repo::asSql(
+                null,
+                null,
+                [
+                    Repo::P_WHERE_CALLBACK => function () {
+                        return 'value';
+                    },
+                ]
+            )
+        );
+
         // P_CLASS:C_ID|C_INT
         $this->assertEquals(DbBeforeClass::C_SECTION . '=1', Repo::asSql(DbBeforeClass::C_SECTION, 1));
         $this->assertNull(Repo::asSql(DbBeforeClass::C_SECTION, null));

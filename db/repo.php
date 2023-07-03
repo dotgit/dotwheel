@@ -130,24 +130,24 @@ class Repo
 
     /** specified field parameter if set
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param string|int $param field parameter
      * @param array $repo {field repository attributes}
      * @return mixed
      */
-    public static function getParam(string $name, $param, array $repo = [])
+    public static function getParam(?string $name, $param, array $repo = [])
     {
         return $repo[$param] ?? self::$store[$name][$param] ?? null;
     }
 
     /** specified html-escaped label if set (otherwise the P_LABEL)
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param ?int $param which label to return
      * @param array $repo {field repository attributes}
      * @return ?string
      */
-    public static function getLabel(string $name, ?int $param = null, array $repo = []): ?string
+    public static function getLabel(?string $name, ?int $param = null, array $repo = []): ?string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
@@ -164,12 +164,12 @@ class Repo
 
     /** specified list if set (otherwise the PARAM_LIST)
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param ?int $param which list to return
      * @param array $repo {field repository attributes}
      * @return ?array
      */
-    public static function getList(string $name, ?int $param = null, array $repo = []): ?array
+    public static function getList(?string $name, ?int $param = null, array $repo = []): ?array
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
@@ -186,11 +186,11 @@ class Repo
 
     /** field repository attributes
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param array $repo {field repository attributes}
      * @return array
      */
-    public static function get(string $name, array $repo = []): array
+    public static function get(?string $name, array $repo = []): array
     {
         return isset(self::$store[$name]) ? $repo + self::$store[$name] : $repo;
     }
@@ -496,12 +496,12 @@ class Repo
 
     /** html representation of the field
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param mixed $value field value
      * @param array $repo {field repository attributes}
      * @return string
      */
-    public static function asHtmlStatic(string $name, $value, array $repo = []): string
+    public static function asHtmlStatic(?string $name, $value, array $repo = []): string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
@@ -608,13 +608,13 @@ class Repo
 
     /** returns html representation of the field for input
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param mixed $value field value
      * @param mixed $input {html input tag attributes}
      * @param array $repo {field repository attributes}
      * @return string
      */
-    public static function asHtmlInput(string $name, $value, $input = [], array $repo = []): string
+    public static function asHtmlInput(?string $name, $value, $input = [], array $repo = []): string
     {
         if (isset(self::$store[$name])) {
             $repo += self::$store[$name];
@@ -626,7 +626,7 @@ class Repo
 
         // if class not provided return value as is
         if (empty($repo[self::P_CLASS])) {
-            return $value;
+            return (string)$value;
         }
 
         switch ($repo[self::P_CLASS]) {
@@ -802,18 +802,18 @@ class Repo
 
     /** value for use in sql where clause
      *
-     * @param string $name field name
+     * @param ?string $name field name
      * @param mixed $value field value
      * @param array $repo {field repository attributes}
      * @return string|null|false
      */
-    public static function asSql(string $name, $value, array $repo = [])
+    public static function asSql(?string $name, $value, array $repo = [])
     {
         $Rep = $repo + (self::$store[$name] ?? []);
 
         if (isset($Rep[self::P_WHERE_CALLBACK])) {
             return call_user_func_array($Rep[self::P_WHERE_CALLBACK], [$name, $value, $Rep]);
-        } else {
+        } elseif (isset($name)) {
             switch ($Rep[self::P_CLASS] ?? self::C_TEXT) {
                 case self::C_ID:
                 case self::C_INT:
@@ -829,6 +829,8 @@ class Repo
                 default:
                     return self::asSqlText($name, $value);
             }
+        } else {
+            return false;
         }
     }
 
