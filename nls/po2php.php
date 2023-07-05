@@ -1,3 +1,4 @@
+#!php
 <?php
 
 // script usage:
@@ -89,7 +90,7 @@ function dispatch_last_str($mode, $last_str)
             $msgstr = $last_str;
             break;
         default:
-            if (substr($mode, 0, 6) == 'msgstr') // 'msgstr[N]'
+            if (substr($mode ?? '', 0, 6) == 'msgstr') // 'msgstr[N]'
             {
                 if (is_array($msgstr)) {
                     $msgstr[] = $last_str;

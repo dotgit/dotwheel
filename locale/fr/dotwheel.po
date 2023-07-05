@@ -4,16 +4,16 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-04-15 23:57+0100\n"
 "PO-Revision-Date: \n"
-"Last-Translator: stas trefilov <stas@vertilia.com>\n"
-"Language-Team:  <stas.trefilov@gmail.com>\n"
+"Last-Translator: dotgit <stas@vertilia.com>\n"
+"Language-Team: <stas.trefilov@gmail.com>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-Basepath: ../../../\n"
-"X-Generator: Poedit 1.7.1\n"
+"X-Poedit-Basepath: ../../..\n"
+"X-Generator: Poedit 3.1.1\n"
 "X-Poedit-KeywordsList: dget:2;pget:1c,2;dpget:2c,3;nget:1,2;dnget:2,3;"
 "pnget:1c,2,3;dpnget:2c,3,4\n"
 "X-Poedit-SearchPath-0: dotwheel\n"
@@ -47,7 +47,7 @@ msgstr "valeur dans '%s' ne correspond pas au format"
 #: dotwheel/db/repo.php:413
 #, php-format
 msgid "value in '%s' is not a valid date"
-msgstr "valeur dans '%s' n'est pas une date"
+msgstr "valeur dans '%s' n'est pas une date valide"
 
 #: dotwheel/db/repo.php:429
 #, php-format
@@ -57,7 +57,7 @@ msgstr "valeur dans '%s' n'est pas dans la liste"
 #: dotwheel/db/repo.php:454
 #, php-format
 msgid "value in '%s' must be positive"
-msgstr "valeur dans '%s' doit être positif"
+msgstr "valeur dans '%s' doit être positive"
 
 #: dotwheel/db/repo.php:471 dotwheel/db/repo.php:482
 #, php-format
