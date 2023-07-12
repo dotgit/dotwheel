@@ -185,7 +185,7 @@ class Text
      * @param int $n
      * @return string translated message
      */
-    public static function pnget(string $context, string $message1, string $message2, int $n): string
+    public static function npget(string $context, string $message1, string $message2, int $n): string
     {
         eval('$num = ' . self::$pluralForms . ';');
         $idn = "$message1\f$context\f$message2\f" . (int)$num;
@@ -206,7 +206,7 @@ class Text
      * @param int $n
      * @return string
      */
-    public static function dpnget(string $domain, string $context, string $message1, string $message2, int $n): string
+    public static function dnpget(string $domain, string $context, string $message1, string $message2, int $n): string
     {
         eval('$num = ' . self::$pluralForms . ';');
         $idn = "$message1\f$context\f$message2\f" . (int)$num;

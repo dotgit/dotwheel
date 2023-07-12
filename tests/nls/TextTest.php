@@ -126,22 +126,22 @@ class TextTest extends TestCase
     }
 
     /**
-     * @covers ::pnget
+     * @covers ::npget
      * @dataProvider pgetProvider
      */
     public function testPnget($n, $expected)
     {
-        $this->assertEquals($expected, sprintf(Text::pnget('line', '%u sent', '%u sent', $n), $n));
+        $this->assertEquals($expected, sprintf(Text::npget('line', '%u sent', '%u sent', $n), $n));
     }
 
     /**
-     * @covers ::dpnget
+     * @covers ::dnpget
      * @dataProvider pgetProvider
      */
     public function testDpnget($n, $expected)
     {
         Text::domain('unknown');
-        $this->assertEquals($expected, sprintf(Text::dpnget(self::DOMAIN, 'line', '%u sent', '%u sent', $n), $n));
+        $this->assertEquals($expected, sprintf(Text::dnpget(self::DOMAIN, 'line', '%u sent', '%u sent', $n), $n));
         Text::domain(self::DOMAIN);
     }
 
