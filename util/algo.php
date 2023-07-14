@@ -76,25 +76,41 @@ class Algo
 
         $suffix_len = $bytes - 8;
 
-        $random_str = $suffix_len > 0
-            ? (function_exists('random_bytes')
-                ? random_bytes($suffix_len)
-                : (function_exists('openssl_random_pseudo_bytes')
-                    ? openssl_random_pseudo_bytes($suffix_len)
-                    : function () use ($suffix_len) {
-                        for ($str = ''; $suffix_len; --$suffix_len) {
-                            $str .= chr(mt_rand(0, 255));
-                        }
-                        return $str;
-                    }
-                )
-            )
-            : null;
+        $timestamp = dechex((($tm & 0xFFFF_FFFF) << 32) + (int)($frac * 0x1_0000_0000));
 
-        return
-            // 8-bytes prefix
-            dechex((($tm & 0xffffffff) << 32) + (int)($frac * 0x100000000)) .
-            // random part
-            bin2hex($random_str);
+        if ($suffix_len > 0) {
+            $random_suffix = bin2hex(random_bytes($suffix_len));
+            return "$timestamp$random_suffix";
+        } else {
+            return $timestamp;
+        }
+    }
+
+    /** create a globally unique sortable id generator (xid). the resulting format is as follows (spaces added for
+     * readability):
+     * <pre>TtTtTtTt MmMmMm PpPp CcCcCc</pre>
+     * where:
+     * - Tt-part is 4-bytes unix time value,<br>
+     * - Mm-part is 3-bytes machine ID,<br>
+     * - Pp-part is 2-bytes process ID,<br>
+     * - Cc-part is 3-bytes increment counter randomly initialized.
+     *
+     * @param int $mid 3-byte machine identifier
+     * @return string hexadecimal representation of a xid
+     */
+    public static function uniqueXid(int $mid): string
+    {
+        static $cnt;
+        if (!isset($cnt)) {
+            $cnt = rand(0, 0xFfFfFf);
+        }
+
+        return sprintf(
+            '%08x%06x%04x%06x',
+            time() & 0xFFFF_FFFF,
+            $mid & 0xFF_FFFF,
+            getmypid() & 0xFFFF,
+            (++$cnt) & 0xFF_FFFF
+        );
     }
 }

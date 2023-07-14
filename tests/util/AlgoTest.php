@@ -5,13 +5,12 @@ namespace Dotwheel\Util;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @coversDefaultClass Misc
+ * @coversDefaultClass Algo
  */
 class AlgoTest extends TestCase
 {
-
     /**
-     * @covers ::luhn
+     * @covers Algo::luhn
      * @dataProvider luhnProvider
      */
     public function testLuhn($expected, $num_str)
@@ -34,7 +33,7 @@ class AlgoTest extends TestCase
     }
 
     /**
-     * @covers ::mod97
+     * @covers Algo::mod97
      * @dataProvider mod97Provider
      */
     public function testMod97($expected, $num_str)
@@ -59,7 +58,7 @@ class AlgoTest extends TestCase
     }
 
     /**
-     * @covers ::uniqueCode
+     * @covers Algo::uniqueCode
      */
     public function testUniqueCode()
     {
@@ -72,6 +71,26 @@ class AlgoTest extends TestCase
         $this->assertEquals(32, strlen($id2));
         $this->assertEquals(32, strlen($id3));
         $this->assertEquals(32, strlen($id4));
+
+        $this->assertTrue($id1 < $id2, "$id1 < $id2");
+        $this->assertTrue($id2 < $id3, "$id2 < $id3");
+        $this->assertTrue($id3 < $id4, "$id3 < $id4");
+    }
+
+    /**
+     * @covers Algo::uniqueXid
+     */
+    public function testXid()
+    {
+        $id1 = Algo::uniqueXid(0x42);
+        $id2 = Algo::uniqueXid(0x42);
+        $id3 = Algo::uniqueXid(0x42);
+        $id4 = Algo::uniqueXid(0x42);
+
+        $this->assertEquals(24, strlen($id1));
+        $this->assertEquals(24, strlen($id2));
+        $this->assertEquals(24, strlen($id3));
+        $this->assertEquals(24, strlen($id4));
 
         $this->assertTrue($id1 < $id2, "$id1 < $id2");
         $this->assertTrue($id2 < $id3, "$id2 < $id3");
