@@ -97,7 +97,7 @@ class Nls
             ],
             self::P_WDAYS_SHORT => ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
             self::P_GMAPS_FMT => 'http://maps.google.com/?q=%s',
-            self::P_DATEPICKER => ['language' => 'en'],
+            self::P_DATEPICKER => ['language' => 'en', 'format' => 'dd/mm/yy'],
         ],
         'fr' => [
             self::P_NAME => 'Français',
