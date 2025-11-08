@@ -92,7 +92,7 @@ class CacheMemcache implements CacheInterface
      * @return mixed|null
      * @link http://www.php.net/manual/en/memcached.callbacks.read-through.php
      */
-    public static function fetch(string $name, callable $callback = null)
+    public static function fetch(string $name, ?callable $callback = null)
     {
         if (self::$conn or self::connect()) {
             return self::$conn->get($name, $callback);

@@ -125,10 +125,10 @@ class Db2
      */
     public static function blobDecode(?string $blob)
     {
-        if (substr($blob, 0, 3) === ' z:') {
+        if (substr($blob ?? '', 0, 3) === ' z:') {
             $blob = gzinflate(substr($blob, 3));
         }
-        if (substr($blob, 0, 3) === ' j:') {
+        if (substr($blob ?? '', 0, 3) === ' j:') {
             $blob = json_decode(substr($blob, 3), true);
         }
 

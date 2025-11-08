@@ -51,7 +51,7 @@ interface CacheInterface
      *  <i>true</i> then the <code>$value</code> will be stored in cache before returning it to the user
      * @return mixed returns the structure stored or <i>false</i> if not found
      */
-    public static function fetch(string $name, callable $callback = null);
+    public static function fetch(string $name, ?callable $callback = null);
 
     /** get the stored values for provided <code>$names</code>
      *

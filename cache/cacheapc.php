@@ -40,7 +40,7 @@ class CacheApc implements CacheInterface
         return $last_res;
     }
 
-    public static function fetch(string $name, callable $callback = null)
+    public static function fetch(string $name, ?callable $callback = null)
     {
         $success = true;
         $value = apc_fetch(self::$prefix . $name, $success);

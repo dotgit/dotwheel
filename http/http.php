@@ -29,7 +29,7 @@ class Http
      * @param string|null $hash url hash part (omit hash sign)
      * @return string a full URL to specified view embedding the passed parameters to use in a Location header
      */
-    public static function getRedirect(?string $page, array $params = [], string $hash = null): string
+    public static function getRedirect(?string $page, array $params = [], ?string $hash = null): string
     {
         return Request::$root_url . $page . Html::urlArgs('?', $params) . (isset($hash) ? "#$hash" : '');
     }

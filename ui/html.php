@@ -646,7 +646,7 @@ class Html
      */
     public static function asDateNls(?string $dt, bool $datetime = false): string
     {
-        if ($tm = strtotime($dt)) {
+        if ($tm = strtotime($dt ?? '')) {
             return date(Nls::$formats[$datetime ? Nls::P_DATETIME_DT : Nls::P_DATE_DT], $tm);
         } else {
             return '';

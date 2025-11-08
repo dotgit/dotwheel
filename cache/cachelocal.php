@@ -43,7 +43,7 @@ class CacheLocal implements CacheInterface
         return true;
     }
 
-    public static function fetch(string $name, callable $callback = null)
+    public static function fetch(string $name, ?callable $callback = null)
     {
         if (isset(self::$store[$name])) {
             return self::$store[$name];

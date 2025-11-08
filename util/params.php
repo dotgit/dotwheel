@@ -31,7 +31,7 @@ class Params
         }
     }
 
-    /** return the value of the specified attribute and unset it in the attributes array
+    /** return the value of the specified attribute and unset it in the "attributes" array
      *
      * @param mixed $params array of attributes
      * @param string $name attribute name
@@ -48,6 +48,6 @@ class Params
         $ret = $params[$name];
         unset($params[$name]);
 
-        return $ret;
+        return $ret ?? $default;
     }
 }
