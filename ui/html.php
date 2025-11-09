@@ -484,7 +484,7 @@ class Html
      */
     public static function encode(?string $str): string
     {
-        return htmlspecialchars($str, ENT_NOQUOTES, Nls::$charset);
+        return htmlspecialchars($str ?? '', ENT_NOQUOTES, Nls::$charset);
     }
 
     /** translate special chars in string to html entities
